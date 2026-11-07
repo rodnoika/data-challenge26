@@ -210,6 +210,7 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
   - gross-error precision/recall, cost and latency
 - The same harness drives the model benchmark in §6a (`--shortlist config/models.json`), and the results are compared with `scripts/compare.ts`.
 - T analyses in pandas and drives prompt/rules changes. The loop: change the rules text → re-run → compare. Tuning is done on a 45-dialogue split, and **20 dialogues are held out** (stratified by language + edge cases) to catch overfitting. Prompts stay generic: no dialogue IDs and no per-case hacks (process correctness).
+- **Prompt history (7 Nov).** Train results for `openai/gpt-6.1-terra` ×1: `p4` 94.3%, `p5` 95.8%, `p6` 96.1%, `p7` 96.1%; total MAE 4.65, 3.20, 2.25, 2.65. `p5` and `p6` added c04 rules. `p7` moved rules about one criterion from the general block into that criterion's hint, so replacing a criterion removes them. The 95% intervals overlap, and answers outside c04 shift by about 2.5% between runs. The test split ran once on `p7` (18 chats): 94.4%, 136/144, total MAE 4.03, both gross errors found, no false flags. We read only its aggregates, and errors found on test do not feed back into the rules. A second test run without the c04 rules from `p5` and `p6` also matched 136/144 (c04 15/18 against 16/18, total MAE 4.59 against 4.03), so those rules did no harm and added little on unseen chats. Any later prompt change makes these figures stale.
 
 ## 8. UI screens ↔ 5-minute demo
 | Demo minute | Screen | What we show |

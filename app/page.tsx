@@ -23,6 +23,8 @@ type Row = {
     originalTotal: number | null;
     gross: boolean;
     model: string;
+    checklistId: string;
+    checklistVersion: number;
     evaluatedAt: string;
     lowConfidence: string[];
     answers: Record<string, string | number>;
@@ -36,6 +38,7 @@ export default function DialoguesPage() {
   const [group, setGroup] = useState<string>("");
   const [rows, setRows] = useState<Row[]>([]);
   const [active, setActive] = useState<Checklist | null>(null);
+  const [checklists, setChecklists] = useState<{ id: string; name: string; version: number }[]>([]);
   const [fetchId, setFetchId] = useState("DEV");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +56,11 @@ export default function DialoguesPage() {
     if (target !== group) setGroup(target);
     const [d, c] = await Promise.all([
       api<{ dialogues: Row[] }>(`/api/dialogues${target ? `?group=${encodeURIComponent(target)}` : ""}`),
-      api<{ active: Checklist }>("/api/checklists"),
+      api<{ active: Checklist; checklists: { id: string; name: string; version: number }[] }>("/api/checklists"),
     ]);
     setRows(d.dialogues);
     setActive(c.active);
+    setChecklists(c.checklists);
     if (target) {
       const j = await api<{ job: Job | null }>(`/api/batches?group=${encodeURIComponent(target)}`);
       setJob(j.job);
@@ -153,10 +157,55 @@ export default function DialoguesPage() {
     }
   }
 
+  async function switchChecklist(id: string) {
+    setError(null);
+    try {
+      await api(`/api/checklists/${encodeURIComponent(id)}`, { method: "PATCH" });
+      await load();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }
+
+  /** Re-evaluates only the dialogues whose latest result came from another checklist version. */
+  async function reevaluateOutdated() {
+    setError(null);
+    try {
+      const ids = rows.filter(isOutdated).map((r) => r.id);
+      const r = await api<{ jobId: string }>("/api/batches", { method: "POST", json: { groupId: group, ids } });
+      const j = await api<{ job: Job }>(`/api/batches/${r.jobId}`);
+      setJob(j.job);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }
+
+  /** Errors come back as text, so the file is fetched first and only then saved. */
+  async function downloadResults() {
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/export?group=${encodeURIComponent(group)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? `HTTP ${res.status}`);
+      const url = URL.createObjectURL(await res.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "results.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }
+
   async function saveSettings(patch: Partial<SettingsResp["settings"]> | { reset: true }) {
     const r = await api<SettingsResp>("/api/settings", { method: "PUT", json: patch });
     setSettings(r);
   }
+
+  const isOutdated = useCallback(
+    (r: Row) => !!r.evaluation && !!active && (r.evaluation.checklistId !== active.id || r.evaluation.checklistVersion !== active.version),
+    [active],
+  );
 
   const filtered = useMemo(
     () =>
@@ -169,13 +218,14 @@ export default function DialoguesPage() {
             (filter.status === "none" && !r.evaluation) ||
             (filter.status === "gross" && r.evaluation?.gross) ||
             (filter.status === "low" && (r.evaluation?.lowConfidence.length ?? 0) > 0) ||
+            (filter.status === "outdated" && isOutdated(r)) ||
             (filter.status === "appeal" && r.openAppeals > 0)),
       ),
-    [rows, filter],
+    [rows, filter, isOutdated],
   );
 
   const stats = useMemo(() => {
-    const ev = rows.filter((r) => r.evaluation?.status === "done");
+    const ev = rows.filter((r) => r.evaluation?.status === "done" && !isOutdated(r));
     const totals = ev.map((r) => r.evaluation!.total).filter((t): t is number => t !== null);
     const crit = (active?.criteria ?? []).map((c) => {
       const answers = ev.map((r) => r.evaluation!.answers[c.id]).filter((a) => a !== undefined);
@@ -193,8 +243,9 @@ export default function DialoguesPage() {
       appeals: rows.reduce((a, r) => a + r.openAppeals, 0),
       crit,
       avgCost: costs.length ? costs.reduce((a, b) => a + b, 0) / costs.length : null,
+      outdated: rows.filter(isOutdated).length,
     };
-  }, [rows, active]);
+  }, [rows, active, isOutdated]);
 
   const langs = [...new Set(rows.map((r) => r.language))].sort();
   const channels = [...new Set(rows.map((r) => r.channel))].sort();
@@ -214,9 +265,23 @@ export default function DialoguesPage() {
               ))}
             </select>
           </Field>
+          <Field label="Чек-лист для оценки">
+            <select
+              className={cx(inputCls, "min-w-56")}
+              value={active?.id ?? ""}
+              disabled={job?.status === "running"}
+              onChange={(e) => switchChecklist(e.target.value)}
+            >
+              {checklists.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} · v{c.id === active?.id ? active.version : c.version}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Загрузить по group_id из API организаторов">
             <div className="flex gap-2">
-              <input className={cx(inputCls, "w-36")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
+              <input className={cx(inputCls, "w-36!")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
               <Button onClick={fetchGroup} disabled={!fetchId || busy === "fetch"}>
                 {busy === "fetch" ? <Spinner /> : "⤓"} Загрузить
               </Button>
@@ -266,6 +331,17 @@ export default function DialoguesPage() {
 
       <ErrorNote error={error} />
 
+      {stats.outdated > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <span>
+            {stats.outdated} диал. оценены другой версией чек-листа. Показатели ниже считают только «{active?.name}» v{active?.version}.
+          </span>
+          <Button size="sm" className="ml-auto" onClick={reevaluateOutdated} disabled={job?.status === "running"}>
+            ↻ Переоценить их
+          </Button>
+        </div>
+      )}
+
       {/* dashboard */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
         <Stat label="Оценено" value={`${stats.evaluated} / ${rows.length}`} />
@@ -298,31 +374,37 @@ export default function DialoguesPage() {
       {/* table */}
       <Card>
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 p-3">
-          <input className={cx(inputCls, "w-48")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
-          <select className={cx(inputCls, "w-28")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
+          <input className={cx(inputCls, "w-48!")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
+          <select className={cx(inputCls, "w-28!")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
             <option value="">Все языки</option>
             {langs.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-          <select className={cx(inputCls, "w-36")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
+          <select className={cx(inputCls, "w-36!")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
             <option value="">Все каналы</option>
             {channels.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-          <select className={cx(inputCls, "w-44")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
+          <select className={cx(inputCls, "w-56!")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
             <option value="">Любой статус</option>
             <option value="none">Не оценены</option>
             <option value="gross">Грубые ошибки</option>
             <option value="low">Нужна проверка</option>
+            <option value="outdated">Другая версия чек-листа</option>
             <option value="appeal">Есть апелляция</option>
           </select>
           <span className="ml-auto text-xs text-slate-500">{filtered.length} диалогов</span>
           {group && (
-            <a className="text-xs text-brand-700 hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
-              Экспорт CSV
-            </a>
+            <>
+              <button className="text-xs font-medium text-brand-700 hover:underline" onClick={downloadResults} title="results.json в формате организаторов">
+                Экспорт для сдачи (JSON)
+              </button>
+              <a className="text-xs text-brand-700 hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
+                CSV
+              </a>
+            </>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -362,14 +444,14 @@ export default function DialoguesPage() {
                     const a = r.evaluation?.answers[c.id];
                     const low = r.evaluation?.lowConfidence.includes(c.id);
                     return (
-                      <td key={c.id} className="px-1.5 py-2 text-center text-xs tabular-nums">
+                      <td key={c.id} className={cx("px-1.5 py-2 text-center text-xs tabular-nums", isOutdated(r) && "opacity-40")}>
                         <span className={cx(low && "rounded bg-amber-100 px-1", a === "no" || a === 0 ? "text-red-600" : a === "na" ? "text-slate-400" : c.isFlag && a === "yes" ? "font-bold text-red-600" : "text-slate-700")}>
                           {a === undefined ? "" : a === "yes" ? (c.isFlag ? "⚠" : "✓") : a === "no" ? (c.isFlag ? "–" : "✗") : a === "na" ? "N/A" : a}
                         </span>
                       </td>
                     );
                   })}
-                  <td className={cx("px-3 py-2 text-right font-semibold tabular-nums", totalTone(r.evaluation?.total))}>
+                  <td className={cx("px-3 py-2 text-right font-semibold tabular-nums", totalTone(r.evaluation?.total), isOutdated(r) && "opacity-40")}>
                     {r.evaluation?.status === "done" ? (r.evaluation.total ?? "—") : ""}
                     {r.evaluation && r.evaluation.total !== r.evaluation.originalTotal && (
                       <div className="text-[10px] font-normal text-slate-400 line-through">{r.evaluation.originalTotal}</div>
@@ -377,6 +459,11 @@ export default function DialoguesPage() {
                   </td>
                   <td className="space-x-1 px-3 py-2">
                     {r.evaluation?.status === "error" && <Badge tone="red">ошибка</Badge>}
+                    {isOutdated(r) && (
+                      <Badge tone="amber" title="Оценка сделана другой версией чек-листа: колонки могут означать другие критерии">
+                        {r.evaluation!.checklistId === active?.id ? `чек-лист v${r.evaluation!.checklistVersion}` : "другой чек-лист"}
+                      </Badge>
+                    )}
                     {r.evaluation?.gross && <Badge tone="red">грубая ошибка</Badge>}
                     {!!r.evaluation?.lowConfidence.length && <Badge tone="amber">проверить</Badge>}
                     {r.openAppeals > 0 && <Badge tone="violet">апелляция</Badge>}

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { computeFacts, detectLanguage, renderFacts, toSeconds } from "../src/core/facts";
 import { aggregate } from "../src/core/aggregate";
-import { buildOutputSchema, parseJudgments } from "../src/core/prompt";
+import { buildOutputSchema, buildSystemPrompt, parseJudgments } from "../src/core/prompt";
 import { DEFAULT_CHECKLIST, migrateRules } from "../src/core/defaultChecklist";
 import type { Dialogue } from "../src/core/types";
 
@@ -117,8 +117,9 @@ describe("facts without DEV data", () => {
     ]);
     const rendered = renderFacts(computeFacts(d));
     expect(rendered).not.toMatch(/порог|реакци|пауза/i);
-    expect(DEFAULT_CHECKLIST.rules).toMatch(/порог первой реакции в 3 минуты в этом задании в оценку не входит/);
-    expect(DEFAULT_CHECKLIST.rules).not.toMatch(/больше порога ожидания/);
+    const c06 = DEFAULT_CHECKLIST.criteria.find((c) => c.id === "c06")!;
+    expect(c06.guidance).toMatch(/порог первой реакции в 3 минуты в этом задании в оценку не входит/);
+    expect(buildSystemPrompt(DEFAULT_CHECKLIST)).not.toMatch(/больше порога ожидания/);
   });
 });
 
@@ -143,8 +144,33 @@ describe("stored checklist migration", () => {
     expect(out.startsWith("10. x\n11. Завершение")).toBe(true);
     expect(out.endsWith("\n12. y")).toBe(true);
     expect(migrateRules(DEFAULT_CHECKLIST.rules)).toBe(DEFAULT_CHECKLIST.rules);
-    expect(DEFAULT_CHECKLIST.rules).toContain("только попрощался без итога и без предложения помощи");
+    expect(DEFAULT_CHECKLIST.criteria.find((c) => c.id === "c07")!.guidance).toContain("только попрощался без итога и без предложения помощи");
   });
+});
+
+describe("replacing a criterion", () => {
+  // Text that belongs to exactly one default criterion: it must leave the prompt together with it.
+  const owned: Record<string, RegExp> = {
+    c01: /Имя скрыто|Приветствие бота/,
+    c03: /SMS-код|ИИН|Общий вопрос \(тарифы/,
+    c04: /Базы знаний компании|Передача вопроса на проверку/,
+    c06: /Явное ожидание|порог первой реакции|ступень 4/,
+    c07: /только попрощался|Пример обоснования/,
+    c08: /платную консультацию|раскрытие конфиденциальной информации/,
+  };
+
+  for (const [id, text] of Object.entries(owned)) {
+    it(`leaves no rule of ${id} in the prompt`, () => {
+      expect(buildSystemPrompt(DEFAULT_CHECKLIST)).toMatch(text);
+      const replaced = {
+        ...DEFAULT_CHECKLIST,
+        criteria: DEFAULT_CHECKLIST.criteria.map((c) =>
+          c.id === id ? { ...c, title: "Новый критерий", description: "Новое описание", guidance: "", steps: c.steps?.map((s) => ({ ...s, description: "ступень" })), naCondition: "условие" } : c,
+        ),
+      };
+      expect(buildSystemPrompt(replaced)).not.toMatch(text);
+    });
+  }
 });
 
 describe("prompt schema + aggregation", () => {

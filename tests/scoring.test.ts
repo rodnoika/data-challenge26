@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_CHECKLIST } from "../src/core/defaultChecklist";
-import { round2, score, validateChecklist } from "../src/core/scoring";
+import { round2, score, staleHints, validateChecklist } from "../src/core/scoring";
 import type { Answer, Checklist, Judgment } from "../src/core/types";
 
 const j = (criterionId: string, answer: Answer): Judgment => ({
@@ -128,5 +128,24 @@ describe("score", () => {
   it("default checklist is valid and weights sum to 100", () => {
     expect(validateChecklist(DEFAULT_CHECKLIST)).toEqual([]);
     expect(DEFAULT_CHECKLIST.criteria.reduce((a, c) => a + c.weight, 0)).toBe(100);
+  });
+});
+
+describe("staleHints", () => {
+  const edit = (id: string, patch: Partial<Checklist["criteria"][number]>): Checklist => ({
+    ...DEFAULT_CHECKLIST,
+    criteria: DEFAULT_CHECKLIST.criteria.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+  });
+
+  it("flags a criterion that got a new meaning but kept its old hint", () => {
+    expect(staleHints(DEFAULT_CHECKLIST, edit("c07", { title: "Новый критерий" }))).toEqual(["c07"]);
+    expect(staleHints(DEFAULT_CHECKLIST, edit("c06", { steps: [{ value: 0, description: "a" }, { value: 5, description: "b" }] }))).toEqual(["c06"]);
+  });
+
+  it("stays quiet when the hint was rewritten, cleared or nothing changed", () => {
+    expect(staleHints(DEFAULT_CHECKLIST, DEFAULT_CHECKLIST)).toEqual([]);
+    expect(staleHints(DEFAULT_CHECKLIST, edit("c07", { title: "Новый критерий", guidance: "Новая подсказка" }))).toEqual([]);
+    expect(staleHints(DEFAULT_CHECKLIST, edit("c07", { title: "Новый критерий", guidance: "" }))).toEqual([]);
+    expect(staleHints(DEFAULT_CHECKLIST, edit("c07", { weight: 7 }))).toEqual([]);
   });
 });

@@ -14,7 +14,10 @@
     "export:readable": "tsx scripts/export-readable.ts",
     "harness": "tsx scripts/harness.ts",
     "bench": "tsx scripts/bench.ts",
-    "compare": "tsx scripts/compare.ts"
+    "compare": "tsx scripts/compare.ts",
+    "impact": "tsx scripts/impact.ts",
+    "results": "tsx scripts/results.ts",
+    "rehearsal:checklists": "tsx scripts/rehearsal-checklists.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

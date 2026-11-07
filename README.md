@@ -27,7 +27,7 @@ On Windows use `copy .env.example .env.local`.
 In the UI:
 
 1. **Диалоги:** type a `group_id` (e.g. `DEV`) and click **Загрузить**. The backend calls the organisers' API, so there is no CORS. You can also upload a JSON file in the same format.
-2. Click **Оценить** on a dialogue, or **Оценить все** for a batch run with progress.
+2. Pick the checklist under **Чек-лист для оценки**, then click **Оценить** on a dialogue or **Оценить все** for a batch run with progress. The dashboard counts only results from the selected checklist version and offers to re-evaluate the rest.
 3. Open a dialogue to see the result card. Evidence chips `#12` scroll to and highlight the turn. For calls they also seek the recording. Click **Оспорить** to file an appeal.
 4. **Апелляции:** the reviewer upholds or changes the score with a reason, and the total is recalculated.
 5. **Чек-листы:** edit, add or replace criteria (wording, weight, answer type, N/A and its condition, scale steps, section). Save a new version and re-evaluate. The prompt and the output schema are generated from the checklist, so no code changes are needed.
@@ -43,12 +43,15 @@ Other commands:
 | `npm run bench -- --smoke` | Live-test every adapter on 3 dialogues (no labels needed) |
 | `npm run bench -- --split train` | Model benchmark: same prompt on the whole shortlist (see below) |
 | `npm run compare -- benchmarks/<file>.json [--apply]` | Comparison table + decision rule; `--apply` sets the default model |
+| `npm run results -- --set dev\|prod ...` | Build and check the results file for the organisers (see below) |
+| `npm run rehearsal:checklists` | Write test checklists with one replaced criterion to `tmp/rehearsal/` |
+| `npm run impact -- --base <before>.json --run <after>.json [--noise <x3>.json]` | What a checklist change did to the other criteria, next to run-to-run noise |
 | `npm run build:static` | Static UI bundle in `out/` (Dynamics 365 web-resource path) |
 
 ## Model and cost
 
 - **Evaluation model: chosen by benchmark, not by default.** The same prompt runs through Anthropic, OpenAI, Google Gemini and a local Ollama model. The model with the highest agreement with our hand labels, within budget, becomes the default. Method: [PLAN.md](PLAN.md) §6a. Results: the **Сравнение моделей** page.
-- **Current default: `openai/gpt-6.1-terra`, one vote, reasoning `medium`, about $0.005 per evaluation (measured; prices checked 2026-11-07).** On prompt `p4` and 26 hand-labelled train chats it matched 95–96% of the answers. `gpt-6-luna` ×3 matched 97–98% at $0.0022, within the margin of error on this sample. We kept `terra` because it answered all 31 known answers correctly and raised no false gross-error flag, while `gpt-6-luna` ×3 raised one. Only OpenAI models were compared, and the test set has not been run. The table below is the earlier comparison on prompt `p2`, before the labels existed.
+- **Current default: `openai/gpt-6.1-terra`, one vote, reasoning `medium`, about $0.005 per evaluation (measured; prices checked 2026-11-07).** On prompt `p7` and 42 labelled train chats it matched 96.1% of the answers (95% CI 93.5–98.5%), found all 6 gross errors and raised no false flag. Humans labelled 26 of those chats (97.1% match) and `claude-opus-5-5` labelled 16 (94.5%). We wrote the c04 rules added in `p5` and `p6` from these same chats, so the train figure runs high. `gpt-6-luna` ×3 cost $0.0022 and raised one false gross-error flag, but we last measured it on `p4` (93.8%), so its figure does not compare with `p7`. We compared only OpenAI models. On the 18 held-out test chats, run once on `p7`, it matched 94.4% of the answers (136/144, 95% CI 91.7–97.2%), found both gross errors and raised no false flag; `claude-opus-5-5` labelled 7 of those chats. The table below is the earlier comparison on prompt `p2`, before the labels existed.
 
   | Candidate | Known answers | Same answer in two runs | Total-score drift between runs (mean / max) | $ per evaluation |
   |---|---|---|---|---|
@@ -88,7 +91,7 @@ transcript ──► facts.ts (deterministic) ──► prompt.ts (generated fro
    - hold / internal consultation windows (those operator turns are marked INTERNAL)
    - system identity-verification event, how the conversation ended, duplicates in call transcripts
    - audio offsets per turn (recording pauses excluded)
-2. **The prompt is built only from the stored checklist.** That means the criteria, scale steps, N/A conditions, and an editable *rules* block (checklist FAQ plus documented interpretations). The model returns, per criterion: answer, short explanation, evidence turn ids, checked span and N/A reason. A JSON schema generated from the checklist enforces this.
+2. **The prompt is built only from the stored checklist.** That means the criteria, scale steps, N/A conditions, a hint per criterion, and an editable *rules* block for what holds across criteria. A rule about one criterion lives in its hint, so it leaves the prompt when you replace that criterion. The model returns, per criterion: answer, short explanation, evidence turn ids, checked span and N/A reason. A JSON schema generated from the checklist enforces this.
 3. **Points are never computed by the model.** `scoring.ts` follows the PDF calculation order:
    - Yes = full weight, No = 0
    - scale steps convert proportionally, so the top step gives the full weight
@@ -97,7 +100,22 @@ transcript ──► facts.ts (deterministic) ──► prompt.ts (generated fro
    - gross errors are flagged separately and do not change points
 4. **Self-consistency:** N independent votes (whether N>1 helps is measured in the benchmark). Yes/No/N/A uses the majority and scales use the median. Any disagreement marks the criterion as *needs review* in the UI.
 
-Every evaluation stores the exact checklist version, model, votes, tokens and cost. Nothing is pre-computed or replayed: each click runs the model on the dialogue with the current active checklist.
+Every evaluation stores the exact checklist version, prompt version, model, votes, tokens, cost, the prompt it sent and the raw model response with the vendor's response id. **Журнал оценки** in the dialogue card shows them. Nothing is pre-computed or replayed: each click runs the model on the dialogue with the current active checklist. The CSV and JSON exports name the checklist version on every row.
+
+## Submitting results
+
+The organisers collect `results/dev/results.json` (DEV: 60 chats and 5 calls) and `results/prod/results.json` (10 control chats) from the public repository, in format 1.0.
+
+```bash
+npm run results -- --set dev --data data/dev.json --team "<team>"
+npm run results -- --set prod --group <group_id> --team "<team>"   # or --data <file.json>
+npm run results -- --set prod --validate                           # check the file again, no model calls
+```
+
+- The command evaluates every dialogue, retries failures once and writes a failed dialogue as `status: "error"`, never as a zero.
+- It then checks every rule of the format: record count, ids against the source, the 8 criteria, allowed values, and the score recomputed from the values.
+- The format counts turns from 1 over the whole transcript, and so does the dialogue card. Inside the evaluator and in the raw model response they count from 0.
+- The file covers the 8 criteria of the default checklist. Its codes are fixed, so a checklist with a replaced criterion stops with an error instead of writing a wrong file.
 
 ## Accuracy harness (hand labels)
 
@@ -152,7 +170,7 @@ To deploy:
 
 ## Interpretations of the checklist
 
-The full list is in [PLAN.md](PLAN.md) §2. The interpretations also live in the editable *rules* block of the checklist, and the generated prompt can be viewed in the editor. The main ones:
+The full list is in [PLAN.md](PLAN.md) §2. The interpretations also live in the checklist, in the criterion hints and the *rules* block, and you can view the generated prompt in the editor. The main ones:
 
 - Bot and system turns are context only.
 - The bot greeting does not count as the operator's.

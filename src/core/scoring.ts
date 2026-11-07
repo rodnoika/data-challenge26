@@ -168,3 +168,18 @@ export function validateChecklist(cl: Checklist): string[] {
   }
   return errs;
 }
+
+/**
+ * Criteria whose meaning changed while the evaluator hint stayed the same. Hints are written for one
+ * criterion, so a hint left behind after a replacement would keep judging by the old rule.
+ */
+export function staleHints(saved: Checklist, draft: Checklist): string[] {
+  const before = new Map(saved.criteria.map((c) => [c.id, c]));
+  const meaning = (c: Checklist["criteria"][number]) => JSON.stringify([c.title.trim(), c.description.trim(), c.answerType, c.steps ?? []]);
+  return draft.criteria
+    .filter((c) => {
+      const old = before.get(c.id);
+      return !!old && !!c.guidance?.trim() && c.guidance === old.guidance && meaning(c) !== meaning(old);
+    })
+    .map((c) => c.id);
+}

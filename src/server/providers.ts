@@ -29,6 +29,8 @@ export interface JudgeResponse {
   usage: Usage;
   latencyMs: number;
   model: string;
+  /** The vendor's id for this call, when it returns one. */
+  responseId?: string;
 }
 
 export interface LLMProvider {
@@ -149,6 +151,7 @@ class OpenAIProvider implements LLMProvider {
       text,
       latencyMs,
       model: res.model,
+      responseId: res.id,
       usage: {
         inputTokens: (u?.input_tokens ?? 0) - cached,
         outputTokens: u?.output_tokens ?? 0,

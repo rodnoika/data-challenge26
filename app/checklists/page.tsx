@@ -6,7 +6,7 @@ import { api } from "@/ui/api";
 import { Badge, Button, Card, ErrorNote, Field, Spinner, cx, inputCls } from "@/ui/kit";
 import { fmtTime } from "@/ui/format";
 import { buildSystemPrompt } from "@/core/prompt";
-import { validateChecklist } from "@/core/scoring";
+import { staleHints, validateChecklist } from "@/core/scoring";
 import type { Checklist, Criterion } from "@/core/types";
 
 type ListItem = { id: string; name: string; version: number; isActive: boolean; updatedAt: string };
@@ -30,10 +30,12 @@ export default function ChecklistsPage() {
   const [busy, setBusy] = useState(false);
   const [activate, setActivate] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [activeRef, setActiveRef] = useState<{ id: string; version: number } | null>(null);
 
   async function loadList(selectId?: string) {
     const r = await api<{ checklists: ListItem[]; active: Checklist }>("/api/checklists");
     setList(r.checklists);
+    setActiveRef({ id: r.active.id, version: r.active.version });
     const target = selectId ? (await api<{ checklist: Checklist }>(`/api/checklists/${selectId}`)).checklist : r.active;
     setDraft(clone(target));
     setSaved(clone(target));
@@ -43,6 +45,7 @@ export default function ChecklistsPage() {
   }, []);
 
   const problems = useMemo(() => (draft ? validateChecklist(draft) : []), [draft]);
+  const stale = useMemo(() => (draft && saved ? staleHints(saved, draft) : []), [draft, saved]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const weightSum = draft?.criteria.filter((c) => !c.isFlag).reduce((a, c) => a + (Number(c.weight) || 0), 0) ?? 0;
 
@@ -101,6 +104,20 @@ export default function ChecklistsPage() {
       const r = await api<{ checklist: Checklist }>(`/api/checklists`, { method: "POST", json: { checklist: copy, activate: false } });
       await loadList(r.checklist.id);
       setInfo("Создана копия чек-листа.");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function makeActive() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/checklists/${encodeURIComponent(saved!.id)}`, { method: "PATCH" });
+      await loadList(saved!.id);
+      setInfo(`«${saved!.name}» v${saved!.version} активен: новые оценки используют его.`);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -285,7 +302,15 @@ export default function ChecklistsPage() {
                   </div>
                 )}
                 <Field label="Подсказка для оценщика (необязательно)">
-                  <input className={inputCls} value={c.guidance ?? ""} onChange={(e) => updC(c.id, { guidance: e.target.value })} />
+                  <textarea rows={3} className={inputCls} value={c.guidance ?? ""} onChange={(e) => updC(c.id, { guidance: e.target.value })} />
+                  {stale.includes(c.id) && (
+                    <div className="mt-1 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      <span>Критерий изменён, а подсказка осталась от старого: оценщик продолжит применять её правила.</span>
+                      <Button size="sm" className="ml-auto shrink-0" onClick={() => updC(c.id, { guidance: "" })}>
+                        Очистить подсказку
+                      </Button>
+                    </div>
+                  )}
                 </Field>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => move(c.id, -1)} disabled={idx === 0}>
@@ -315,17 +340,29 @@ export default function ChecklistsPage() {
 
         <div className="sticky bottom-0 z-10 -mx-1 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur">
           {problems.length > 0 && <ErrorNote error={problems.join("\n")} />}
+          {stale.length > 0 && (
+            <div className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              Проверьте подсказки критериев {stale.map((id) => draft.criteria.find((c) => c.id === id)?.code ?? id).join(", ")}: они написаны для старых формулировок.
+            </div>
+          )}
           <ErrorNote error={error} />
           {info && <div className="mb-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900">{info}</div>}
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={activate} onChange={(e) => setActivate(e.target.checked)} /> сделать активным
             </label>
-            <span className="text-xs text-slate-500">Сохранение создаёт новую версию; прошлые оценки хранят свою версию чек-листа.</span>
+            <span className="text-xs text-slate-500">
+              Сохранение создаёт новую версию; прошлые оценки хранят свою.{activeRef && ` Сейчас оценивает v${activeRef.version}${activeRef.id === saved?.id ? "" : " другого чек-листа"}.`}
+            </span>
             <div className="ml-auto flex gap-2">
               <Button variant="ghost" disabled={!dirty} onClick={() => setDraft(clone(saved!))}>
                 Отменить изменения
               </Button>
+              {saved && activeRef && (saved.id !== activeRef.id || saved.version !== activeRef.version) && (
+                <Button onClick={makeActive} disabled={busy}>
+                  ✓ Сделать этот чек-лист активным
+                </Button>
+              )}
               <Button onClick={reevaluateGroup}>↻ Переоценить набор</Button>
               <Button variant="primary" disabled={!dirty || busy || problems.length > 0} onClick={save}>
                 {busy && <Spinner />} Сохранить версию

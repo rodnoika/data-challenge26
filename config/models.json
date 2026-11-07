@@ -4,7 +4,7 @@
     "provider": "openai",
     "model": "gpt-6.1-terra",
     "samples": 1,
-    "chosenBy": "prompt p4, 26 labelled train chats: 95-96% match, no false gross-error flags. Team decision over gpt-6-luna x3"
+    "chosenBy": "prompt p7, 42 labelled train chats: 96.1% match, 6 of 6 gross errors found, no false flags. Team decision over gpt-6-luna x3, last measured on p4"
   },
   "fallback": null,
   "models": [

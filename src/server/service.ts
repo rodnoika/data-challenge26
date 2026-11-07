@@ -75,7 +75,7 @@ export async function runEvaluation(dialogueId: string, checklistId?: string) {
       status: "done",
       judgments: out.judgments,
       facts: out.facts,
-      raw: { promptVersion: out.promptVersion, reasoning: out.reasoning, votes: out.votes, responses: out.raw },
+      raw: { promptVersion: out.promptVersion, reasoning: out.reasoning, votes: out.votes, responses: out.raw, prompt: out.prompt },
       total: out.score.total,
       gross: out.score.grossError,
       usage: out.usage,

@@ -7,6 +7,7 @@ import { api, audioUrl } from "@/ui/api";
 import { Badge, Button, Card, ErrorNote, Modal, Spinner, cx, inputCls } from "@/ui/kit";
 import { answerTone, fmtAnswer, fmtPoints, fmtTime, totalTone } from "@/ui/format";
 import { formatClock, type Facts } from "@/core/facts";
+import { shiftTurnRefs } from "@/core/submission";
 import type { Appeal, Checklist, Criterion, Dialogue, Judgment, ScoreResult } from "@/core/types";
 
 type FullEval = {
@@ -16,6 +17,8 @@ type FullEval = {
   provider: string;
   model: string;
   samples: number;
+  promptVersion: string | null;
+  reasoning: string | null;
   createdAt: string;
   costUsd: number | null;
   latencyMs: number;
@@ -121,7 +124,7 @@ function DialogueCard() {
         </span>
         <div className="ml-auto flex items-center gap-2">
           {history.length > 1 && (
-            <select className={cx(inputCls, "w-auto text-xs")} value={ev?.id ?? ""} onChange={(e) => load(e.target.value)}>
+            <select className={cx(inputCls, "w-auto! text-xs")} value={ev?.id ?? ""} onChange={(e) => load(e.target.value)}>
               {history.map((h: any) => (
                 <option key={h.id} value={h.id} disabled={h.status !== "done"}>
                   {fmtTime(h.created_at)} · {h.model} · {h.status === "done" ? h.total ?? "—" : "ошибка"} · чек-лист v{h.checklist_version}
@@ -183,7 +186,7 @@ function DialogueCard() {
                     )}
                   >
                     <div className="mb-0.5 flex items-center gap-2 text-[11px] text-slate-400">
-                      <span className="font-mono">#{i}</span>
+                      <span className="font-mono">#{i + 1}</span>
                       <span className="font-medium text-slate-500">{s.label}</span>
                       <button
                         className={cx("font-mono", isVoice && "text-brand-700 hover:underline")}
@@ -240,6 +243,7 @@ function DialogueCard() {
                 {ev.usage.inputTokens + ev.usage.cacheReadTokens} вх. / {ev.usage.outputTokens} вых. токенов
                 {ev.costUsd !== null ? ` · $${ev.costUsd.toFixed(4)}` : ""} · {(ev.latencyMs / 1000).toFixed(1)} с
               </div>
+              <Journal key={ev.id} ev={ev} />
             </>
           )}
         </div>
@@ -255,6 +259,113 @@ function DialogueCard() {
         }}
       />
     </div>
+  );
+}
+
+type RawVote = {
+  provider: string;
+  model: string;
+  ok: boolean;
+  invalidFirst: boolean;
+  latencyMs: number;
+  usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number };
+  costUsd: number | null;
+  error?: string;
+};
+type RawLog = {
+  votes?: RawVote[];
+  responses?: { voter: string; attempt: number; model?: string; responseId?: string | null; receivedAt?: string; json: unknown }[];
+  prompt?: { system: string; user: string };
+};
+
+/** Shows what this evaluation actually sent and received, so a result can be traced to a live model call. */
+function Journal({ ev }: { ev: FullEval }) {
+  const [log, setLog] = useState<RawLog | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pre = "mt-1 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-900 p-3 text-xs text-slate-100";
+  return (
+    <details
+      className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+      onToggle={(e) => {
+        if ((e.currentTarget as HTMLDetailsElement).open && !log && !error) {
+          api<{ raw: RawLog | null }>(`/api/evaluations/${ev.id}?raw=1`)
+            .then((r) => setLog(r.raw ?? {}))
+            .catch((err) => setError(err.message));
+        }
+      }}
+    >
+      <summary className="cursor-pointer font-medium text-slate-700">Журнал оценки: запрос и ответ модели</summary>
+      <p className="mt-2 text-xs text-slate-500">Здесь данные показаны как есть: в запросе и ответе модели реплики считаются с 0, в карточке и в файле результатов с 1.</p>
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
+        {[
+          ["Время", fmtTime(ev.createdAt)],
+          ["Модель", `${ev.provider}/${ev.model}`],
+          ["Версия промпта", ev.promptVersion ?? "не записана"],
+          ["Глубина рассуждений", ev.reasoning ?? "не записана"],
+          ["Чек-лист", `${ev.checklist.id} v${ev.checklist.version}`],
+          ["Голосов", String(ev.samples)],
+        ].map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-slate-500">{k}</dt>
+            <dd className="font-mono break-words text-slate-800">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <ErrorNote error={error} />
+      {!log && !error && <div className="mt-3 text-xs text-slate-500"><Spinner /> Загрузка…</div>}
+      {log && (
+        <div className="mt-3 space-y-3">
+          {!!log.votes?.length && (
+            <table className="w-full text-left text-xs">
+              <thead className="text-slate-500">
+                <tr>
+                  <th className="py-1 font-medium">Голос</th>
+                  <th className="py-1 font-medium">Статус</th>
+                  <th className="py-1 text-right font-medium">Токены вх./вых.</th>
+                  <th className="py-1 text-right font-medium">Цена</th>
+                  <th className="py-1 text-right font-medium">Время</th>
+                </tr>
+              </thead>
+              <tbody className="tabular-nums">
+                {log.votes.map((v, i) => (
+                  <tr key={i} className="border-t border-slate-100">
+                    <td className="py-1 font-mono">{i + 1}. {v.provider}/{v.model}</td>
+                    <td className="py-1">{v.ok ? (v.invalidFirst ? "ответ получен со второй попытки" : "ответ получен") : `ошибка: ${v.error ?? ""}`}</td>
+                    <td className="py-1 text-right">{v.usage.inputTokens + v.usage.cacheReadTokens} / {v.usage.outputTokens}</td>
+                    <td className="py-1 text-right">{v.costUsd === null ? "—" : `$${v.costUsd.toFixed(4)}`}</td>
+                    <td className="py-1 text-right">{(v.latencyMs / 1000).toFixed(1)} с</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {(log.responses ?? []).map((r, i) => (
+            <div key={i}>
+              <div className="text-xs text-slate-500">
+                Ответ {i + 1}: {r.model ?? r.voter}
+                {r.responseId && <> · id <span className="font-mono">{r.responseId}</span></>}
+                {r.receivedAt && <> · {fmtTime(r.receivedAt)}</>}
+              </div>
+              <pre className={pre}>{JSON.stringify(r.json, null, 1)}</pre>
+            </div>
+          ))}
+          {log.prompt ? (
+            <>
+              <div>
+                <div className="text-xs text-slate-500">Системный промпт, собранный из чек-листа</div>
+                <pre className={pre}>{log.prompt.system}</pre>
+              </div>
+              <div>
+                <div className="text-xs text-slate-500">Сообщение с диалогом и фактами</div>
+                <pre className={pre}>{log.prompt.user}</pre>
+              </div>
+            </>
+          ) : (
+            <div className="text-xs text-slate-500">Текст промпта не сохранён: оценка сделана до появления журнала.</div>
+          )}
+        </div>
+      )}
+    </details>
   );
 }
 
@@ -289,7 +400,7 @@ function Summary({ ev }: { ev: FullEval }) {
       </div>
       {ev.finalScore.grossError && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          ⚠ <b>Грубая ошибка</b> ({grossC.map((c) => c.title).join(", ")}): {grossJ.map((j) => j.explanation).join(" ")}
+          ⚠ <b>Грубая ошибка</b> ({grossC.map((c) => c.title).join(", ")}): {grossJ.map((j) => shiftTurnRefs(j.explanation)).join(" ")}
           <div className="text-xs text-red-600">Отмечается отдельно, баллы по критериям не меняет.</div>
         </div>
       )}
@@ -343,12 +454,12 @@ function CriterionRow({
           )}
         </span>
       </div>
-      <p className="mt-1.5 text-sm text-slate-700">{orig.explanation}</p>
+      <p className="mt-1.5 text-sm text-slate-700">{shiftTurnRefs(orig.explanation)}</p>
       {fin.answer === "na" && orig.naReason && <p className="mt-1 text-xs text-slate-500">Причина N/A: {orig.naReason}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {orig.evidenceTurnIds.map((t) => (
           <button key={t} onClick={() => onJump([t])} className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-700 hover:bg-amber-100">
-            #{t}
+            #{t + 1}
           </button>
         ))}
         {orig.checkedSpan && (
@@ -357,7 +468,7 @@ function CriterionRow({
             className="rounded-md border border-dashed border-amber-400 px-1.5 py-0.5 text-xs text-amber-800 hover:bg-amber-50"
             title="Проверенный участок, где ожидалось действие"
           >
-            проверено #{orig.checkedSpan[0]}–#{Math.min(orig.checkedSpan[1], transcriptLen - 1)}
+            проверено #{orig.checkedSpan[0] + 1}–#{Math.min(orig.checkedSpan[1], transcriptLen - 1) + 1}
           </button>
         )}
         <span className="ml-auto">

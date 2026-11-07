@@ -46,6 +46,7 @@ export interface EvalOutput {
   reasoning: Reasoning;
   votes: VoteLog[];
   raw: unknown[];
+  prompt: { system: string; user: string };
 }
 
 const zero = (): Usage => ({ inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 });
@@ -93,7 +94,7 @@ export async function evaluateDialogue(d: Dialogue, cl: Checklist, opts: EvalOpt
         const res = await provider.judge({ system, user, schema, model: v.model, reasoning });
         usage = add(usage, res.usage);
         latencyMs += res.latencyMs;
-        raws.push({ voter: `${v.provider}/${v.model}`, attempt, json: res.json });
+        raws.push({ voter: `${v.provider}/${v.model}`, attempt, model: res.model, responseId: res.responseId ?? null, receivedAt: new Date().toISOString(), json: res.json });
         const { judgments, problems } = parseJudgments(cl, res.json, d.transcript.length);
         if (problems.length) {
           if (attempt === 0) invalidFirst = true;
@@ -135,6 +136,7 @@ export async function evaluateDialogue(d: Dialogue, cl: Checklist, opts: EvalOpt
     reasoning,
     votes: all.map((r) => r.log),
     raw: raws,
+    prompt: { system, user },
   };
 }
 

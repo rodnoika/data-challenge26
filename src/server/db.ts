@@ -187,6 +187,8 @@ export function listDialogues(filter: { group?: string | null }) {
             originalTotal: ev.score.total,
             gross: ev.finalScore.grossError,
             model: ev.model,
+            checklistId: ev.checklistId,
+            checklistVersion: ev.checklistVersion,
             evaluatedAt: ev.createdAt,
             lowConfidence: judgments.filter((j) => j.confidence === "low").map((j) => j.criterionId),
             answers: Object.fromEntries(ev.finalJudgments.map((j) => [j.criterionId, j.answer])),
@@ -226,8 +228,8 @@ export function getChecklist(id: string, version?: number): Checklist | null {
 }
 
 export function getActiveChecklist(): Checklist {
-  const r = db().prepare("SELECT id FROM checklists WHERE is_active = 1 ORDER BY version DESC LIMIT 1").get() as any;
-  return (r && getChecklist(r.id)) || getChecklist(DEFAULT_CHECKLIST.id) || DEFAULT_CHECKLIST;
+  const r = db().prepare("SELECT id, version FROM checklists WHERE is_active = 1 ORDER BY version DESC LIMIT 1").get() as any;
+  return (r && getChecklist(r.id, r.version)) || getChecklist(DEFAULT_CHECKLIST.id) || DEFAULT_CHECKLIST;
 }
 
 /** Saving always creates a new version; old evaluations keep pointing at the version they used. */
@@ -261,6 +263,8 @@ export function deleteChecklist(id: string) {
 /* ---------------- evaluations ---------------- */
 
 export interface FullEvaluation extends EvaluationRecord {
+  promptVersion: string | null;
+  reasoning: string | null;
   checklist: Checklist;
   facts: Facts;
   appeals: Appeal[];
@@ -324,7 +328,9 @@ export function applyReviews(judgments: Judgment[], appeals: Appeal[]): Judgment
 }
 
 export function getEvaluation(id: string): FullEvaluation | null {
-  const r = db().prepare("SELECT * FROM evaluations WHERE id = ?").get(id) as any;
+  const r = db()
+    .prepare("SELECT *, json_extract(raw, '$.promptVersion') AS prompt_version, json_extract(raw, '$.reasoning') AS reasoning FROM evaluations WHERE id = ?")
+    .get(id) as any;
   if (!r) return null;
   const checklist: Checklist = JSON.parse(r.checklist_body);
   const judgments: Judgment[] = JSON.parse(r.judgments ?? "[]");
@@ -339,6 +345,8 @@ export function getEvaluation(id: string): FullEvaluation | null {
     provider: r.provider,
     model: r.model,
     samples: r.samples,
+    promptVersion: r.prompt_version ?? null,
+    reasoning: r.reasoning ?? null,
     status: r.status,
     error: r.error,
     judgments,
@@ -353,6 +361,12 @@ export function getEvaluation(id: string): FullEvaluation | null {
     finalJudgments,
     finalScore: score(checklist, finalJudgments),
   };
+}
+
+/** What the model was sent and what it answered. Read on demand: it is large and only the journal shows it. */
+export function getEvaluationRaw(id: string): unknown {
+  const r = db().prepare("SELECT raw FROM evaluations WHERE id = ?").get(id) as { raw: string | null } | undefined;
+  return r?.raw ? JSON.parse(r.raw) : null;
 }
 
 export function listEvaluationsForDialogue(dialogueId: string) {
