@@ -207,15 +207,44 @@
     },
     {
       "provider": "ollama",
-      "model": "qwen3:14b",
-      "label": "Qwen3 14B (local, Ollama)",
+      "model": "qwen3.5:9b-q4_K_M",
+      "label": "Qwen3.5 9B Q4 (local, Ollama)",
       "tier": "local",
       "price": {
         "in": 0,
         "cachedIn": 0,
         "out": 0
       },
-      "priceNote": "runs on the team's M4 24 GB; requires `ollama pull qwen3:14b`; model name not yet verified on this machine",
+      "priceNote": "6.6 GB; fits the team's M4 24 GB with a 16k context. `ollama pull qwen3.5:9b-q4_K_M`",
+      "priceSource": "local",
+      "checkedAt": null
+    },
+    {
+      "provider": "ollama",
+      "model": "hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M",
+      "label": "ISSAI Qwen3.5 9B Kazakh Q4 (local, Ollama)",
+      "tier": "local",
+      "price": {
+        "in": 0,
+        "cachedIn": 0,
+        "out": 0
+      },
+      "priceNote": "ISSAI's Kazakh continued-pretraining of Qwen3.5-9B (Apache 2.0), community GGUF, same Q4_K_M quant as the base for a fair A/B. 5.8 GB. `ollama pull hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M`",
+      "priceSource": "local",
+      "checkedAt": null
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen3:14b",
+      "label": "Qwen3 14B (local, Ollama)",
+      "tier": "local",
+      "optional": true,
+      "price": {
+        "in": 0,
+        "cachedIn": 0,
+        "out": 0
+      },
+      "priceNote": "older generation, kept for reference; `ollama pull qwen3:14b`",
       "priceSource": "local",
       "checkedAt": null
     }
