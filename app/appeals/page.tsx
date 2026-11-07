@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/ui/api";
-import { Badge, Button, Card, ErrorNote, Spinner, cx, inputCls } from "@/ui/kit";
+import { Badge, Button, Card, Empty, ErrorNote, Lang, Loading, PageTitle, SectionLabel, Segmented, Spinner, cx, inputCls } from "@/ui/kit";
 import { answerTone, fmtAnswer, fmtTime, totalTone } from "@/ui/format";
 import { allowedAnswers } from "@/core/scoring";
 import type { Appeal, Criterion, Judgment, Turn } from "@/core/types";
@@ -37,20 +37,25 @@ export default function AppealsPage() {
   }, [tab]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold">Апелляции — рабочее место проверяющего</h1>
-        <div className="ml-auto flex rounded-lg border border-slate-200 bg-white p-0.5 text-sm">
-          {(["open", "all"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={cx("rounded-md px-3 py-1", tab === t ? "bg-slate-900 text-white" : "text-slate-600")}>
-              {t === "open" ? "На рассмотрении" : "Все"}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="space-y-3">
+      <PageTitle
+        sub="Спорная оценка, комментарий апелляции и фрагмент диалога. Решение сразу пересчитывает итог."
+        aside={
+          <Segmented
+            value={tab}
+            onChange={setTab}
+            options={[
+              { value: "open", label: "На рассмотрении" },
+              { value: "all", label: "Все" },
+            ]}
+          />
+        }
+      >
+        Апелляции — рабочее место проверяющего
+      </PageTitle>
       <ErrorNote error={error} />
-      {!items && <div className="text-slate-500"><Spinner /> Загрузка…</div>}
-      {items && !items.length && <Card className="p-8 text-center text-slate-500">Апелляций нет. Оспорить оценку можно в карточке диалога.</Card>}
+      {!items && <Loading />}
+      {items && !items.length && <Empty>Апелляций нет. Оспорить оценку можно в карточке диалога.</Empty>}
       {items?.map((it) => <AppealCard key={it.appeal.id} item={it} onDone={load} />)}
     </div>
   );
@@ -91,62 +96,67 @@ function AppealCard({ item, onDone }: { item: Item; onDone: () => void }) {
     }
   }
 
+  const open = appeal.status === "open" && !result;
   return (
-    <Card className="p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Link href={`/dialogue/?id=${encodeURIComponent(appeal.dialogueId)}`} className="font-mono text-sm text-brand-700 hover:underline">
+    <Card className={cx(open && "shadow-[inset_3px_0_0_var(--color-appeal)]")}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-rule-soft px-4 py-2">
+        <Link href={`/dialogue/?id=${encodeURIComponent(appeal.dialogueId)}`} className="font-mono text-sm text-accent hover:underline">
           {appeal.dialogueId}
         </Link>
-        {dialogue && <Badge>{dialogue.language}</Badge>}
-        <span className="font-medium">
-          {c?.code}. {c?.title}
-        </span>
+        {dialogue && <Lang code={dialogue.language} />}
+        <span className="mx-1 h-4 w-px bg-rule" />
+        <span className="font-mono text-xs text-ink-3">{c?.code}</span>
+        <span className="font-medium">{c?.title}</span>
         {c && j && <Badge tone={answerTone(c, j.answer)}>спорная оценка: {fmtAnswer(c, j.answer)}</Badge>}
-        <span className="ml-auto text-xs text-slate-500">подана {fmtTime(appeal.createdAt)}</span>
+        <span className="figures ml-auto text-xs text-ink-3">подана {fmtTime(appeal.createdAt)}</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="space-y-2 text-sm">
-          <div className="rounded-lg bg-slate-50 p-3">
-            <div className="text-xs font-medium text-slate-500">Обоснование системы</div>
-            <div>{j?.explanation}</div>
-            {j?.naReason && <div className="mt-1 text-xs text-slate-500">Причина N/A: {j.naReason}</div>}
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div className="space-y-3 px-4 py-3 text-sm lg:border-r lg:border-rule-soft">
+          <div>
+            <SectionLabel>Обоснование системы</SectionLabel>
+            <p className="mt-0.5 text-ink">{j?.explanation}</p>
+            {j?.naReason && <p className="mt-1 text-xs text-ink-3">Причина N/A: {j.naReason}</p>}
           </div>
-          <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-            <div className="text-xs font-medium text-violet-700">Комментарий апелляции</div>
-            <div>{appeal.comment}</div>
+          <div className="border-l-[3px] border-appeal bg-appeal-soft px-3 py-2">
+            <SectionLabel className="!text-appeal">Комментарий апелляции</SectionLabel>
+            <p className="mt-0.5 text-ink">{appeal.comment}</p>
           </div>
-          <div className="text-xs text-slate-500">
-            Итог диалога сейчас: <b className={totalTone(item.finalTotal)}>{item.finalTotal ?? "—"}</b>
-            {item.finalTotal !== item.originalTotal && <> (исходный {item.originalTotal ?? "—"})</>}
+          <div className="figures text-xs text-ink-3">
+            Итог диалога сейчас: <b className={cx("font-mono text-sm font-medium", totalTone(item.finalTotal))}>{item.finalTotal ?? "—"}</b>
+            {item.finalTotal !== item.originalTotal && <> (исходный <span className="font-mono">{item.originalTotal ?? "—"}</span>)</>}
           </div>
         </div>
-        <div className="max-h-72 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2 text-sm">
-          <div className="px-1 text-xs font-medium text-slate-500">Фрагмент диалога</div>
-          {shown.map((i, k) => (
-            <div key={i}>
-              {k > 0 && shown[k - 1] !== i - 1 && <div className="text-center text-xs text-slate-300">…</div>}
-              <div className={cx("rounded px-2 py-1", focus.has(i) ? "bg-amber-50 ring-1 ring-amber-300" : "")}>
-                <span className="mr-1 font-mono text-[11px] text-slate-400">#{i}</span>
-                <span className="mr-1 text-[11px] font-medium uppercase text-slate-500">{dialogue?.transcript[i].speaker}</span>
-                {dialogue?.transcript[i].text}
+        <div className="border-t border-rule-soft lg:border-t-0">
+          <div className="px-4 pt-2.5 pb-1">
+            <SectionLabel>Фрагмент диалога</SectionLabel>
+          </div>
+          <div className="max-h-72 overflow-y-auto pb-2 text-sm">
+            {shown.map((i, k) => (
+              <div key={i}>
+                {k > 0 && shown[k - 1] !== i - 1 && <div className="px-4 font-mono text-xs leading-4 text-ink-4">⋯</div>}
+                <div className={cx("grid grid-cols-[2rem_4.25rem_minmax(0,1fr)] gap-x-2 px-4 py-1", focus.has(i) && "bg-mark-soft shadow-[inset_3px_0_0_var(--color-warn)]")}>
+                  <span className="font-mono text-2xs leading-5 text-ink-4">#{i}</span>
+                  <span className={cx("label-caps pt-[3px] !text-[10px]", dialogue?.transcript[i].speaker === "operator" && "!text-accent")}>{SPEAKER_RU[dialogue?.transcript[i].speaker ?? ""] ?? dialogue?.transcript[i].speaker}</span>
+                  <span>{dialogue?.transcript[i].text}</span>
+                </div>
               </div>
-            </div>
-          ))}
-          {!shown.length && <div className="px-1 text-xs text-slate-400">Модель не указала реплик — откройте карточку диалога.</div>}
+            ))}
+            {!shown.length && <div className="px-4 text-xs text-ink-3">Модель не указала реплик — откройте карточку диалога.</div>}
+          </div>
         </div>
       </div>
 
-      {appeal.status === "open" && !result ? (
-        <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-3">
-          <div className="flex rounded-lg border border-slate-200 p-0.5 text-sm">
-            <button onClick={() => setDecision("upheld")} className={cx("rounded-md px-3 py-1", decision === "upheld" ? "bg-slate-900 text-white" : "text-slate-600")}>
-              Подтвердить оценку
-            </button>
-            <button onClick={() => setDecision("changed")} className={cx("rounded-md px-3 py-1", decision === "changed" ? "bg-slate-900 text-white" : "text-slate-600")}>
-              Изменить оценку
-            </button>
-          </div>
+      {open ? (
+        <div className="flex flex-wrap items-end gap-2 border-t border-rule bg-paper/60 px-4 py-2.5">
+          <Segmented
+            value={decision}
+            onChange={setDecision}
+            options={[
+              { value: "upheld", label: "Подтвердить оценку" },
+              { value: "changed", label: "Изменить оценку" },
+            ]}
+          />
           {decision === "changed" && c && (
             <select className={cx(inputCls, "w-40")} value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)}>
               <option value="">— новая оценка —</option>
@@ -157,29 +167,38 @@ function AppealCard({ item, onDone }: { item: Item; onDone: () => void }) {
               ))}
             </select>
           )}
-          <input className={cx(inputCls, "min-w-64 flex-1")} placeholder="Причина решения (обязательно)" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <input className={cx(inputCls, "min-w-0 flex-1 basis-64")} placeholder="Причина решения (обязательно)" value={reason} onChange={(e) => setReason(e.target.value)} />
           <Button variant="primary" onClick={submit} disabled={busy || !reason.trim() || (decision === "changed" && !newAnswer)}>
             {busy && <Spinner />} Сохранить решение
           </Button>
         </div>
       ) : (
-        <div className="mt-3 border-t border-slate-100 pt-3 text-sm">
+        <div className="border-t border-rule-soft px-4 py-2 text-sm">
           {result ? (
-            <span>
-              ✓ Решение сохранено. Итог пересчитан: <span className="line-through">{result.before ?? "—"}</span> →{" "}
-              <b className={totalTone(result.after)}>{result.after ?? "—"}</b>
+            <span className="figures flex flex-wrap items-center gap-2">
+              <Badge tone="green">решение сохранено</Badge>
+              Итог пересчитан:
+              <span className="font-mono text-ink-3 line-through">{result.before ?? "—"}</span>→
+              <b className={cx("font-mono text-base font-medium", totalTone(result.after))}>{result.after ?? "—"}</b>
             </span>
           ) : (
-            <span className="text-slate-600">
+            <span className="flex flex-wrap items-center gap-2 text-ink-2">
               <Badge tone={appeal.status === "changed" ? "blue" : "slate"}>
                 {appeal.status === "changed" && c ? `изменено → ${fmtAnswer(c, appeal.review!.newAnswer!)}` : "оценка подтверждена"}
-              </Badge>{" "}
-              {appeal.review?.reason} · {fmtTime(appeal.review?.reviewedAt)}
+              </Badge>
+              {appeal.review?.reason}
+              <span className="figures text-xs text-ink-3">· {fmtTime(appeal.review?.reviewedAt)}</span>
             </span>
           )}
         </div>
       )}
-      <ErrorNote error={error} />
+      {error && (
+        <div className="px-4 pb-3">
+          <ErrorNote error={error} />
+        </div>
+      )}
     </Card>
   );
 }
+
+const SPEAKER_RU: Record<string, string> = { client: "Клиент", operator: "Оператор", bot: "Бот", system: "Система" };

@@ -150,6 +150,9 @@ writeFileSync(
         promptVersion: PROMPT_VERSION,
         checklist: `${cl.id} v${cl.version}`,
         reasoning,
+        ...(run.some((c) => c.voters.some((v) => v.provider === "ollama"))
+          ? { ollama: { numCtx: Number(process.env.OLLAMA_NUM_CTX) || 16384, think: process.env.OLLAMA_THINK || "model default" } }
+          : {}),
         costCap: cap,
         prices: Object.fromEntries(reg.models.map((m) => [`${m.provider}/${m.model}`, { price: m.price, checkedAt: m.checkedAt, source: m.priceSource }])),
         skipped: skipped.map((s) => s.label),

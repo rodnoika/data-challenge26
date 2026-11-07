@@ -222,6 +222,11 @@ class OllamaProvider implements LLMProvider {
   id = "ollama" as const;
   async judge(req: JudgeRequest): Promise<JudgeResponse> {
     const base = process.env.OLLAMA_URL ?? "http://localhost:11434";
+    // The KV cache for the whole window is allocated up front, so a large window eats memory a
+    // 24 GB Mac needs for the weights. 16k covers system prompt + any chat; raise it for long calls.
+    const numCtx = Number(process.env.OLLAMA_NUM_CTX) || 16384;
+    // Unset = the model's own default. "false" skips the reasoning pass (much faster on Qwen3.x).
+    const think = process.env.OLLAMA_THINK ? process.env.OLLAMA_THINK === "true" : undefined;
     const [data, latencyMs] = await timed(() =>
       withTransportRetry(async () => {
         const r = await fetch(`${base}/api/chat`, {
@@ -231,7 +236,8 @@ class OllamaProvider implements LLMProvider {
             model: req.model,
             stream: false,
             format: req.schema,
-            options: { num_ctx: 32768, num_predict: MAX_OUTPUT_TOKENS },
+            ...(think === undefined ? {} : { think }),
+            options: { num_ctx: numCtx, num_predict: MAX_OUTPUT_TOKENS },
             messages: [
               { role: "system", content: req.system },
               { role: "user", content: req.user },
@@ -246,6 +252,7 @@ class OllamaProvider implements LLMProvider {
         return (await r.json()) as any;
       }),
     );
+    if (data.done_reason === "length") throw new Error("Model output truncated (max tokens)");
     const text = data.message?.content ?? "";
     return {
       json: extractJson(text),

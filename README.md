@@ -70,7 +70,18 @@ Other commands:
   | Anthropic | `claude-opus-5-5` | `claude-haiku-5-5` | `claude-sonnet-5-5` |
   | OpenAI | `gpt-6.1-sol` | `gpt-6-luna` | `gpt-6.1-terra` |
   | Google | `gemini-4-argon` | `gemini-3.5-flash-lite` | `gemini-3.8-flash` |
-  | Local | `qwen3:14b` via Ollama | | |
+  | Local (Ollama) | `qwen3.5:9b-q4_K_M` | ISSAI `Qwen3.5-9B-Kazakh` Q4_K_M | `qwen3:14b` |
+
+- **Local models:** the two 9B models are an A/B with the same quantisation. ISSAI's version adds Kazakh continued pretraining, which raises its Kazakh benchmark scores but lowers its reasoning scores. Both fit an M4 with 24 GB. Larger Qwen 3.6/3.8 (27B+) do not fit with room for the context. To run them:
+
+  ```bash
+  ollama pull qwen3.5:9b-q4_K_M
+  ollama pull hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M
+  npm run bench -- --split train --tiers local --concurrency 1
+  OLLAMA_THINK=false npm run bench -- --split train --tiers local --concurrency 1   # same, without the reasoning pass
+  ```
+
+  Use `--concurrency 1`, because parallel requests each reserve their own context memory. `OLLAMA_NUM_CTX` sets the context size (default 16384).
 
 - GPT-5 candidates (`gpt-5-nano`, `gpt-5-mini`, `gpt-5.4-nano`, `gpt-5.4-mini`, `gpt-5.6-luna`) are optional registry entries: add `--with-optional` to include them in a benchmark.
 - If the registry has no default, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.

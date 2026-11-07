@@ -34,7 +34,7 @@ export function SettingsPanel({
   const inRegistry = s.registry.models.some((m) => `${m.provider}/${m.model}` === current);
   const ens = s.settings.ensemble?.length ? s.settings.ensemble : null;
   return (
-    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+    <div className="space-y-3 border-t border-rule-soft bg-paper/60 px-3 py-3">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
         <div className="col-span-2">
           <Field label="Модель оценки (реестр config/models.json)">
@@ -82,29 +82,28 @@ export function SettingsPanel({
         <Field label="Параллельно">
           <input type="number" min={1} max={12} className={inputCls} value={s.settings.concurrency} onChange={(e) => onSave({ concurrency: Number(e.target.value) })} />
         </Field>
-        <div className="text-xs text-slate-500">
-          Активный чек-лист:
-          <br />
-          <Link className="font-medium text-brand-700 hover:underline" href="/checklists/">
+        <div className="min-w-0 text-xs text-ink-3">
+          <span className="mb-1 block font-medium text-ink-2">Активный чек-лист</span>
+          <Link className="block truncate py-[5px] text-sm text-accent hover:underline" href="/checklists/">
             {active?.name} · v{active?.version}
           </Link>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-3">
         <span>
-          Источник выбора: <b className="text-slate-700">{s.settings.source}</b>
+          Источник выбора: <b className="font-medium text-ink-2">{s.settings.source}</b>
         </span>
         {s.registry.default ? (
           <span>
-            По умолчанию (бенчмарк): <span className="font-mono">{s.registry.default.provider}/{s.registry.default.model}</span>
+            По умолчанию (бенчмарк): <span className="font-mono text-ink-2">{s.registry.default.provider}/{s.registry.default.model}</span>
           </span>
         ) : (
           <Badge tone="amber">модель по умолчанию ещё не выбрана бенчмарком</Badge>
         )}
-        <button className="text-brand-700 hover:underline" onClick={() => onSave({ reset: true })}>
+        <button className="text-accent hover:underline" onClick={() => onSave({ reset: true })}>
           Сбросить к модели по умолчанию
         </button>
-        <Link href="/models/" className="ml-auto text-brand-700 hover:underline">
+        <Link href="/models/" className="ml-auto text-accent hover:underline">
           Сравнение моделей →
         </Link>
       </div>

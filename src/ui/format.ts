@@ -20,10 +20,10 @@ export function fmtPoints(x: number) {
 }
 
 export function totalTone(t: number | null | undefined) {
-  if (t === null || t === undefined) return "text-slate-400";
-  if (t >= 85) return "text-brand-700";
-  if (t >= 60) return "text-amber-600";
-  return "text-red-600";
+  if (t === null || t === undefined) return "text-ink-4";
+  if (t >= 85) return "text-pass";
+  if (t >= 60) return "text-warn";
+  return "text-fail";
 }
 
 export const LANG_FLAG: Record<string, string> = { RU: "RU", KZ: "KZ", EN: "EN" };
