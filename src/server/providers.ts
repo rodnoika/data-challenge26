@@ -218,6 +218,38 @@ class GeminiProvider implements LLMProvider {
 }
 
 /* ---------------- Ollama (local): /api/chat with `format` = JSON schema ---------------- */
+export function ollamaNumPredict(think: boolean | undefined): number {
+  return Number(process.env.OLLAMA_NUM_PREDICT) || (think === false ? 4096 : 8192);
+}
+
+/** Ollama streams NDJSON: content chunks, then a final line with done_reason and token counts. */
+async function readOllamaStream(body: ReadableStream<Uint8Array>) {
+  const out = { content: "", done_reason: "", prompt_eval_count: 0, eval_count: 0 };
+  const decoder = new TextDecoder();
+  let buf = "";
+  const handle = (line: string) => {
+    if (!line.trim()) return;
+    const msg = JSON.parse(line);
+    if (msg.error) throw new Error(`Ollama: ${msg.error}`);
+    out.content += msg.message?.content ?? "";
+    if (msg.done) {
+      out.done_reason = msg.done_reason ?? "";
+      out.prompt_eval_count = msg.prompt_eval_count ?? 0;
+      out.eval_count = msg.eval_count ?? 0;
+    }
+  };
+  for await (const chunk of body as unknown as AsyncIterable<Uint8Array>) {
+    buf += decoder.decode(chunk, { stream: true });
+    let nl: number;
+    while ((nl = buf.indexOf("\n")) >= 0) {
+      handle(buf.slice(0, nl));
+      buf = buf.slice(nl + 1);
+    }
+  }
+  handle(buf + decoder.decode());
+  return out;
+}
+
 class OllamaProvider implements LLMProvider {
   id = "ollama" as const;
   async judge(req: JudgeRequest): Promise<JudgeResponse> {
@@ -227,33 +259,38 @@ class OllamaProvider implements LLMProvider {
     const numCtx = Number(process.env.OLLAMA_NUM_CTX) || 16384;
     // Unset = the model's own default. "false" skips the reasoning pass (much faster on Qwen3.x).
     const think = process.env.OLLAMA_THINK ? process.env.OLLAMA_THINK === "true" : undefined;
+    // Small local models sometimes loop inside the JSON; the cap bounds such a reply to a few minutes.
+    // A normal answer is ~1.5k tokens; thinking (on by default for Qwen3.x) needs extra room.
+    const numPredict = ollamaNumPredict(think);
     const [data, latencyMs] = await timed(() =>
       withTransportRetry(async () => {
+        // Streamed, so headers arrive at once: a non-streamed reply longer than 5 minutes
+        // would hit Node fetch's headers timeout and be retried from scratch.
         const r = await fetch(`${base}/api/chat`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             model: req.model,
-            stream: false,
+            stream: true,
             format: req.schema,
             ...(think === undefined ? {} : { think }),
-            options: { num_ctx: numCtx, num_predict: MAX_OUTPUT_TOKENS },
+            options: { num_ctx: numCtx, num_predict: numPredict },
             messages: [
               { role: "system", content: req.system },
               { role: "user", content: req.user },
             ],
           }),
         });
-        if (!r.ok) {
+        if (!r.ok || !r.body) {
           const err: any = new Error(`Ollama ${r.status}: ${await r.text()}`);
           err.status = r.status;
           throw err;
         }
-        return (await r.json()) as any;
+        return readOllamaStream(r.body);
       }),
     );
-    if (data.done_reason === "length") throw new Error("Model output truncated (max tokens)");
-    const text = data.message?.content ?? "";
+    if (data.done_reason === "length") throw new Error(`Model output truncated (${numPredict} tokens, OLLAMA_NUM_PREDICT)`);
+    const text = data.content;
     return {
       json: extractJson(text),
       text,
