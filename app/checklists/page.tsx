@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "@/ui/api";
-import { Badge, Button, Card, ErrorNote, Field, Spinner, cx, inputCls } from "@/ui/kit";
+import { Badge, Button, Card, ErrorNote, Field, InfoNote, Loading, Panel, Spinner, cx, inputCls } from "@/ui/kit";
 import { fmtTime } from "@/ui/format";
 import { buildSystemPrompt } from "@/core/prompt";
 import { validateChecklist } from "@/core/scoring";
@@ -46,7 +46,7 @@ export default function ChecklistsPage() {
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const weightSum = draft?.criteria.filter((c) => !c.isFlag).reduce((a, c) => a + (Number(c.weight) || 0), 0) ?? 0;
 
-  if (!draft) return <div className="p-8 text-slate-500"><Spinner /> Загрузка…</div>;
+  if (!draft) return error ? <ErrorNote error={error} /> : <Loading />;
 
   const upd = (patch: Partial<Checklist>) => setDraft({ ...draft, ...patch });
   const updC = (id: string, patch: Partial<Criterion>) =>
@@ -119,28 +119,33 @@ export default function ChecklistsPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-      <div className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Чек-листы</h2>
-        {list.map((l) => (
-          <button
-            key={l.id}
-            onClick={() => loadList(l.id)}
-            className={cx("w-full rounded-lg border px-3 py-2 text-left text-sm", l.id === draft.id ? "border-brand-500 bg-brand-50" : "border-slate-200 bg-white hover:bg-slate-50")}
-          >
-            <div className="font-medium">{l.name}</div>
-            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
-              v{l.version} · {fmtTime(l.updatedAt)} {l.isActive && <Badge tone="green">активный</Badge>}
-            </div>
-          </button>
-        ))}
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-[250px_minmax(0,1fr)]">
+      <div className="space-y-2 lg:sticky lg:top-14 lg:self-start">
+        <Panel title="Чек-листы">
+          {list.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => loadList(l.id)}
+              aria-current={l.id === draft.id ? "true" : undefined}
+              className={cx(
+                "block w-full border-b border-rule-soft px-3 py-2 text-left text-sm last:border-b-0",
+                l.id === draft.id ? "bg-accent-soft shadow-[inset_3px_0_0_var(--color-accent)]" : "hover:bg-paper",
+              )}
+            >
+              <div className="font-medium">{l.name}</div>
+              <div className="figures mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
+                <span className="font-mono">v{l.version}</span> · {fmtTime(l.updatedAt)} {l.isActive && <Badge tone="green">активный</Badge>}
+              </div>
+            </button>
+          ))}
+        </Panel>
         <Button size="sm" onClick={saveAsNew} disabled={busy}>
-          ⧉ Копия текущего
+          Копия текущего
         </Button>
       </div>
 
       <div className="space-y-3">
-        <Card className="p-4">
+        <Panel title="Параметры чек-листа" bodyClassName="px-3 py-3">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_180px]">
             <Field label="Название">
               <input className={inputCls} value={draft.name} onChange={(e) => upd({ name: e.target.value })} />
@@ -150,12 +155,12 @@ export default function ChecklistsPage() {
             </Field>
           </div>
           <div className="mt-3">
-            <div className="mb-1 text-xs font-medium text-slate-600">Секции</div>
+            <div className="mb-1 text-xs font-medium text-ink-2">Секции</div>
             <div className="flex flex-wrap gap-2">
               {draft.sections.map((s, i) => (
                 <input
                   key={s.id}
-                  className={cx(inputCls, "w-64")}
+                  className={cx(inputCls, "w-full sm:w-64")}
                   value={s.title}
                   onChange={(e) => upd({ sections: draft.sections.map((x, k) => (k === i ? { ...x, title: e.target.value } : x)) })}
                 />
@@ -165,32 +170,39 @@ export default function ChecklistsPage() {
               </Button>
             </div>
           </div>
-        </Card>
+        </Panel>
 
-        <div className="flex items-center gap-3 px-1">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Критерии ({draft.criteria.length})</h2>
-          <span className={cx("text-xs", weightSum === 100 ? "text-slate-500" : "text-amber-700")}>
-            сумма весов {weightSum}
-            {weightSum !== 100 && " — итог всё равно нормируется к 100"}
-          </span>
-          <Button size="sm" className="ml-auto" onClick={addCriterion}>
-            + Добавить критерий
-          </Button>
-        </div>
-
+        <Panel
+          title={`Критерии (${draft.criteria.length})`}
+          aside={
+            <>
+              <span className={cx("figures", weightSum === 100 ? "text-ink-3" : "text-warn")}>
+                сумма весов <b className="font-mono font-medium">{weightSum}</b>
+                {weightSum !== 100 && " — итог всё равно нормируется к 100"}
+              </span>
+              <Button size="sm" onClick={addCriterion}>
+                + Добавить критерий
+              </Button>
+            </>
+          }
+        >
         {draft.criteria.map((c, idx) => (
-          <Card key={c.id} className={cx(open === c.id && "ring-2 ring-brand-100")}>
-            <div className="flex cursor-pointer items-center gap-2 px-4 py-2.5" onClick={() => setOpen(open === c.id ? null : c.id)}>
-              <span className="font-mono text-xs text-slate-400">{c.code}</span>
+          <div key={c.id} className={cx("border-b border-rule-soft last:border-b-0", open === c.id && "bg-paper/70 shadow-[inset_3px_0_0_var(--color-accent)]")}>
+            <button
+              className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2 text-left hover:bg-paper"
+              onClick={() => setOpen(open === c.id ? null : c.id)}
+              aria-expanded={open === c.id}
+            >
+              <span className="w-5 font-mono text-xs text-ink-3">{c.code}</span>
               <span className="font-medium">{c.title}</span>
-              <Badge tone="slate">{c.isFlag ? "флаг" : c.answerType === "yes_no" ? "Да/Нет" : `шкала ${(c.steps ?? []).map((s) => s.value).join("/")}`}</Badge>
+              {c.isFlag ? <Badge tone="red">флаг</Badge> : <Badge tone="slate">{c.answerType === "yes_no" ? "Да/Нет" : `шкала ${(c.steps ?? []).map((s) => s.value).join("/")}`}</Badge>}
               {c.naAllowed && <Badge tone="blue">N/A</Badge>}
-              <span className="ml-auto text-xs text-slate-500">{c.isFlag ? "без баллов" : `вес ${c.weight}`}</span>
-              <span className="text-xs text-slate-400">{draft.sections.find((s) => s.id === c.sectionId)?.title}</span>
-              <span className="text-slate-400">{open === c.id ? "▴" : "▾"}</span>
-            </div>
+              <span className="ml-auto hidden max-w-56 truncate text-xs text-ink-3 sm:inline">{draft.sections.find((s) => s.id === c.sectionId)?.title}</span>
+              <span className="figures w-16 text-right font-mono text-xs text-ink-2">{c.isFlag ? <span className="font-sans text-ink-3">без баллов</span> : `вес ${c.weight}`}</span>
+              <span className="w-3 text-ink-3">{open === c.id ? "▴" : "▾"}</span>
+            </button>
             {open === c.id && (
-              <div className="space-y-3 border-t border-slate-100 p-4">
+              <div className="space-y-3 border-t border-rule-soft px-3 py-3 sm:pl-10">
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
                   <Field label="Код">
                     <input className={inputCls} value={c.code} onChange={(e) => updC(c.id, { code: e.target.value })} />
@@ -257,7 +269,7 @@ export default function ChecklistsPage() {
                 )}
                 {c.answerType === "scale" && !c.isFlag && (
                   <div>
-                    <div className="mb-1 text-xs font-medium text-slate-600">Ступени шкалы (верхняя ступень даёт полный вес)</div>
+                    <div className="mb-1 text-xs font-medium text-ink-2">Ступени шкалы (верхняя ступень даёт полный вес)</div>
                     <div className="space-y-1.5">
                       {(c.steps ?? []).map((s, i) => (
                         <div key={i} className="flex gap-2">
@@ -273,8 +285,8 @@ export default function ChecklistsPage() {
                             placeholder="Описание ступени"
                             onChange={(e) => updC(c.id, { steps: c.steps!.map((x, k) => (k === i ? { ...x, description: e.target.value } : x)) })}
                           />
-                          <Button size="sm" variant="ghost" onClick={() => updC(c.id, { steps: c.steps!.filter((_, k) => k !== i) })}>
-                            ✕
+                          <Button size="sm" variant="ghost" className="h-8" title="Удалить ступень" onClick={() => updC(c.id, { steps: c.steps!.filter((_, k) => k !== i) })}>
+                            Удалить
                           </Button>
                         </div>
                       ))}
@@ -288,11 +300,11 @@ export default function ChecklistsPage() {
                   <input className={inputCls} value={c.guidance ?? ""} onChange={(e) => updC(c.id, { guidance: e.target.value })} />
                 </Field>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => move(c.id, -1)} disabled={idx === 0}>
-                    ↑
+                  <Button size="sm" onClick={() => move(c.id, -1)} disabled={idx === 0} title="Переместить выше">
+                    ↑ выше
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => move(c.id, 1)} disabled={idx === draft.criteria.length - 1}>
-                    ↓
+                  <Button size="sm" onClick={() => move(c.id, 1)} disabled={idx === draft.criteria.length - 1} title="Переместить ниже">
+                    ↓ ниже
                   </Button>
                   <Button size="sm" variant="danger" className="ml-auto" onClick={() => setDraft({ ...draft, criteria: draft.criteria.filter((x) => x.id !== c.id) })}>
                     Удалить критерий
@@ -300,39 +312,41 @@ export default function ChecklistsPage() {
                 </div>
               </div>
             )}
-          </Card>
+          </div>
         ))}
+        </Panel>
 
-        <Card className="p-4">
+        <Card className="p-3">
           <Field label="Общие правила оценки (памятка чек-листа и интерпретации) — передаются оценщику дословно">
             <textarea className={cx(inputCls, "h-56 font-mono text-xs")} value={draft.rules} onChange={(e) => upd({ rules: e.target.value })} />
           </Field>
-          <button className="mt-2 text-xs text-brand-700 hover:underline" onClick={() => setShowPrompt((s) => !s)}>
+          <button className="mt-2 text-xs text-accent hover:underline" onClick={() => setShowPrompt((s) => !s)}>
             {showPrompt ? "Скрыть" : "Показать"} промпт, сгенерированный из этого чек-листа
           </button>
-          {showPrompt && <pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-900 p-3 text-xs text-slate-100">{buildSystemPrompt(draft)}</pre>}
+          {showPrompt && <pre className="mt-2 max-h-96 overflow-auto border border-rule bg-paper p-3 font-mono text-xs whitespace-pre-wrap text-ink-2">{buildSystemPrompt(draft)}</pre>}
         </Card>
 
-        <div className="sticky bottom-0 z-10 -mx-1 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur">
+        <div className="sticky bottom-0 z-10 space-y-2 border border-ink-4 bg-sheet px-3 py-2.5 shadow-[0_-8px_24px_-16px_rgb(26_29_33/0.4)]">
           {problems.length > 0 && <ErrorNote error={problems.join("\n")} />}
           <ErrorNote error={error} />
-          {info && <div className="mb-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900">{info}</div>}
+          {info && <InfoNote>{info}</InfoNote>}
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={activate} onChange={(e) => setActivate(e.target.checked)} /> сделать активным
             </label>
-            <span className="text-xs text-slate-500">Сохранение создаёт новую версию; прошлые оценки хранят свою версию чек-листа.</span>
-            <div className="ml-auto flex gap-2">
+            <span className="hidden text-xs text-ink-3 sm:inline">Сохранение создаёт новую версию; прошлые оценки хранят свою версию чек-листа.</span>
+            {dirty && <span className="label-caps !text-warn">есть несохранённые изменения</span>}
+            <div className="flex flex-wrap gap-2 sm:ml-auto">
               <Button variant="ghost" disabled={!dirty} onClick={() => setDraft(clone(saved!))}>
                 Отменить изменения
               </Button>
-              <Button onClick={reevaluateGroup}>↻ Переоценить набор</Button>
+              <Button onClick={reevaluateGroup}>Переоценить набор</Button>
               <Button variant="primary" disabled={!dirty || busy || problems.length > 0} onClick={save}>
                 {busy && <Spinner />} Сохранить версию
               </Button>
             </div>
           </div>
-          <div className="mt-1 text-[11px] text-slate-400">
+          <div className="hidden text-2xs text-ink-3 sm:block">
             После сохранения откройте <Link href="/" className="underline">диалог</Link> и нажмите «Переоценить» — новый критерий оценивается без изменений кода.
           </div>
         </div>

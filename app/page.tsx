@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, API_BASE } from "@/ui/api";
-import { Badge, Button, Card, ErrorNote, Field, inputCls, Spinner, cx } from "@/ui/kit";
+import { AnswerMark, Badge, Button, Card, Channel, ErrorNote, Field, GrossMark, Lang, Meter, Panel, Spinner, cx, inputCls, rowCls, tableCls, theadCls } from "@/ui/kit";
 import { totalTone } from "@/ui/format";
 import type { Checklist } from "@/core/types";
 import { SettingsPanel, type SettingsResp } from "@/ui/SettingsPanel";
@@ -199,11 +199,15 @@ export default function DialoguesPage() {
   const langs = [...new Set(rows.map((r) => r.language))].sort();
   const channels = [...new Set(rows.map((r) => r.channel))].sort();
 
+
+  const toggle = (s: string) => setFilter((f) => ({ ...f, status: f.status === s ? "" : s }));
+  const criteria = active?.criteria ?? [];
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* toolbar */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <Card>
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-2 px-3 py-2.5">
           <Field label="Набор диалогов">
             <select className={cx(inputCls, "min-w-40")} value={group} onChange={(e) => setGroup(e.target.value)}>
               {!groups.length && <option value="">— нет данных —</option>}
@@ -215,33 +219,42 @@ export default function DialoguesPage() {
             </select>
           </Field>
           <Field label="Загрузить по group_id из API организаторов">
-            <div className="flex gap-2">
-              <input className={cx(inputCls, "w-36")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
-              <Button onClick={fetchGroup} disabled={!fetchId || busy === "fetch"}>
-                {busy === "fetch" ? <Spinner /> : "⤓"} Загрузить
+            <div className="flex">
+              <input className={cx(inputCls, "w-32 rounded-r-none")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
+              <Button className="-ml-px rounded-l-none" onClick={fetchGroup} disabled={!fetchId || busy === "fetch"}>
+                {busy === "fetch" && <Spinner />} Загрузить
               </Button>
             </div>
           </Field>
           <div>
             <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])} />
             <Button onClick={() => fileRef.current?.click()} disabled={busy === "upload"}>
-              {busy === "upload" ? <Spinner /> : "⇪"} Загрузить JSON-файл
+              {busy === "upload" && <Spinner />} Загрузить JSON-файл
             </Button>
           </div>
-          <div className="ml-auto flex flex-wrap items-end gap-2">
-            <Button variant="ghost" onClick={() => setShowSettings((s) => !s)}>
-              ⚙ Модель:{" "}
-              <span className="font-mono text-xs">
+          <div className="flex w-full flex-wrap items-end gap-2 lg:ml-auto lg:w-auto">
+            <button
+              onClick={() => setShowSettings((s) => !s)}
+              aria-expanded={showSettings}
+              className={cx(
+                "flex h-8 min-w-0 items-center gap-2 border px-2.5 text-left text-xs",
+                showSettings ? "border-ink-4 bg-paper" : "border-rule-soft bg-paper/60 hover:border-rule",
+              )}
+              title="Настройки модели оценки"
+            >
+              <span className="label-caps">Модель</span>
+              <span className="truncate font-mono text-ink">
                 {settings?.settings.ensemble?.length
                   ? `ансамбль ×${settings.settings.ensemble.length}`
                   : `${settings?.settings.provider ?? "…"}/${settings?.settings.model ?? ""} ×${settings?.settings.samples ?? ""}`}
               </span>
-            </Button>
+              <span className="text-ink-3">{showSettings ? "▴" : "▾"}</span>
+            </button>
             <Button onClick={() => runBatch(true)} disabled={!group || job?.status === "running"}>
               Оценить неоценённые
             </Button>
             <Button variant="primary" onClick={() => runBatch(false)} disabled={!group || job?.status === "running"}>
-              {job?.status === "running" ? <Spinner /> : "▶"} Оценить все
+              {job?.status === "running" && <Spinner />} Оценить все
             </Button>
           </div>
         </div>
@@ -249,16 +262,16 @@ export default function DialoguesPage() {
         {showSettings && settings && <SettingsPanel s={settings} onSave={saveSettings} active={active} />}
 
         {job && (
-          <div className="mt-4 border-t border-slate-100 pt-3">
-            <div className="mb-1 flex justify-between text-xs text-slate-600">
-              <span>
-                Пакетная оценка {job.status === "running" ? "идёт" : "завершена"}: {job.done + job.failed} / {job.total}
-                {job.failed ? <span className="text-red-600"> · ошибок {job.failed}</span> : null}
+          <div className="border-t border-rule-soft px-3 py-2">
+            <div className="mb-1 flex gap-3 text-xs text-ink-2">
+              <span className="figures shrink-0">
+                Пакетная оценка {job.status === "running" ? "идёт" : "завершена"}: <b className="font-medium text-ink">{job.done + job.failed}</b> / {job.total}
+                {job.failed ? <span className="text-fail"> · ошибок {job.failed}</span> : null}
               </span>
-              {job.errors.length > 0 && <span className="truncate text-red-600" title={job.errors.join("\n")}>{job.errors.at(-1)}</span>}
+              {job.errors.length > 0 && <span className="ml-auto truncate text-fail" title={job.errors.join("\n")}>{job.errors.at(-1)}</span>}
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-              <div className="h-full bg-brand-500 transition-all" style={{ width: `${job.total ? ((job.done + job.failed) / job.total) * 100 : 0}%` }} />
+            <div className="h-[3px] bg-shade">
+              <div className={cx("h-full transition-all", job.status === "running" ? "bg-accent" : "bg-ink-3")} style={{ width: `${job.total ? ((job.done + job.failed) / job.total) * 100 : 0}%` }} />
             </div>
           </div>
         )}
@@ -266,131 +279,126 @@ export default function DialoguesPage() {
 
       <ErrorNote error={error} />
 
-      {/* dashboard */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-        <Stat label="Оценено" value={`${stats.evaluated} / ${rows.length}`} />
+      {/* dashboard strip */}
+      <Card className="grid grid-cols-2 overflow-hidden sm:grid-cols-3 xl:grid-cols-6">
+        <Stat label="Оценено" value={<>{stats.evaluated}<span className="text-ink-4"> / {rows.length}</span></>} />
         <Stat label="Средний балл" value={stats.avg === null ? "—" : stats.avg.toFixed(1)} tone={totalTone(stats.avg)} />
-        <Stat label="Грубые ошибки" value={String(stats.gross)} tone={stats.gross ? "text-red-600" : undefined} onClick={() => setFilter((f) => ({ ...f, status: f.status === "gross" ? "" : "gross" }))} />
-        <Stat label="Нужна проверка" value={String(stats.low)} hint="голоса модели разошлись" tone={stats.low ? "text-amber-600" : undefined} onClick={() => setFilter((f) => ({ ...f, status: f.status === "low" ? "" : "low" }))} />
-        <Stat label="Открытые апелляции" value={String(stats.appeals)} onClick={() => setFilter((f) => ({ ...f, status: f.status === "appeal" ? "" : "appeal" }))} />
+        <Stat label="Грубые ошибки" value={String(stats.gross)} tone={stats.gross ? "text-fail" : undefined} active={filter.status === "gross"} onClick={() => toggle("gross")} />
+        <Stat label="Нужна проверка" value={String(stats.low)} hint="голоса модели разошлись" tone={stats.low ? "text-warn" : undefined} active={filter.status === "low"} onClick={() => toggle("low")} />
+        <Stat label="Открытые апелляции" value={String(stats.appeals)} tone={stats.appeals ? "text-appeal" : undefined} active={filter.status === "appeal"} onClick={() => toggle("appeal")} />
         <Stat label="Стоимость оценки" value={stats.avgCost === null ? "—" : `$${stats.avgCost.toFixed(3)}`} hint="в среднем, все вызовы" />
-      </div>
+      </Card>
 
       {stats.evaluated > 0 && (
-        <Card className="p-4">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Выполнение критериев (среди применимых)</div>
-          <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2 xl:grid-cols-4">
-            {stats.crit.map(({ c, rate, n }) => (
-              <div key={c.id} className="flex items-center gap-2 text-sm">
-                <span className="w-56 truncate text-slate-700" title={c.title}>
-                  {c.code}. {c.title}
-                </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                  <div className={cx("h-full", c.isFlag ? "bg-red-500" : "bg-brand-500")} style={{ width: `${(rate ?? 0) * 100}%` }} />
-                </div>
-                <span className="w-16 text-right text-xs tabular-nums text-slate-500">{rate === null ? "—" : `${Math.round(rate * 100)}%`} ({n})</span>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <Panel title="Выполнение критериев (среди применимых)" bodyClassName="grid grid-cols-1 gap-x-8 gap-y-1 px-3 py-2.5 md:grid-cols-2 xl:grid-cols-4">
+          {stats.crit.map(({ c, rate, n }) => (
+            <div key={c.id} className="flex min-w-0 items-center gap-2 text-sm">
+              <span className="w-5 shrink-0 font-mono text-xs text-ink-3">{c.code}</span>
+              <span className="w-40 shrink-0 truncate text-ink-2 sm:w-44" title={c.title}>
+                {c.title}
+              </span>
+              <Meter value={rate} tone={c.isFlag ? "fail" : "accent"} />
+              <span className="figures w-16 shrink-0 text-right font-mono text-xs text-ink">
+                {rate === null ? "—" : `${Math.round(rate * 100)}%`}
+                <span className="text-ink-4"> {n}</span>
+              </span>
+            </div>
+          ))}
+        </Panel>
       )}
 
       {/* table */}
       <Card>
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 p-3">
-          <input className={cx(inputCls, "w-48")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
-          <select className={cx(inputCls, "w-28")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
+        <div className="flex flex-wrap items-center gap-2 border-b border-rule px-3 py-2">
+          <input className={cx(inputCls, "w-full sm:w-48")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
+          <select className={cx(inputCls, "w-[calc(50%-4px)] sm:w-28")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
             <option value="">Все языки</option>
             {langs.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-          <select className={cx(inputCls, "w-36")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
+          <select className={cx(inputCls, "w-[calc(50%-4px)] sm:w-36")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
             <option value="">Все каналы</option>
             {channels.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-          <select className={cx(inputCls, "w-44")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
+          <select className={cx(inputCls, "w-full sm:w-44")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
             <option value="">Любой статус</option>
             <option value="none">Не оценены</option>
             <option value="gross">Грубые ошибки</option>
             <option value="low">Нужна проверка</option>
             <option value="appeal">Есть апелляция</option>
           </select>
-          <span className="ml-auto text-xs text-slate-500">{filtered.length} диалогов</span>
+          <span className="figures ml-auto text-xs text-ink-3">{filtered.length} диалогов</span>
           {group && (
-            <a className="text-xs text-brand-700 hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
+            <a className="text-xs text-accent hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
               Экспорт CSV
             </a>
           )}
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <table className={tableCls}>
+            <thead className={theadCls}>
               <tr>
-                <th className="px-3 py-2">Диалог</th>
-                <th className="px-3 py-2">Язык</th>
-                <th className="px-3 py-2">Канал</th>
-                <th className="px-3 py-2 text-right">Реплик</th>
-                {(active?.criteria ?? []).map((c) => (
-                  <th key={c.id} className="px-1.5 py-2 text-center" title={c.title}>
+                <th>Диалог</th>
+                <th>Язык</th>
+                <th>Канал</th>
+                <th className="text-right">Реплик</th>
+                {criteria.map((c, i) => (
+                  <th key={c.id} className={cx("!px-0 text-center font-mono", i === 0 && "border-l border-rule-soft")} title={`${c.code}. ${c.title}`}>
                     {c.code}
                   </th>
                 ))}
-                <th className="px-3 py-2 text-right">Итог</th>
-                <th className="px-3 py-2">Статус</th>
-                <th className="px-3 py-2" />
+                <th className="border-l border-rule text-right">Итог</th>
+                <th>Статус</th>
+                <th />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50">
-                  <td className="px-3 py-2 font-mono text-xs">
-                    <Link href={`/dialogue/?id=${encodeURIComponent(r.id)}`} className="text-brand-700 hover:underline">
+                <tr key={r.id} className={cx(rowCls, r.evaluation?.gross && "shadow-[inset_3px_0_0_var(--color-fail)]")}>
+                  <td className="h-9 px-3 font-mono text-xs whitespace-nowrap">
+                    <Link href={`/dialogue/?id=${encodeURIComponent(r.id)}`} className="text-accent hover:underline">
                       {r.id}
                     </Link>
                   </td>
-                  <td className="px-3 py-2">
-                    <Badge>{r.language}</Badge>
+                  <td className="px-3">
+                    <Lang code={r.language} />
                   </td>
-                  <td className="px-3 py-2 text-xs text-slate-600">
-                    {r.channel === "voice call" ? "📞 звонок" : "💬 чат"}
+                  <td className="px-3 text-xs whitespace-nowrap">
+                    <Channel voice={r.channel === "voice call"} />
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-slate-500">{r.turns}</td>
-                  {(active?.criteria ?? []).map((c) => {
-                    const a = r.evaluation?.answers[c.id];
-                    const low = r.evaluation?.lowConfidence.includes(c.id);
-                    return (
-                      <td key={c.id} className="px-1.5 py-2 text-center text-xs tabular-nums">
-                        <span className={cx(low && "rounded bg-amber-100 px-1", a === "no" || a === 0 ? "text-red-600" : a === "na" ? "text-slate-400" : c.isFlag && a === "yes" ? "font-bold text-red-600" : "text-slate-700")}>
-                          {a === undefined ? "" : a === "yes" ? (c.isFlag ? "⚠" : "✓") : a === "no" ? (c.isFlag ? "–" : "✗") : a === "na" ? "N/A" : a}
-                        </span>
-                      </td>
-                    );
-                  })}
-                  <td className={cx("px-3 py-2 text-right font-semibold tabular-nums", totalTone(r.evaluation?.total))}>
+                  <td className="figures px-3 text-right font-mono text-xs text-ink-3">{r.turns}</td>
+                  {criteria.map((c, i) => (
+                    <td key={c.id} className={cx("px-0.5 text-center", i === 0 && "border-l border-rule-soft")}>
+                      <AnswerMark c={c} a={r.evaluation?.answers[c.id]} low={r.evaluation?.lowConfidence.includes(c.id)} />
+                    </td>
+                  ))}
+                  <td className={cx("figures border-l border-rule px-3 text-right font-mono text-sm font-medium", totalTone(r.evaluation?.total))}>
                     {r.evaluation?.status === "done" ? (r.evaluation.total ?? "—") : ""}
                     {r.evaluation && r.evaluation.total !== r.evaluation.originalTotal && (
-                      <div className="text-[10px] font-normal text-slate-400 line-through">{r.evaluation.originalTotal}</div>
+                      <div className="text-2xs leading-3 font-normal text-ink-4 line-through">{r.evaluation.originalTotal}</div>
                     )}
                   </td>
-                  <td className="space-x-1 px-3 py-2">
-                    {r.evaluation?.status === "error" && <Badge tone="red">ошибка</Badge>}
-                    {r.evaluation?.gross && <Badge tone="red">грубая ошибка</Badge>}
-                    {!!r.evaluation?.lowConfidence.length && <Badge tone="amber">проверить</Badge>}
-                    {r.openAppeals > 0 && <Badge tone="violet">апелляция</Badge>}
+                  <td className="px-3">
+                    <div className="flex flex-wrap gap-1">
+                      {r.evaluation?.status === "error" && <Badge tone="red">ошибка</Badge>}
+                      {r.evaluation?.gross && <GrossMark />}
+                      {!!r.evaluation?.lowConfidence.length && <Badge tone="amber">проверить</Badge>}
+                      {r.openAppeals > 0 && <Badge tone="violet">апелляция</Badge>}
+                    </div>
                   </td>
-                  <td className="px-3 py-2 text-right">
-                    <Button size="sm" onClick={() => evaluateOne(r.id)} disabled={evaluating.has(r.id) || job?.status === "running"}>
-                      {evaluating.has(r.id) ? <Spinner /> : r.evaluation ? "↻" : "▶"} {r.evaluation ? "Переоценить" : "Оценить"}
+                  <td className="px-3 text-right">
+                    <Button size="sm" variant={r.evaluation ? "ghost" : "secondary"} onClick={() => evaluateOne(r.id)} disabled={evaluating.has(r.id) || job?.status === "running"}>
+                      {evaluating.has(r.id) && <Spinner />} {r.evaluation ? "Переоценить" : "Оценить"}
                     </Button>
                   </td>
                 </tr>
               ))}
               {!filtered.length && (
                 <tr>
-                  <td colSpan={20} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={20} className="px-3 py-10 text-center text-ink-3">
                     {rows.length ? "Нет диалогов под фильтр." : "Загрузите набор по group_id (например, DEV) или JSON-файл."}
                   </td>
                 </tr>
@@ -398,19 +406,39 @@ export default function DialoguesPage() {
             </tbody>
           </table>
         </div>
+        {criteria.length > 0 && (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-rule-soft px-3 py-1.5 text-2xs text-ink-3">
+            <span><span className="font-mono text-pass">✓</span> да</span>
+            <span><span className="font-mono text-fail">✗</span> нет</span>
+            <span><span className="font-mono text-na">–</span> N/A</span>
+            <span><span className="font-mono text-warn">5</span> ступень шкалы</span>
+            <span><span className="font-mono font-semibold text-fail">▲</span> флаг грубой ошибки</span>
+            <span><span className="bg-warn-soft px-1 font-mono outline outline-1 outline-warn/40">✓</span> голоса разошлись</span>
+          </div>
+        )}
       </Card>
     </div>
   );
 }
 
-function Stat({ label, value, tone, hint, onClick }: { label: string; value: string; tone?: string; hint?: string; onClick?: () => void }) {
+function Stat({ label, value, tone, hint, onClick, active }: { label: string; value: React.ReactNode; tone?: string; hint?: string; onClick?: () => void; active?: boolean }) {
+  const Tag = onClick ? "button" : "div";
   return (
-    <Card className={cx("p-3", onClick && "cursor-pointer hover:border-slate-300")}>
-      <div onClick={onClick}>
-        <div className="text-xs text-slate-500">{label}</div>
-        <div className={cx("text-2xl font-semibold tabular-nums", tone)}>{value}</div>
-        {hint && <div className="text-[11px] text-slate-400">{hint}</div>}
+    <Tag
+      onClick={onClick}
+      aria-pressed={onClick ? !!active : undefined}
+      className={cx(
+        "-mb-px -ml-px min-w-0 border-b border-l border-rule-soft px-3 py-2 text-left",
+        onClick && "cursor-pointer hover:bg-paper",
+        active && "bg-accent-soft shadow-[inset_0_-2px_0_var(--color-accent)]",
+      )}
+    >
+      <div className="label-caps flex items-center gap-1">
+        {label}
+        {onClick && <span className="font-normal normal-case tracking-normal text-ink-4">{active ? "· фильтр" : ""}</span>}
       </div>
-    </Card>
+      <div className={cx("figures mt-0.5 font-mono text-xl leading-7 font-medium text-ink", tone)}>{value}</div>
+      <div className="h-4 truncate text-2xs text-ink-3">{hint}</div>
+    </Tag>
   );
 }
