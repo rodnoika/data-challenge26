@@ -11,7 +11,7 @@ import {
   updateBatch,
   upsertDialogues,
 } from "./db";
-import { evaluateDialogue } from "./evaluator";
+import { evaluateDialogue, sameModel, voterLabel } from "./evaluator";
 
 /* ---------- organisers' API (proxied server-side: no CORS in the browser) ---------- */
 
@@ -61,18 +61,20 @@ export async function runEvaluation(dialogueId: string, checklistId?: string) {
   if (!d) throw new Error(`Dialogue ${dialogueId} not found`);
   const cl: Checklist = (checklistId && getChecklist(checklistId)) || getActiveChecklist();
   const s = getSettings();
+  const voters = s.ensemble?.length ? s.ensemble : sameModel(s.provider, s.model, s.samples);
+  const who = voterLabel(voters);
   try {
-    const out = await evaluateDialogue(d, cl, { provider: s.provider, model: s.model, samples: s.samples, effort: s.effort });
+    const out = await evaluateDialogue(d, cl, { voters, reasoning: s.reasoning });
     const id = insertEvaluation({
       dialogueId,
       checklist: cl,
-      provider: s.provider,
+      provider: out.provider,
       model: out.model,
-      samples: out.samplesOk,
+      samples: out.votes.filter((v) => v.ok).length,
       status: "done",
       judgments: out.judgments,
       facts: out.facts,
-      raw: { promptVersion: out.promptVersion, samples: out.raw },
+      raw: { promptVersion: out.promptVersion, reasoning: out.reasoning, votes: out.votes, responses: out.raw },
       total: out.score.total,
       gross: out.score.grossError,
       usage: out.usage,
@@ -85,8 +87,8 @@ export async function runEvaluation(dialogueId: string, checklistId?: string) {
     insertEvaluation({
       dialogueId,
       checklist: cl,
-      provider: s.provider,
-      model: s.model,
+      provider: who.provider,
+      model: who.model,
       samples: 0,
       status: "error",
       error: msg,

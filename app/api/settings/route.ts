@@ -1,19 +1,27 @@
-import { getSettings, saveSettings } from "@/server/db";
+import { getSettings, resetModelSettings, saveSettings } from "@/server/db";
 import { handle, ok } from "@/server/http";
-import { PROVIDER_IDS, PRICES } from "@/server/providers";
+import { hasKey, loadRegistry, PROVIDER_IDS } from "@/server/registry";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = handle(async () =>
-  ok({
+const info = () => {
+  const reg = loadRegistry();
+  return {
     settings: getSettings(),
     providers: PROVIDER_IDS,
-    knownPrices: PRICES,
-    keys: {
-      anthropic: !!process.env.ANTHROPIC_API_KEY,
-      openai: !!process.env.OPENAI_API_KEY,
-      gemini: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
-    },
-  }),
-);
-export const PUT = handle(async (req: Request) => ok({ settings: saveSettings(await req.json()) }));
+    registry: reg,
+    keys: Object.fromEntries(PROVIDER_IDS.map((p) => [p, hasKey(p)])),
+  };
+};
+
+export const GET = handle(async () => ok(info()));
+
+export const PUT = handle(async (req: Request) => {
+  const body = await req.json();
+  if (body?.reset) resetModelSettings();
+  else {
+    const allowed = ["provider", "model", "samples", "reasoning", "concurrency", "ensemble"] as const;
+    saveSettings(Object.fromEntries(Object.entries(body ?? {}).filter(([k]) => (allowed as readonly string[]).includes(k))));
+  }
+  return ok(info());
+});

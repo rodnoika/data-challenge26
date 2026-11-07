@@ -8,6 +8,8 @@ next-env.d.ts
 data/cqa.db*
 .DS_Store
 runs/*.json
+runs/*.csv
+benchmarks/*smoke*.json
 !runs/.gitkeep
 # Organiser data contains signed URLs: never commit. Regenerate with npm run fetch:dataset / export:readable.
 data/*.json

@@ -3,7 +3,7 @@
 ## Context
 This is the Freedom Broker x NU Data Challenge: a 24h build of a Conversation Quality Analytics prototype. The clock started on 7 Nov 12:00 (UTC+5). Control transcripts arrive 8 Nov 11:00, stop-code is 12:00 and the pitch is 13:00. **Accuracy against the organisers' ground truth on 10 unseen dialogues is the main criterion.** The secondary criteria are full Contour 1 + 2 functionality, usability, honest processing (no replayed results) and a live "replace a criterion and re-run" check.
 
-Team: 2 people. **Z** is full-stack, Next.js/Svelte, reads Kazakh, and works with Claude Code. **T** is the teammate, strongest at Python/ML/data. We have Anthropic, OpenAI and Gemini keys, an M4 Mac with 24 GB, Next.js only, and the demo runs locally. All 65 DEV dialogues get hand-labelled. Chosen extras: batch run + dashboard, and self-consistency confidence.
+Team: 2 people. **Z** is full-stack, Next.js/Svelte, reads Kazakh, and works with Claude Code. **T** is the teammate, strongest at Python/ML/data. We have Anthropic, OpenAI and Gemini keys, an M4 Mac with 24 GB, Next.js only, and the demo runs locally. All 65 DEV dialogues get hand-labelled. Chosen extras: batch run + dashboard, and self-consistency confidence. **The evaluation model is chosen by a benchmark on those labels (§6a), not by default.**
 
 Plan-mode note: `data/dev.json` is currently in the scratchpad (fetched OK: 222 KB, 65 records). It is copied into the repo, and this file is copied to `PLAN.md`, as the first step after approval.
 
@@ -74,8 +74,8 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
 ```
 
 - **Storage:** SQLite through `better-sqlite3` (synchronous, one file `data/cqa.db`). The fallback is `node:sqlite` if the native build misbehaves.
-- **Providers:** `LLMProvider.judge(prompt, schema) → {json, usage}`. Implementations are `anthropic` (primary), `openai`, `gemini`, and `ollama` if time allows. The provider and model are chosen in a Settings panel and stored per evaluation.
-- **Primary model:** Claude Opus 5.5 (`claude-opus-5-5`) with adaptive thinking, effort `medium`, and structured output via `output_config.format` JSON schema. The harness compares it against Claude Sonnet 5.5 (`claude-sonnet-5-5`) and gpt/gemini on DEV, and the winner is the default. Server-side refusal `fallbacks: "default"` is enabled.
+- **Providers:** one vendor-neutral interface with equal adapters for `anthropic`, `openai`, `gemini` and `ollama` (local). No provider is "primary". Provider and model come from config, are selectable in the UI settings, and are stored with every result. See §6a.
+- **Evaluation model: not chosen yet.** It is picked by the benchmark in §6a on our labelled DEV data. Until then the configured default is only a placeholder for development, and nothing in the pitch or README names a model as "the" judge before the numbers exist.
 
 ## 4. Data model (SQLite, JSON columns)
 - `dialogues(id PK, group_id, channel, language, transcript JSON, audio_url, source 'api'|'upload', fetched_at)`
@@ -116,14 +116,14 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
    - user: the facts block and the transcript as `[i] mm:ss SPEAKER: text`, with internal turns tagged
    - The output JSON schema is generated from the criteria: an `answer` enum per criterion built from its type and N/A availability, plus `evidence_turn_ids`, `checked_span`, `na_reason` and a short `explanation` in the dialogue's language (RU UI default).
    
-   The model **never computes points**. The stable system prefix is cached.
+   The model **never computes points**. The prompt text is identical for every provider, and it uses no vendor-only features (no prefill, no vendor tags, no tool calls).
 3. **Validation:** the schema is enforced by structured outputs. On top of that, code checks:
    - turn ids are in range
    - N/A is used only where allowed, otherwise the criterion is re-asked once
    - an `evidence_turn_id` for 01 that is not an operator turn gets low confidence
    
    Hard fact overrides are kept minimal and visible. For example, "identity verified event + account data disclosed after it" makes 03 ≠ No. Each override is logged in the result as "rule".
-4. **Self-consistency:** N samples (default 3, setting 1–5, run in parallel). Yes/No/N/A uses the majority. Scales use the median step. Any disagreement sets `confidence: low` and a "needs review" badge. Cross-provider voting (Claude + GPT + Gemini) is a harness experiment and the default only if it wins.
+4. **Self-consistency:** N samples (default 3, setting 1–5, run in parallel). Yes/No/N/A uses the majority. Scales use the median step. Any disagreement sets `confidence: low` and a "needs review" badge. N=1 vs N=3, and a cross-vendor ensemble (one vote from each of three vendors), are both candidates in the §6a benchmark. Neither is a default until it wins there.
 5. **Scoring (`scoring.ts`):**
    - points = weight × (yes ? 1 : 0), or weight × step / maxStep for scales
    - applicable = non-N/A criteria with weight > 0
@@ -132,12 +132,57 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
    - flags (isFlag) never add points
    
    This is unit-tested against hand-computed cases, including all-N/A, a new criterion, a changed scale, and weights not summing to 100.
-6. **Cost per evaluation (README + UI):** each call's `usage` is logged as tokens × price (stored per evaluation). The README states the measured mean across the DEV run. Rough estimate for a chat: ~5k input (~3k system, cached after the first call) + ~2–4k output (thinking + JSON).
-   - Opus 5.5 ($4/$20 per MTok): ≈ $0.06–0.09 per sample, ≈ $0.20–0.27 with N=3
-   - Sonnet 5.5 ($2/$10): about half that
-   - Calls are 2–3× longer
-   
-   The method, the measured numbers and the model name go in the README.
+6. **Cost per evaluation (README + UI):**
+   - Each call's real token usage (input, cached input, output including reasoning tokens) is stored per evaluation.
+   - Cost = tokens × the per-token prices in the model registry (§6a). A model with no checked price shows cost "unknown", never a guess.
+   - Expected volume for a chat is ~5k input and ~1–4k output tokens per vote. Calls are 2–3× longer.
+   - The README states the chosen model, the measured mean cost per evaluation on DEV (all calls and votes included), and the date the prices were checked.
+
+## 6a. Model selection by benchmark
+**Why:** accuracy against the organisers' ground truth is the main ranking criterion. We have no evidence yet that any vendor's model grades RU/KZ/EN support chats against this checklist better than the others. There is also a specific bias risk: an Anthropic model (Claude Code) originally proposed Anthropic models as the default. So the choice is made by measurement on our labelled data, with the same prompt for every candidate.
+
+1. **Provider interface (`src/server/providers.ts`):**
+   - Input: `judge({ system, user, schema, model, reasoning })`.
+   - Output: `{ json, text, usage, latencyMs, model }`.
+   - `reasoning` is a neutral `low | medium | high`. Each adapter maps it to its vendor's own control (Anthropic effort, OpenAI reasoning effort, Gemini thinking level/budget). The Ollama adapter ignores it.
+   - Adapters only do transport, plus transport retries on 429/5xx. Parsing, validation and the single re-ask on invalid output live in shared code (`evaluator.ts`), so every provider gets identical treatment.
+2. **Portable structured output:**
+   - The JSON schema is generated from the checklist and kept to the subset that every vendor's strict mode accepts: objects, string enums, integer arrays, all fields required, `additionalProperties: false`. No `anyOf`, nullable types or numeric bounds.
+   - Each adapter enforces the schema through its vendor's own mechanism: Anthropic `output_config.format`, OpenAI Responses `text.format` with `strict`, Gemini `responseJsonSchema`, Ollama `format`.
+   - Vendor-only extras are off: no refusal fallbacks, no vendor tools. Prompt caching is used only where it is transparent and does not change the prompt (explicit on Anthropic, automatic on OpenAI/Gemini). Measured cost includes whatever caching each vendor actually applied.
+3. **Model registry (`config/models.json`):**
+   - Fields per entry: `provider, model, tier (frontier | cheap | local), priceIn, priceCachedIn, priceOut, priceSource (URL), checkedAt`.
+   - The UI settings pick from this list, and cost is computed from it.
+   - **Model IDs and prices are filled in from each vendor's official pricing page at the time of the benchmark, with the date.** They are not taken from memory, because they change often.
+4. **Shortlist:** at least one frontier-tier and one cheap-tier model per cloud vendor, plus one local model.
+   - Anthropic: frontier + cheap
+   - OpenAI: frontier + cheap (mini/nano class)
+   - Google: frontier (Pro class) + cheap (Flash class)
+   - Local via Ollama on the M4 24 GB: one ~12–14B instruction model that supports JSON-schema output
+   - Optional: a mid-tier model per vendor if budget allows, the best model with N=3, and a cross-vendor 3-vote ensemble
+5. **Protocol (`npm run bench`, built on the harness):**
+   - Every candidate runs the **same prompt version and checklist version**, with N=1 and `reasoning: medium`, on the same split.
+   - Before any API calls, the harness prints the projected cost from the registry and asks for confirmation above $5.
+   - **Fairness of prompt tuning:** tuning the rules on one model's mistakes would favour that model. So rules/prompt iterations are driven by disagreements seen across at least two vendors. The prompt version is frozen before the final bake-off.
+   - The final bake-off runs on the **hold-out split** (20 dialogues), which tuning never touched.
+6. **Metrics per candidate:**
+   - mean per-criterion exact agreement, with a 95% bootstrap interval
+   - per-criterion agreement
+   - total-score MAE
+   - gross-error recall and false positives
+   - KZ-only agreement
+   - invalid-output rate (before the re-ask)
+   - measured cost per dialogue
+   - p50/p95 latency
+7. **Decision rule:**
+   - Hard gates: every DEV gross error must be caught, and the invalid-output rate must be < 5%.
+   - Then: highest mean agreement on the hold-out within the cost cap.
+   - Differences inside the bootstrap interval (roughly ±3 pp with n≈160 criterion judgments) count as ties. Ties go to lower cost, then lower latency.
+   - The winner becomes the configured default. The runner-up from **another vendor** is configured as the fallback for the 11:00 run.
+   - Cost cap: set by the team before the run (proposal: ≤ $0.15 per evaluation including all votes; the 10 control dialogues are cheap either way, but tuning runs are not).
+8. **Demo asset:**
+   - The bench writes `benchmarks/<date>.json` (summary only: metrics and model metadata, no transcripts or URLs). The final one is committed.
+   - A **"Сравнение моделей"** page (`/models`) shows the table and marks the chosen default and the local model. It answers the jury's "why this model and what does one evaluation cost" in one screen. The same table goes on a backup slide.
 
 ## 7. Accuracy harness (owned by T)
 - `scripts/export-readable.ts` writes `data/readable/<id>.md` with numbered turns and the facts block, plus `data/labels/dev-labels.csv` with columns `conversation_id, c01..c08, note` and the allowed values.
@@ -148,6 +193,7 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
   - total MAE
   - per-language and channel breakdown
   - gross-error precision/recall, cost and latency
+- The same harness drives the model benchmark in §6a (`--shortlist config/models.json`), and the results are compared with `scripts/compare.ts`.
 - T analyses in pandas and drives prompt/rules changes. The loop: change the rules text → re-run → compare. Tuning is done on a 45-dialogue split, and **20 dialogues are held out** (stratified by language + edge cases) to catch overfitting. Prompts stay generic: no dialogue IDs and no per-case hacks (process correctness).
 
 ## 8. UI screens ↔ 5-minute demo
@@ -157,6 +203,7 @@ runs/                     Harness outputs (JSON + CSV, analysed by T in pandas)
 | 1–3 | **Dialogue card** (`/dialogue?id=`): left = transcript (bot/system greyed, internal turns tagged, hold bands, gap>3m markers); right = result table (criterion, answer, points/weight, explanation, evidence chips). Clicking a chip scrolls to and highlights the turn; for calls it also seeks the audio player. A missing action shows its checked span highlighted. N/A shows its reason. Section subtotals and total, gross banner | Evidence jump, an N/A example, total |
 | 3–4 | **Appeal** (button per criterion → modal: comment) → **Reviewer queue** (`/appeals`): disputed answer, comment, transcript fragment around the evidence; uphold / change + reason → card shows original / decision / final and the new total | The appeal round trip |
 | 4–5 | **Checklist editor** (`/checklists`): list, edit criterion (title, conditions, type, N/A toggle + condition, steps editor, weight, section, flag), rules block, live weight sum, save as new version + activate → re-run a dialogue | Replace a criterion live and re-run |
+| Q&A / backup | **Сравнение моделей** (`/models`): measured agreement, KZ agreement, MAE, gross-error recall, cost per dialogue and latency for every shortlisted model, including the local one; the chosen default is marked | "Why this model, what does it cost" |
 
 UI stack: Tailwind + a few shadcn/ui primitives, RU interface labels with a light EN toggle if cheap. There is no SSR data and no server actions.
 
@@ -172,16 +219,19 @@ UI stack: Tailwind + a few shadcn/ui primitives, RU interface labels with a ligh
 | 15:00–18:00 | `facts.ts`, `scoring.ts` + unit tests, `prompt.ts`, Anthropic provider, evaluator, harness script | Label RU chats (30) |
 | 18:00–20:00 | First full DEV run; dialogue list + card with evidence jump | Finish RU calls + EN; Z labels KZ in parallel (~1 h) |
 | 20:00–23:00 | Checklist editor (CRUD, versions, live re-run); appeals + reviewer + recalculation | First harness analysis → rules/prompt iteration #1–2 |
-| 23:00–02:00 | Batch run + dashboard, self-consistency, audio proxy + seek, OpenAI/Gemini providers | Model comparison (Opus vs Sonnet vs GPT vs Gemini, N=1 vs 3); iterations #3–5 |
-| 02:00–06:00 | Polish, error states, README (run steps, model, cost), `build:static` check; **sleep in shifts** (Z 02–05, T 05–08) | Hold-out evaluation, freeze prompt candidates |
-| **06:00–08:00 FEATURE FREEZE at 08:00** | Bug fixes only; push to public GitHub, send link | Final prompt choice from hold-out numbers |
+| 23:00–02:00 | Provider-neutral interface + model registry, live-test all four adapters, `bench` + `compare` scripts, `/models` page | Check model IDs/prices on vendor pricing pages → registry; tune-split bake-off of the full shortlist (N=1); rules iterations #3–5 driven by cross-vendor disagreements |
+| 02:00–06:00 | Polish, error states, README, `build:static` check; **sleep in shifts** (Z 02–05, T 05–08) | Freeze the prompt version → final bake-off on the hold-out (+ N=3 of the top 2, + cross-vendor ensemble) |
+| **06:00–08:00 FEATURE FREEZE at 08:00** | Bug fixes only; set the winning default + other-vendor fallback; README model/cost section from measured numbers; push | Commit `benchmarks/final.json`, comparison slide |
 | 08:00–10:30 | Rehearse demo ×3, record backup video, pre-pick demo dialogues | Prepare the replace-criterion example, cost table |
 | 11:00 | Fetch control group → batch run (≈10 dialogues × N=3, a few minutes) | Spot-check results, nothing hand-edited |
 | 11:45 | **Final commit** (stop-code 12:00); export CSV of results | — |
 | 13:00 | Pitch | — |
 
 ## 11. Risks and fallbacks
-- **Rate limits / API outage at 11:00:** run concurrency is configurable with retry/backoff. A second provider is configured. The keys are tested at 10:30.
+- **Rate limits / API outage at 11:00:** run concurrency is configurable with retry/backoff. The fallback is the benchmark runner-up from a different vendor, so one vendor's outage can't stop the run. The keys are tested at 10:30.
+- **Biased or noisy model choice:** same prompt for every candidate, cross-vendor-driven tuning, a frozen prompt before the final hold-out bake-off, and ties declared inside the bootstrap interval. The comparison table is shown, not just the winner.
+- **An adapter fails on real data (schema rejected, truncated JSON):** every adapter is live-tested on 3 DEV dialogues before the bake-off. The invalid-output rate is a gate metric.
+- **Local model too slow or too weak on KZ:** it stays in the table as an architecture proof (offline option), not as the default.
 - **Model drift between runs:** majority voting with low-confidence flags. Final checklist and prompt are frozen at 08:00.
 - **Overfitting to DEV:** hold-out split, generic rules only.
 - **better-sqlite3 build issue:** fall back to `node:sqlite`, then to a JSON file store.
@@ -193,5 +243,6 @@ UI stack: Tailwind + a few shadcn/ui primitives, RU interface labels with a ligh
 ## 12. Verification
 - `npm test`: scoring/facts unit tests (redistribution, all-N/A, scale proportion, rounding, new criterion).
 - `npm run harness -- --samples 3`: agreement report against 65 labels. Targets are ≥85% per-criterion exact match and total MAE ≤ 8 on the hold-out.
+- `npm run bench`: every registry model produces valid output on the smoke set. `benchmarks/final.json` exists, and the configured default matches its decision rule.
 - Manual end-to-end in the browser: fetch DEV → evaluate one RU, one KZ, one EN and one call → evidence jump and audio seek → appeal → review → total recalculates → edit/replace a criterion → re-run shows the new criterion.
 - `npm run build:static` succeeds. A fresh clone plus the README steps runs on the Windows machine too.

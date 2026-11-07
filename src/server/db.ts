@@ -6,7 +6,7 @@ import { DEFAULT_CHECKLIST } from "@/core/defaultChecklist";
 import { score } from "@/core/scoring";
 import type { Answer, Appeal, Checklist, Dialogue, EvaluationRecord, Judgment, Review } from "@/core/types";
 import type { Facts } from "@/core/facts";
-import type { ProviderId } from "./providers";
+import { defaultModel, type ProviderId } from "./registry";
 
 const DB_PATH = process.env.CQA_DB ?? path.join(process.cwd(), "data", "cqa.db");
 
@@ -71,20 +71,35 @@ export interface Settings {
   provider: ProviderId;
   model: string;
   samples: number;
-  effort: "low" | "medium" | "high" | "xhigh" | "max";
+  /** Neutral reasoning level; each adapter maps it to its vendor's own control. */
+  reasoning: "low" | "medium" | "high";
   concurrency: number;
+  /** Optional cross-vendor ensemble (one vote per entry). Overrides provider/model/samples when set. */
+  ensemble: { provider: ProviderId; model: string }[] | null;
+  /** Where provider/model came from: explicit UI choice, env, or the registry default. */
+  source: string;
 }
 
 export function getSettings(): Settings {
   const rows = db().prepare("SELECT key, value FROM settings").all() as { key: string; value: string }[];
   const s = Object.fromEntries(rows.map((r) => [r.key, JSON.parse(r.value)]));
+  const def = defaultModel() as ReturnType<typeof defaultModel> & { samples?: number; ensemble?: Settings["ensemble"] };
+  const explicit = s.provider && s.model;
+  const fromEnv = !explicit && process.env.CQA_PROVIDER && process.env.CQA_MODEL;
   return {
-    provider: (s.provider ?? process.env.CQA_PROVIDER ?? "anthropic") as ProviderId,
-    model: s.model ?? process.env.CQA_MODEL ?? "claude-opus-5-5",
-    samples: Number(s.samples ?? process.env.CQA_SAMPLES ?? 3),
-    effort: s.effort ?? "medium",
+    provider: (explicit ? s.provider : fromEnv ? process.env.CQA_PROVIDER : def.provider) as ProviderId,
+    model: explicit ? s.model : fromEnv ? process.env.CQA_MODEL! : def.model,
+    samples: Number(s.samples ?? process.env.CQA_SAMPLES ?? def.samples ?? 1),
+    reasoning: s.reasoning ?? "medium",
     concurrency: Number(s.concurrency ?? process.env.CQA_CONCURRENCY ?? 5),
+    ensemble: s.ensemble !== undefined ? s.ensemble : (explicit || fromEnv ? null : def.ensemble ?? null),
+    source: explicit ? "выбрано в настройках" : fromEnv ? "из .env" : def.chosenBy,
   };
+}
+
+/** Forget explicit UI choices so the registry default (benchmark winner) applies again. */
+export function resetModelSettings() {
+  db().prepare("DELETE FROM settings WHERE key IN ('provider','model','samples','ensemble')").run();
 }
 
 export function saveSettings(patch: Partial<Settings>): Settings {

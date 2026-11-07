@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "fetch:dataset": "tsx scripts/fetch-dataset.ts",
     "export:readable": "tsx scripts/export-readable.ts",
-    "harness": "tsx scripts/harness.ts"
+    "harness": "tsx scripts/harness.ts",
+    "bench": "tsx scripts/bench.ts",
+    "compare": "tsx scripts/compare.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

@@ -11,6 +11,7 @@ const nav = [
   { href: "/", label: "Диалоги" },
   { href: "/appeals/", label: "Апелляции" },
   { href: "/checklists/", label: "Чек-листы" },
+  { href: "/models/", label: "Модели" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

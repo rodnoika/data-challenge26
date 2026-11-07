@@ -1,0 +1,147 @@
+{
+  "_comment": "Evaluation-model registry. Prices are USD per 1M tokens, copied from each vendor's official pricing page on checkedAt. Re-check before quoting costs; prices change often. The default is a development placeholder until the benchmark (PLAN.md §6a) picks one. While default is null, the app uses the first cheap-tier model whose provider has an API key.",
+  "default": null,
+  "fallback": null,
+  "models": [
+    {
+      "provider": "anthropic",
+      "model": "claude-opus-5-5",
+      "label": "Claude Opus 5.5",
+      "tier": "frontier",
+      "price": {
+        "in": 4.0,
+        "cachedIn": 0.2,
+        "cacheWrite": 5.0,
+        "out": 20.0
+      },
+      "priceSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "label": "Claude Sonnet 5.5",
+      "tier": "mid",
+      "optional": true,
+      "price": {
+        "in": 2.0,
+        "cachedIn": 0.1,
+        "cacheWrite": 2.5,
+        "out": 10.0
+      },
+      "priceSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-haiku-5-5",
+      "label": "Claude Haiku 5.5",
+      "tier": "cheap",
+      "price": {
+        "in": 0.1,
+        "cachedIn": 0.01,
+        "cacheWrite": 0.125,
+        "out": 0.5
+      },
+      "priceNote": "prompts up to 100K tokens",
+      "priceSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-6.1-sol",
+      "label": "GPT-6.1 Sol",
+      "tier": "frontier",
+      "price": {
+        "in": 2.0,
+        "cachedIn": 0.1,
+        "out": 10.0
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-6.1-terra",
+      "label": "GPT-6.1 Terra",
+      "tier": "mid",
+      "optional": true,
+      "price": {
+        "in": 1.0,
+        "cachedIn": 0.05,
+        "out": 5.0
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "label": "GPT-6 Luna",
+      "tier": "cheap",
+      "price": {
+        "in": 0.1,
+        "cachedIn": 0.01,
+        "out": 0.5
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-4-argon",
+      "label": "Gemini 4 Argon",
+      "tier": "frontier",
+      "price": {
+        "in": 2.0,
+        "cachedIn": 0.1,
+        "out": 10.0
+      },
+      "priceNote": "price doubles on 2026-12-01 ($4 / $0.20 / $20)",
+      "priceSource": "https://aistudio.google.com/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "label": "Gemini 3.8 Flash",
+      "tier": "mid",
+      "optional": true,
+      "price": {
+        "in": 0.75,
+        "cachedIn": 0.075,
+        "out": 3.75
+      },
+      "priceNote": "price doubles on 2027-01-01",
+      "priceSource": "https://aistudio.google.com/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite",
+      "label": "Gemini 3.5 Flash-Lite",
+      "tier": "cheap",
+      "price": {
+        "in": 0.3,
+        "cachedIn": 0.03,
+        "out": 2.5
+      },
+      "priceSource": "https://aistudio.google.com/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen3:14b",
+      "label": "Qwen3 14B (local, Ollama)",
+      "tier": "local",
+      "price": {
+        "in": 0,
+        "cachedIn": 0,
+        "out": 0
+      },
+      "priceNote": "runs on the team's M4 24 GB; requires `ollama pull qwen3:14b`; model name not yet verified on this machine",
+      "priceSource": "local",
+      "checkedAt": null
+    }
+  ]
+}

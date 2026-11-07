@@ -6,6 +6,7 @@ import { api, API_BASE } from "@/ui/api";
 import { Badge, Button, Card, ErrorNote, Field, inputCls, Spinner, cx } from "@/ui/kit";
 import { totalTone } from "@/ui/format";
 import type { Checklist } from "@/core/types";
+import { SettingsPanel, type SettingsResp } from "@/ui/SettingsPanel";
 
 type Row = {
   id: string;
@@ -29,18 +30,6 @@ type Row = {
   };
 };
 type Job = { id: string; total: number; done: number; failed: number; status: string; errors: string[] };
-type SettingsResp = {
-  settings: { provider: string; model: string; samples: number; effort: string; concurrency: number };
-  providers: string[];
-  keys: Record<string, boolean>;
-};
-
-const MODEL_HINTS: Record<string, string[]> = {
-  anthropic: ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"],
-  openai: [],
-  gemini: [],
-  ollama: ["qwen3:14b", "gemma3:12b"],
-};
 
 export default function DialoguesPage() {
   const [groups, setGroups] = useState<{ groupId: string; count: number }[]>([]);
@@ -164,9 +153,9 @@ export default function DialoguesPage() {
     }
   }
 
-  async function saveSettings(patch: Partial<SettingsResp["settings"]>) {
-    const r = await api<{ settings: SettingsResp["settings"] }>("/api/settings", { method: "PUT", json: patch });
-    setSettings((s) => (s ? { ...s, settings: r.settings } : s));
+  async function saveSettings(patch: Partial<SettingsResp["settings"]> | { reset: true }) {
+    const r = await api<SettingsResp>("/api/settings", { method: "PUT", json: patch });
+    setSettings(r);
   }
 
   const filtered = useMemo(
@@ -241,7 +230,12 @@ export default function DialoguesPage() {
           </div>
           <div className="ml-auto flex flex-wrap items-end gap-2">
             <Button variant="ghost" onClick={() => setShowSettings((s) => !s)}>
-              ⚙ Модель: <span className="font-mono text-xs">{settings?.settings.model ?? "…"}</span> ×{settings?.settings.samples}
+              ⚙ Модель:{" "}
+              <span className="font-mono text-xs">
+                {settings?.settings.ensemble?.length
+                  ? `ансамбль ×${settings.settings.ensemble.length}`
+                  : `${settings?.settings.provider ?? "…"}/${settings?.settings.model ?? ""} ×${settings?.settings.samples ?? ""}`}
+              </span>
             </Button>
             <Button onClick={() => runBatch(true)} disabled={!group || job?.status === "running"}>
               Оценить неоценённые
@@ -252,67 +246,7 @@ export default function DialoguesPage() {
           </div>
         </div>
 
-        {showSettings && settings && (
-          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 md:grid-cols-6">
-            <Field label="Провайдер">
-              <select
-                className={inputCls}
-                value={settings.settings.provider}
-                onChange={(e) => {
-                  const p = e.target.value;
-                  saveSettings({ provider: p, ...(MODEL_HINTS[p]?.[0] ? { model: MODEL_HINTS[p][0] } : {}) });
-                }}
-              >
-                {settings.providers.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                    {p in settings.keys ? (settings.keys[p] ? " ✓ ключ" : " — нет ключа") : ""}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Модель">
-              <input
-                className={inputCls}
-                list="model-hints"
-                defaultValue={settings.settings.model}
-                key={settings.settings.model}
-                onBlur={(e) => e.target.value && e.target.value !== settings.settings.model && saveSettings({ model: e.target.value.trim() })}
-              />
-              <datalist id="model-hints">
-                {(MODEL_HINTS[settings.settings.provider] ?? []).map((m) => (
-                  <option key={m} value={m} />
-                ))}
-              </datalist>
-            </Field>
-            <Field label="Голосов на диалог" hint="самосогласованность">
-              <select className={inputCls} value={settings.settings.samples} onChange={(e) => saveSettings({ samples: Number(e.target.value) })}>
-                {[1, 3, 5].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Effort">
-              <select className={inputCls} value={settings.settings.effort} onChange={(e) => saveSettings({ effort: e.target.value })}>
-                {["low", "medium", "high", "xhigh"].map((n) => (
-                  <option key={n}>{n}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Параллельно">
-              <input type="number" min={1} max={12} className={inputCls} value={settings.settings.concurrency} onChange={(e) => saveSettings({ concurrency: Number(e.target.value) })} />
-            </Field>
-            <div className="text-xs text-slate-500 md:col-span-1">
-              Активный чек-лист:
-              <br />
-              <Link className="font-medium text-brand-700 hover:underline" href="/checklists/">
-                {active?.name} · v{active?.version}
-              </Link>
-            </div>
-          </div>
-        )}
+        {showSettings && settings && <SettingsPanel s={settings} onSave={saveSettings} active={active} />}
 
         {job && (
           <div className="mt-4 border-t border-slate-100 pt-3">

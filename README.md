@@ -39,18 +39,28 @@ Other commands:
 | `npm test` | Unit tests (scoring, N/A redistribution, facts, aggregation) |
 | `npm run fetch:dataset -- DEV` | Save the raw organiser payload to `data/dev.json` |
 | `npm run export:readable -- data/dev.json` | Readable transcripts + label template for hand-labelling |
-| `npm run harness -- --samples 1` | Accuracy against hand labels (see below) |
+| `npm run harness -- --model <provider>/<model>` | Accuracy of one model against hand labels (prompt/rules iteration) |
+| `npm run bench -- --smoke` | Live-test every adapter on 3 dialogues (no labels needed) |
+| `npm run bench -- --split tune` | Model benchmark: same prompt on the whole shortlist (see below) |
+| `npm run compare -- benchmarks/<file>.json [--apply]` | Comparison table + decision rule; `--apply` sets the default model |
 | `npm run build:static` | Static UI bundle in `out/` (Dynamics 365 web-resource path) |
 
 ## Model and cost
 
-- **Default judge:** Anthropic **Claude Opus 5.5** (`claude-opus-5-5`) with adaptive thinking, effort `medium`, structured JSON output, and **3 votes** per dialogue (self-consistency).
-- Provider, model, vote count and effort are switchable in the UI (⚙ on the Dialogues page). OpenAI, Gemini and a local **Ollama** model are supported through the same interface.
-- **Cost per evaluation (all calls included):** every evaluation stores real token usage, and its cost (tokens × list price) is shown in the card and as the average on the dashboard.
-  - Estimate for Opus 5.5 ($4 / $20 per 1M input/output tokens; the shared system prompt is cached): about **$0.06–0.09 per vote** for a chat, so **≈ $0.20–0.27 per evaluation with 3 votes**.
-  - Calls are 2–3× longer.
-  - Claude Sonnet 5.5 costs about half.
-  - _Measured average on the DEV set: to be filled in after the first full run._
+- **Evaluation model: chosen by benchmark, not by default.** The same prompt runs through Anthropic, OpenAI, Google Gemini and a local Ollama model. The model with the highest agreement with our hand labels, within budget, becomes the default. Method: [PLAN.md](PLAN.md) §6a. Results: the **Сравнение моделей** page.
+- _Chosen model, measured agreement and measured cost per evaluation: filled in after the benchmark, with the date prices were checked on the vendors' pricing pages._
+- **Model registry:** [config/models.json](config/models.json) lists each candidate with its tier, its prices and the pricing-page URL and date they were checked. Current shortlist, checked 2026-11-07:
+
+  | Vendor | Frontier | Cheap | Optional mid |
+  |---|---|---|---|
+  | Anthropic | `claude-opus-5-5` | `claude-haiku-5-5` | `claude-sonnet-5-5` |
+  | OpenAI | `gpt-6.1-sol` | `gpt-6-luna` | `gpt-6.1-terra` |
+  | Google | `gemini-4-argon` | `gemini-3.5-flash-lite` | `gemini-3.8-flash` |
+  | Local | `qwen3:14b` via Ollama | | |
+
+- Until a benchmark result is applied, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.
+- Provider, model, vote count and reasoning depth are switchable in the UI (⚙ on the Dialogues page). Every stored result records which provider and model produced it.
+- **Cost per evaluation (all calls and votes included):** every evaluation stores its real token usage. Cost is tokens × the prices in the model registry and is shown in the card and as the average on the dashboard.
 
 ## How the evaluation works
 
@@ -73,7 +83,7 @@ transcript ──► facts.ts (deterministic) ──► prompt.ts (generated fro
    - N/A is excluded and its weight is redistributed so the maximum stays 100
    - the total is rounded to 2 decimals, and there is no total if nothing applies
    - gross errors are flagged separately and do not change points
-4. **Self-consistency:** N independent votes. Yes/No/N/A uses the majority and scales use the median. Any disagreement marks the criterion as *needs review* in the UI.
+4. **Self-consistency:** N independent votes (whether N>1 helps is measured in the benchmark). Yes/No/N/A uses the majority and scales use the median. Any disagreement marks the criterion as *needs review* in the UI.
 
 Every evaluation stores the exact checklist version, model, votes, tokens and cost. Nothing is pre-computed or replayed: each click runs the model on the dialogue with the current active checklist.
 
@@ -81,7 +91,7 @@ Every evaluation stores the exact checklist version, model, votes, tokens and co
 
 1. Run `npm run export:readable -- data/dev.json`. This writes `data/readable/<id>.md` (numbered transcript plus facts) and `data/labels/dev-labels.csv`.
 2. Fill the CSV blind, without looking at model output. Use `yes/no/na` for Yes/No criteria and the step value (`0/5/10/15/20`, `0/4/7/10`) or `na` for scales.
-3. Run `npm run harness -- --provider anthropic --model claude-opus-5-5 --samples 1 --split tune`. It reports:
+3. Run `npm run harness -- --model <provider>/<model> --split tune`. It reports:
    - per-criterion exact agreement and the confusion pairs
    - ±1-step agreement for scales
    - total-score MAE
@@ -90,6 +100,23 @@ Every evaluation stores the exact checklist version, model, votes, tokens and co
    
    Results go to `runs/*.json` and `runs/*.csv`, ready for pandas.
 4. `--split holdout` evaluates the held-out third (every 3rd labelled dialogue per language) to check that rule changes generalise. `--from runs/x.json` re-scores a previous run after label fixes without calling the API.
+
+### Model benchmark
+
+```bash
+npm run bench -- --smoke                    # every adapter answers valid JSON on 3 dialogues
+npm run bench -- --split tune               # shortlist: frontier + cheap per vendor + local
+npm run bench -- --split holdout --with-optional \
+  --n3 "<best two>" --ensemble "<one model per vendor>"
+npm run compare -- benchmarks/<file>.json --apply
+```
+
+- **Same input for every candidate:** prompt version, checklist version and reasoning level are identical. Each vendor enforces the same JSON schema through its own structured-output mechanism, and validation plus the single re-ask run in shared code.
+- **Budget check:** the projected cost is printed before any call, and the bench asks for confirmation above $5.
+- **Gates:** every labelled gross error must be caught, and invalid output and failures must each stay under 5%. Cost must be within the cap.
+- **Choice:** the highest agreement wins. Candidates inside the leader's 95% bootstrap interval count as tied, and ties go to the cheaper, then faster model.
+- **Fallback:** the runner-up from a different vendor.
+- **Output:** summaries in `benchmarks/` (metrics only), shown on the **Модели** page.
 
 ## Architecture
 
