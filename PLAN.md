@@ -46,9 +46,24 @@ Each interpretation goes into the criterion text or the "rules" block of the pro
 10. **Gross errors (08).** A flag only. **It does not zero the total**: the PDF says "отметьте отдельно". It is shown as a red banner with the evidence turn. The offer alone is enough.
 11. **Literacy in calls.** ASR errors must not count against 06. The prompt says the call is an ASR transcript.
 12. **Sections.** The PDF headings define the sections: S1 "Начало и понимание запроса" (01, 02 = 25), S2 "Безопасность и решение" (03, 04 = 40), S3 "Ведение и завершение" (05, 06, 07 = 35), S4 "Грубые нарушения" (08, flag). Each section subtotal is the sum of its redistributed points, shown as points over the section's redistributed maximum.
-13. **Rounding.** Criterion points are stored unrounded and shown to 2 decimals. Only the total is rounded to 2 decimals. If no weighted criterion applies, the total is `null` and shown as "not calculated".
+13. **Rounding.** Criterion points are stored unrounded and shown to 2 decimals. Only the total is rounded, half up to 2 decimals (50.625 → 50.63, confirmed by the organisers). If no weighted criterion applies, the total is `null` and shown as "not calculated".
 14. **Duplicates.** Original turns are kept with their timestamps, as the brief requires. Consecutive exact duplicates are shown as "duplicate" and collapsed in the prompt.
-15. **Accuracy metric (unknown).** We optimise both per-criterion exact match and total-score MAE, and report both.
+15. **Accuracy metric.** The organisers compare the answer on each criterion, so we optimise exact per-criterion match, with the exact step on scales. Total-score MAE is reported as a secondary number.
+
+### Organisers' answers (7 Nov)
+| Question | Answer | What we do |
+|---|---|---|
+| Control set | Chats only | `harness` and `bench` measure chats unless `--with-calls` is passed. Calls stay supported for the demo, and labelling chats comes first |
+| Accuracy metric | The answer on each criterion | See item 15 |
+| 07, a bare goodbye | Re-read the checklist | Yes needs a summary or further help, plus a goodbye. A bare goodbye is No |
+| 02, all details given at once, also to the bot | N/A | Written into the guidance of 02 |
+| 03 / 08, account data disclosed before identification | Our decision | Both: 03 No and 08 Yes, because the checklist lists disclosure of confidential information as a gross error |
+| 01 in calls, greeting missing from the recording | N/A | 01 allows N/A only under this condition |
+| Replacement criterion, its weight | Our decision | It takes the weight of the criterion it replaces unless the task states otherwise |
+| Re-evaluate processed control dialogues after a replacement | Yes | "Переоценить набор" in the checklist editor |
+| 03 in calls, what counts as identification | Our decision | Explicit confirmation by the operator after the check (rule 8). Not part of the control set |
+| Knowledge base for 04 | One exists, the system is an indicator for appeals and script review | We have no access to it, so the model judges closure and logic and does not fail answers from memory of tariffs |
+| Audio | Transcripts are provided | No speech recognition |
 
 ## 3. Architecture
 One Next.js 15 (App Router, TS) project:

@@ -59,7 +59,10 @@ export function db(): DB {
       new Date().toISOString(),
     );
   }
-  for (const row of d.prepare("SELECT pk, body FROM checklists").all() as { pk: number; body: string }[]) {
+  // Saving in the editor always creates a new version, so version 1 of the default is never user-edited:
+  // it follows the code. Past evaluations keep their own snapshot of the checklist.
+  d.prepare("UPDATE checklists SET body = ? WHERE id = ? AND version = 1").run(JSON.stringify(DEFAULT_CHECKLIST), DEFAULT_CHECKLIST.id);
+  for (const row of d.prepare("SELECT pk, body FROM checklists WHERE NOT (id = ? AND version = 1)").all(DEFAULT_CHECKLIST.id) as { pk: number; body: string }[]) {
     const body = JSON.parse(row.body);
     const rules = migrateRules(body.rules ?? "");
     if (rules !== body.rules) d.prepare("UPDATE checklists SET body = ? WHERE pk = ?").run(JSON.stringify({ ...body, rules }), row.pk);

@@ -14,21 +14,21 @@ p1-ru-012,RU,agent chat,yes,na,na,20,yes,10,na,no,Y,
 p1-ru-014,RU,agent chat,no,no,na,20,yes,7,no,no,Y,
 p1-ru-013,RU,agent chat,yes,na,na,20,yes,10,yes,no,Y,
 p1-ru-015,RU,agent chat,yes,na,na,20,yes,10,yes,no,Y,
-p1-ru-016,RU,agent chat,,,,,,,,,,
-p1-ru-017,RU,agent chat,,,,,,,,,,
-p1-ru-018,RU,agent chat,,,,,,,,,,
-p1-ru-019,RU,agent chat,,,,,,,,,,
-p1-ru-020,RU,agent chat,,,,,,,,,,
-p1-ru-021,RU,agent chat,,,,,,,,,,
-p1-ru-022,RU,agent chat,,,,,,,,,,
-p1-ru-023,RU,agent chat,,,,,,,,,,
-p1-ru-024,RU,agent chat,,,,,,,,,,
-p1-ru-025,RU,agent chat,,,,,,,,,,
-p1-ru-026,RU,agent chat,,,,,,,,,,
-p1-ru-027,RU,agent chat,,,,,,,,,,
-p1-ru-028,RU,agent chat,,,,,,,,,,
-p1-ru-029,RU,agent chat,,,,,,,,,,
-p1-ru-030,RU,agent chat,,,,,,,,,,
+p1-ru-016,RU,agent chat,yes,no,na,20,yes,4,no,no,claude-opus-5-5,совет без уточнения; клиент переспросил
+p1-ru-017,RU,agent chat,yes,yes,na,20,yes,10,no,no,claude-opus-5-5,
+p1-ru-018,RU,agent chat,yes,no,na,0,no,0,no,no,claude-opus-5-5,чат закрыт без прощания
+p1-ru-019,RU,agent chat,yes,yes,na,20,yes,10,no,no,claude-opus-5-5,
+p1-ru-020,RU,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,как p1-en-008
+p1-ru-021,RU,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,
+p1-ru-022,RU,agent chat,yes,na,na,0,no,4,no,yes,claude-opus-5-5,перевод денег лично оператору; чат закрыт без прощания
+p1-ru-023,RU,agent chat,yes,na,na,20,yes,10,no,yes,claude-opus-5-5,платная частная консультация
+p1-ru-024,RU,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,
+p1-ru-025,RU,agent chat,yes,yes,na,na,yes,10,na,no,claude-opus-5-5,клиент ушёл до запроса
+p1-ru-026,RU,agent chat,yes,no,na,5,no,4,no,no,claude-opus-5-5,c04 спорно 0 или 5; чат закрыт без прощания
+p1-ru-027,RU,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,
+p1-ru-028,RU,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,ожидание с предупреждением
+p1-ru-029,RU,agent chat,yes,na,na,20,no,7,no,yes,claude-opus-5-5,оскорбление клиента
+p1-ru-030,RU,agent chat,yes,yes,na,20,yes,10,no,no,claude-opus-5-5,
 p1-kz-001,KZ,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-kz-002,KZ,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-kz-003,KZ,agent chat,yes,yes,yes,20,yes,10,yes,no,Z,
@@ -40,10 +40,10 @@ p1-kz-008,KZ,agent chat,no,no,na,20,yes,7,no,no,Z,
 p1-kz-009,KZ,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-kz-010,KZ,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-kz-011,KZ,agent chat,yes,na,na,20,yes,10,na,no,Z,
-p1-kz-012,KZ,agent chat,,,,,,,,,,
-p1-kz-013,KZ,agent chat,,,,,,,,,,
-p1-kz-014,KZ,agent chat,,,,,,,,,,
-p1-kz-015,KZ,agent chat,,,,,,,,,,
+p1-kz-012,KZ,agent chat,yes,yes,na,20,yes,10,yes,no,claude-opus-5-5,
+p1-kz-013,KZ,agent chat,yes,na,na,20,yes,10,no,yes,claude-opus-5-5,платная частная консультация; чат закрыт без прощания
+p1-kz-014,KZ,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,
+p1-kz-015,KZ,agent chat,yes,na,no,5,no,7,yes,yes,claude-opus-5-5,как p1-ru-009: раскрыто ограничение счёта без идентификации
 p1-en-001,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-en-002,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-en-003,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
@@ -55,12 +55,12 @@ p1-en-008,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-en-009,EN,agent chat,yes,na,na,20,yes,10,na,no,Z,
 p1-en-010,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
 p1-en-011,EN,agent chat,yes,na,na,20,yes,10,no,no,Z,
-p1-en-012,EN,agent chat,,,,,,,,,,
-p1-en-013,EN,agent chat,,,,,,,,,,
-p1-en-014,EN,agent chat,,,,,,,,,,
-p1-en-015,EN,agent chat,,,,,,,,,,
-p4-ru-003,RU,voice call,,,,,,,,,,
-p4-ru-002,RU,voice call,,,,,,,,,,
+p1-en-012,EN,agent chat,yes,na,na,20,yes,10,no,no,claude-opus-5-5,
+p1-en-013,EN,agent chat,yes,na,na,20,yes,10,no,yes,claude-opus-5-5,платная частная консультация; чат закрыт без прощания
+p1-en-014,EN,agent chat,yes,na,no,5,no,4,no,yes,claude-opus-5-5,как p1-ru-009: раскрыто ограничение счёта без идентификации
+p1-en-015,EN,agent chat,no,no,na,20,yes,4,no,no,claude-opus-5-5,нет приветствия и представления; клиент переспросил
+p4-ru-003,RU,voice call,yes,yes,yes,20,yes,7,na,no,claude-opus-5-5,реплика 26 упоминает статус поручения до идентификации; клиент завершил звонок
+p4-ru-002,RU,voice call,no,na,yes,15,yes,10,no,no,claude-opus-5-5,перезвон без приветствия; не объяснён путь через OTC
 p4-ru-001,RU,voice call,yes,na,na,10,yes,4,na,no,Z,
-p4-ru-005,RU,voice call,,,,,,,,,,
-p4-ru-004,RU,voice call,,,,,,,,,,
+p4-ru-005,RU,voice call,yes,yes,na,20,yes,10,yes,no,claude-opus-5-5,c01 спорно: имя неразборчиво в ASR; c03 спорно: демо-счёт без идентификации; c07 спорно: yes или na
+p4-ru-004,RU,voice call,yes,yes,yes,15,yes,4,na,no,claude-opus-5-5,SMS-код подтвердил личность; вопрос о постоянных обращениях повторялся; клиент завершил звонок

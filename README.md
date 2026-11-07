@@ -48,7 +48,7 @@ Other commands:
 ## Model and cost
 
 - **Evaluation model: chosen by benchmark, not by default.** The same prompt runs through Anthropic, OpenAI, Google Gemini and a local Ollama model. The model with the highest agreement with our hand labels, within budget, becomes the default. Method: [PLAN.md](PLAN.md) §6a. Results: the **Сравнение моделей** page.
-- **Current default (preliminary): `openai/gpt-6.1-terra`, one vote, reasoning `medium`, $0.0056 per evaluation (measured; prices checked 2026-11-07).** Hand labels are not ready yet, so it was chosen on 20 train dialogues by known answers, stability between two runs and agreement with `gpt-6.1-sol` ×3. Only OpenAI models were compared. `npm run compare -- <file> --apply` replaces it with the benchmark winner.
+- **Current default: `openai/gpt-6.1-terra`, one vote, reasoning `medium`, about $0.005 per evaluation (measured; prices checked 2026-11-07).** On prompt `p4` and 26 hand-labelled train chats it matched 95–96% of the answers. `gpt-6-luna` ×3 matched 97–98% at $0.0022, within the margin of error on this sample. We kept `terra` because it answered all 31 known answers correctly and raised no false gross-error flag, while `gpt-6-luna` ×3 raised one. Only OpenAI models were compared, and the test set has not been run. The table below is the earlier comparison on prompt `p2`, before the labels existed.
 
   | Candidate | Known answers | Same answer in two runs | Total-score drift between runs (mean / max) | $ per evaluation |
   |---|---|---|---|---|
@@ -100,6 +100,8 @@ transcript ──► facts.ts (deterministic) ──► prompt.ts (generated fro
 Every evaluation stores the exact checklist version, model, votes, tokens and cost. Nothing is pre-computed or replayed: each click runs the model on the dialogue with the current active checklist.
 
 ## Accuracy harness (hand labels)
+
+The organisers compare the answer on each criterion on a control set of chats, so `harness` and `bench` measure exact per-criterion match on chats. Add `--with-calls` to include calls.
 
 1. Run `npm run export:readable -- data/dev.json`. This writes `data/readable/<id>.md` (numbered transcript plus facts) and `data/labels/dev-labels.csv`.
 2. Fill the CSV blind, without looking at model output. Use `yes/no/na` for Yes/No criteria and the step value (`0/5/10/15/20`, `0/4/7/10`) or `na` for scales.

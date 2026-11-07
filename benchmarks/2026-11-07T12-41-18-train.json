@@ -1,0 +1,483 @@
+{
+ "meta": {
+  "createdAt": "2026-11-07T12:48:52.163Z",
+  "split": "train",
+  "dialogues": 26,
+  "labelled": 38,
+  "promptVersion": "p4",
+  "checklist": "cqa-default v1",
+  "reasoning": "medium",
+  "costCap": 0.15,
+  "prices": {
+   "anthropic/claude-opus-5-5": {
+    "price": {
+     "in": 4,
+     "cachedIn": 0.2,
+     "cacheWrite": 5,
+     "out": 20
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-sonnet-5-5": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "cacheWrite": 2.5,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-haiku-5-5": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "cacheWrite": 0.125,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "openai/gpt-6.1-sol": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6.1-terra": {
+    "price": {
+     "in": 1,
+     "cachedIn": 0.05,
+     "out": 5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6-luna": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-nano": {
+    "price": {
+     "in": 0.05,
+     "cachedIn": 0.005,
+     "out": 0.4
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.6-luna": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "cacheWrite": 0.25,
+     "out": 1.2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-nano": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "out": 1.25
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-mini": {
+    "price": {
+     "in": 0.25,
+     "cachedIn": 0.025,
+     "out": 2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-mini": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 4.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "gemini/gemini-4-argon": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.8-flash": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 3.75
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.5-flash-lite": {
+    "price": {
+     "in": 0.3,
+     "cachedIn": 0.03,
+     "out": 2.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "ollama/qwen3:14b": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   }
+  },
+  "skipped": []
+ },
+ "candidates": [
+  {
+   "candidate": "openai/gpt-6.1-terra",
+   "provider": "openai",
+   "model": "gpt-6.1-terra",
+   "tier": "mid",
+   "samples": 1,
+   "dialogues": 26,
+   "judged": 208,
+   "agreement": 0.9519230769230769,
+   "ci": [
+    0.9134615384615384,
+    0.9855769230769231
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c02": {
+     "n": 26,
+     "exact": 24,
+     "within1": 24
+    },
+    "c03": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c04": {
+     "n": 26,
+     "exact": 22,
+     "within1": 23
+    },
+    "c05": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c06": {
+     "n": 26,
+     "exact": 24,
+     "within1": 26
+    },
+    "c07": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c08": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    }
+   },
+   "kzAgreement": 1,
+   "totalMAE": 4.42,
+   "gross": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "recall": 1
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0.004642198076923077,
+   "latencyP50": 10483,
+   "latencyP95": 15950,
+   "voters": [
+    {
+     "provider": "openai",
+     "model": "gpt-6.1-terra"
+    }
+   ]
+  },
+  {
+   "candidate": "openai/gpt-5.6-luna",
+   "provider": "openai",
+   "model": "gpt-5.6-luna",
+   "tier": "cheap",
+   "samples": 1,
+   "dialogues": 26,
+   "judged": 208,
+   "agreement": 0.9615384615384616,
+   "ci": [
+    0.9278846153846154,
+    0.9903846153846154
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c02": {
+     "n": 26,
+     "exact": 23,
+     "within1": 23
+    },
+    "c03": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c04": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c05": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c06": {
+     "n": 26,
+     "exact": 25,
+     "within1": 26
+    },
+    "c07": {
+     "n": 26,
+     "exact": 24,
+     "within1": 24
+    },
+    "c08": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    }
+   },
+   "kzAgreement": 0.9583333333333334,
+   "totalMAE": 3.227307692307692,
+   "gross": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "recall": 1
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0.0014107246153846154,
+   "latencyP50": 9709,
+   "latencyP95": 14950,
+   "voters": [
+    {
+     "provider": "openai",
+     "model": "gpt-5.6-luna"
+    }
+   ]
+  },
+  {
+   "candidate": "openai/gpt-5.6-luna ×3",
+   "provider": "openai",
+   "model": "gpt-5.6-luna",
+   "tier": "cheap",
+   "samples": 3,
+   "dialogues": 26,
+   "judged": 208,
+   "agreement": 0.9615384615384616,
+   "ci": [
+    0.9182692307692307,
+    0.9903846153846154
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c02": {
+     "n": 26,
+     "exact": 24,
+     "within1": 24
+    },
+    "c03": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c04": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c05": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c06": {
+     "n": 26,
+     "exact": 23,
+     "within1": 25
+    },
+    "c07": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c08": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    }
+   },
+   "kzAgreement": 0.9791666666666666,
+   "totalMAE": 2.916923076923077,
+   "gross": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "recall": 1
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0.003644360769230768,
+   "latencyP50": 21193,
+   "latencyP95": 27668,
+   "voters": [
+    {
+     "provider": "openai",
+     "model": "gpt-5.6-luna"
+    },
+    {
+     "provider": "openai",
+     "model": "gpt-5.6-luna"
+    },
+    {
+     "provider": "openai",
+     "model": "gpt-5.6-luna"
+    }
+   ]
+  },
+  {
+   "candidate": "openai/gpt-6-luna ×3",
+   "provider": "openai",
+   "model": "gpt-6-luna",
+   "tier": "cheap",
+   "samples": 3,
+   "dialogues": 26,
+   "judged": 208,
+   "agreement": 0.9807692307692307,
+   "ci": [
+    0.9567307692307693,
+    1
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c02": {
+     "n": 26,
+     "exact": 25,
+     "within1": 25
+    },
+    "c03": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c04": {
+     "n": 26,
+     "exact": 25,
+     "within1": 26
+    },
+    "c05": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c06": {
+     "n": 26,
+     "exact": 24,
+     "within1": 26
+    },
+    "c07": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    },
+    "c08": {
+     "n": 26,
+     "exact": 26,
+     "within1": 26
+    }
+   },
+   "kzAgreement": 1,
+   "totalMAE": 0.6969230769230769,
+   "gross": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "recall": 1
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0.002179485,
+   "latencyP50": 23180,
+   "latencyP95": 36494,
+   "voters": [
+    {
+     "provider": "openai",
+     "model": "gpt-6-luna"
+    },
+    {
+     "provider": "openai",
+     "model": "gpt-6-luna"
+    },
+    {
+     "provider": "openai",
+     "model": "gpt-6-luna"
+    }
+   ]
+  }
+ ],
+ "decision": {
+  "winner": "openai/gpt-5.6-luna",
+  "fallback": null,
+  "tied": [
+   "openai/gpt-5.6-luna",
+   "openai/gpt-5.6-luna ×3",
+   "openai/gpt-6-luna ×3"
+  ],
+  "excluded": [],
+  "rule": "гейты: recall грубых ошибок = 100%, невалидный вывод < 5%, сбои < 5%, цена ≤ $0.15/диалог; затем max согласие, ничья в пределах 95% ДИ лидера → дешевле → быстрее"
+ }
+}

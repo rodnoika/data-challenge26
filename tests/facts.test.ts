@@ -152,7 +152,8 @@ describe("prompt schema + aggregation", () => {
     const s = buildOutputSchema(DEFAULT_CHECKLIST) as any;
     expect(s.required).toEqual(DEFAULT_CHECKLIST.criteria.map((c) => c.id));
     expect(s.properties.c04.properties.answer.enum).toEqual(["0", "5", "10", "15", "20", "na"]);
-    expect(s.properties.c01.properties.answer.enum).toEqual(["yes", "no"]);
+    expect(s.properties.c01.properties.answer.enum).toEqual(["yes", "no", "na"]);
+    expect(s.properties.c05.properties.answer.enum).toEqual(["yes", "no"]);
   });
 
   it("majority vote and median with low confidence on disagreement", () => {

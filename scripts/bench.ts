@@ -19,7 +19,7 @@ import { sameModel, voterLabel, type Voter } from "../src/server/evaluator";
 import type { Checklist } from "../src/core/types";
 import type { Reasoning } from "../src/server/providers";
 import { selectSplit } from "../src/core/split";
-import { detailRows, fmtPct, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, projectCost, readLabels, runCandidate, writeRunFiles } from "./lib";
+import { detailRows, fmtPct, forControl, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, projectCost, readLabels, runCandidate, writeRunFiles } from "./lib";
 import { readFileSync } from "node:fs";
 
 const a = parseArgs();
@@ -81,7 +81,7 @@ if (smoke) {
     process.exit(1);
   }
   const ids = selectSplit(all.map((d) => d.conversation_id), which, testIds).filter((id) => labels.has(id));
-  dialogues = all.filter((d) => ids.includes(d.conversation_id));
+  dialogues = forControl(all.filter((d) => ids.includes(d.conversation_id)), a["with-calls"] === "true");
 }
 
 console.log(`Prompt ${PROMPT_VERSION} · checklist ${cl.id} v${cl.version} · reasoning ${reasoning} · ${dialogues.length} dialogues${smoke ? " (smoke)" : ` (split ${which}, ${labels.size} labelled)`}`);

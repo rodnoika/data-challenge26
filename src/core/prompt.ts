@@ -8,7 +8,7 @@ import { allowedAnswers, parseAnswer } from "./scoring";
  * and the dialogue. A criterion added or replaced in the UI is evaluated with zero code changes.
  */
 
-export const PROMPT_VERSION = "p3";
+export const PROMPT_VERSION = "p6";
 
 function renderCriterion(c: Criterion): string {
   const lines: string[] = [];

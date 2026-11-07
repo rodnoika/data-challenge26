@@ -26,8 +26,9 @@ export function answerFraction(c: Criterion, answer: Answer): number | null {
   return Math.max(0, Math.min(1, answer / max));
 }
 
+/** Half up to 2 decimals (50.625 -> 50.63). toFixed removes binary noise such as 50.62499999999999. */
 export function round2(x: number): number {
-  return Math.round((x + Number.EPSILON) * 100) / 100;
+  return Math.round(Number((x * 100).toFixed(6))) / 100;
 }
 
 /**

@@ -15,7 +15,7 @@ import { defaultModel, findModel } from "../src/server/registry";
 import { sameModel, voterLabel } from "../src/server/evaluator";
 import type { Checklist } from "../src/core/types";
 import type { Reasoning } from "../src/server/providers";
-import { detailRows, fmtPct, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, readLabels, runCandidate, writeRunFiles, type FullPrediction } from "./lib";
+import { detailRows, fmtPct, forControl, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, readLabels, runCandidate, writeRunFiles, type FullPrediction } from "./lib";
 
 const a = parseArgs();
 const cl: Checklist = a.checklist ? JSON.parse(readFileSync(a.checklist, "utf8")) : DEFAULT_CHECKLIST;
@@ -69,7 +69,7 @@ if (a.from) {
   let ids = a.ids ? a.ids.split(",") : allIds;
   ids = selectSplit(ids, whichSplit, testIds);
   if (!a.ids && labels.size) ids = ids.filter((id) => labels.has(id));
-  const todo = all.filter((d) => ids.includes(d.conversation_id));
+  const todo = forControl(all.filter((d) => ids.includes(d.conversation_id)), !!a.ids || a["with-calls"] === "true");
   console.log(`Evaluating ${todo.length} dialogues (split ${whichSplit}) · ${label} ×${samples} · prompt ${PROMPT_VERSION} · reasoning ${reasoning}`);
   preds = await runCandidate(todo, cl, voters, reasoning, Number(a.concurrency ?? 4));
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);

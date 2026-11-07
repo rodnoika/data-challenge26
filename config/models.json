@@ -4,7 +4,7 @@
     "provider": "openai",
     "model": "gpt-6.1-terra",
     "samples": 1,
-    "chosenBy": "preliminary: 20 train dialogues compared with gpt-6.1-sol x3 and known answers, no hand labels yet. Replace with npm run compare --apply"
+    "chosenBy": "prompt p4, 26 labelled train chats: 95-96% match, no false gross-error flags. Team decision over gpt-6-luna x3"
   },
   "fallback": null,
   "models": [

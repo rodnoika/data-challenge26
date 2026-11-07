@@ -45,6 +45,11 @@ export function readLabels(file: string, cl: Checklist): Labels {
   return m;
 }
 
+/** The organisers' control set contains chats only, so accuracy is measured on chats unless calls are requested. */
+export function forControl(dialogues: Dialogue[], withCalls: boolean): Dialogue[] {
+  return withCalls ? dialogues : dialogues.filter((d) => d.channel === "agent chat");
+}
+
 export function loadTestIds(file = "data/splits/dev-test-ids.txt"): Set<string> {
   return existsSync(file) ? parseTestIds(readFileSync(file, "utf8")) : new Set<string>();
 }
