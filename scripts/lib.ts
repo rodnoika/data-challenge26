@@ -5,6 +5,7 @@ import { findModel } from "../src/server/registry";
 import { buildSystemPrompt, buildUserPrompt } from "../src/core/prompt";
 import { computeFacts } from "../src/core/facts";
 import { parseAnswer } from "../src/core/scoring";
+import { parseTestIds } from "../src/core/split";
 import type { Labels, Prediction } from "../src/core/benchmark";
 import type { Answer, Checklist, Dialogue, Judgment } from "../src/core/types";
 import type { Reasoning } from "../src/server/providers";
@@ -44,17 +45,16 @@ export function readLabels(file: string, cl: Checklist): Labels {
   return m;
 }
 
-/** Deterministic hold-out: every 3rd id (sorted) within each channel+language group. */
-export function split(ids: string[], which: string): string[] {
-  if (which === "all") return ids;
-  const groups = new Map<string, string[]>();
-  for (const id of ids) {
-    const k = id.split("-").slice(0, 2).join("-");
-    groups.set(k, [...(groups.get(k) ?? []), id]);
-  }
-  const hold = new Set<string>();
-  for (const list of groups.values()) [...list].sort().forEach((id, i) => i % 3 === 2 && hold.add(id));
-  return ids.filter((id) => (which === "holdout" ? hold.has(id) : !hold.has(id)));
+export function loadTestIds(file = "data/splits/dev-test-ids.txt"): Set<string> {
+  return existsSync(file) ? parseTestIds(readFileSync(file, "utf8")) : new Set<string>();
+}
+
+/** Rules are tuned from train errors only, so per-dialogue rows leave out test dialogues unless asked. */
+export function hideTestRows<T extends { id?: unknown }>(rows: T[], testIds: Set<string>, showTest: boolean): T[] {
+  if (showTest) return rows;
+  const visible = rows.filter((row) => !testIds.has(String(row.id)));
+  if (visible.length < rows.length) console.log(`Per-dialogue CSV omits ${rows.length - visible.length} test rows. Read the aggregates.`);
+  return visible;
 }
 
 /** Parse "provider/model" (model may contain "/" or ":"). */

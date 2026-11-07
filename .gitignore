@@ -14,3 +14,5 @@ benchmarks/*smoke*.json
 # Organiser data contains signed URLs: never commit. Regenerate with npm run fetch:dataset / export:readable.
 data/*.json
 data/readable/
+tmp/
+.gstack/

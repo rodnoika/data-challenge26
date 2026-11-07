@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { DEFAULT_CHECKLIST } from "@/core/defaultChecklist";
+import { DEFAULT_CHECKLIST, migrateRules } from "@/core/defaultChecklist";
 import { score } from "@/core/scoring";
 import type { Answer, Appeal, Checklist, Dialogue, EvaluationRecord, Judgment, Review } from "@/core/types";
 import type { Facts } from "@/core/facts";
@@ -59,6 +59,11 @@ export function db(): DB {
       new Date().toISOString(),
     );
   }
+  for (const row of d.prepare("SELECT pk, body FROM checklists").all() as { pk: number; body: string }[]) {
+    const body = JSON.parse(row.body);
+    const rules = migrateRules(body.rules ?? "");
+    if (rules !== body.rules) d.prepare("UPDATE checklists SET body = ? WHERE pk = ?").run(JSON.stringify({ ...body, rules }), row.pk);
+  }
   g.__cqaDb = d;
   return d;
 }
@@ -89,7 +94,8 @@ export function getSettings(): Settings {
   return {
     provider: (explicit ? s.provider : fromEnv ? process.env.CQA_PROVIDER : def.provider) as ProviderId,
     model: explicit ? s.model : fromEnv ? process.env.CQA_MODEL! : def.model,
-    samples: Number(s.samples ?? process.env.CQA_SAMPLES ?? def.samples ?? 1),
+    // An empty CQA_SAMPLES= (as in .env.example) means "not set", not zero votes.
+    samples: Math.max(1, Number(s.samples ?? (process.env.CQA_SAMPLES || undefined) ?? def.samples ?? 1)),
     reasoning: s.reasoning ?? "medium",
     concurrency: Number(s.concurrency ?? process.env.CQA_CONCURRENCY ?? 5),
     ensemble: s.ensemble !== undefined ? s.ensemble : (explicit || fromEnv ? null : def.ensemble ?? null),

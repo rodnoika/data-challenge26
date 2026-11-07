@@ -145,7 +145,7 @@ export default function ChecklistsPage() {
             <Field label="Название">
               <input className={inputCls} value={draft.name} onChange={(e) => upd({ name: e.target.value })} />
             </Field>
-            <Field label="Порог ожидания, сек" hint="первая реакция / ожидание">
+            <Field label="Порог ожидания, сек" hint="только подсветка пауз в карточке, на балл не влияет">
               <input type="number" className={inputCls} value={draft.waitThresholdSec} onChange={(e) => upd({ waitThresholdSec: Number(e.target.value) })} />
             </Field>
           </div>

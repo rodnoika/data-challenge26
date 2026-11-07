@@ -66,8 +66,8 @@ export default function ModelsPage() {
         <Card className="p-6 text-sm text-slate-600">
           Бенчмарк ещё не запускался. После ручной разметки выполните:
           <pre className="mt-2 rounded-lg bg-slate-900 p-3 text-xs text-slate-100">{`npm run bench -- --smoke            # проверить адаптеры (3 диалога)
-npm run bench -- --split tune        # шорт-лист на обучающей части
-npm run bench -- --split holdout --n3 "<лучшие две>" --ensemble "<по одной от вендора>"
+npm run bench -- --split train       # шорт-лист на обучающей части
+npm run bench -- --split test --n3 "<лучшие две>" --ensemble "<по одной от вендора>"
 npm run compare -- benchmarks/<файл>.json --apply`}</pre>
         </Card>
       )}

@@ -68,8 +68,10 @@ const RX = {
   clientLeft: /клиент покинул|клиент чаттан шықты|клиент шықты|customer left|client left/i,
   connectionLost: /соединение с клиентом прервано|байланыс үзілді|connection to customer lost|connection lost/i,
   clientHungUp: /клиент завершил разговор|клиент сөйлесуді аяқтады|customer ended/i,
-  holdStart: /находится на удержании|ұстап тұр|on hold|инициирована консультация|началась консультация/i,
-  holdEnd: /больше не находится на удержании|no longer on hold|агент вышел из разговора|консультация завершена/i,
+  holdStart: /находится на удержании|ұстап тұр|on hold/i,
+  holdEnd: /больше не находится на удержании|no longer on hold/i,
+  consultStart: /инициирована консультация|началась консультация/i,
+  consultEnd: /агент вышел из разговора|консультация завершена/i,
   recStart: /запись и транскрибирование запущены|жазу және транскрипция басталды|recording .*started/i,
   recPause: /приостановлены|тоқтатылды|paused/i,
   recResume: /возобновлены|жалғастырылды|resumed/i,
@@ -88,7 +90,10 @@ export function detectLanguage(texts: string[]): "RU" | "KZ" | "EN" | "unknown" 
   const cyr = (s.match(/[а-яё]/gi) ?? []).length;
   const lat = (s.match(/[a-z]/gi) ?? []).length;
   if (cyr + kz === 0 && lat === 0) return "unknown";
-  if (lat > cyr + kz) return "EN";
+  if (cyr + kz === 0) return "EN";
+  // Capitalised Latin words in Cyrillic text are names of products and app sections, not language.
+  const latWithoutNames = (s.replace(/\b[A-Z][A-Za-z'’-]*\b/g, " ").match(/[a-z]/gi) ?? []).length;
+  if (latWithoutNames > cyr + kz) return "EN";
   // Kazakh-specific letters are a strong signal even when sparse
   if (kz >= 2 || (kz >= 1 && cyr < 40) || /\b(сәлеметсіз|рақмет|рахмет|сізге|қалай|иә|жоқ)\b/i.test(s))
     return "KZ";
@@ -130,18 +135,32 @@ export function computeFacts(d: Dialogue, waitThresholdSec = 180): Facts {
   });
 
   // hold / internal-consultation windows
-  const holdWindows: [number, number][] = [];
+  // A colleague can leave while the client is still on hold, so hold and consultation are tracked
+  // separately and merged: the client hears the operator again only when both have ended.
+  const rawWindows: [number, number][] = [];
   let holdOpen: number | null = null;
+  let consultOpen: number | null = null;
   T.forEach((t, i) => {
     if (t.speaker !== "system") return;
     if (RX.holdEnd.test(t.text)) {
-      if (holdOpen !== null) holdWindows.push([holdOpen, i]);
+      if (holdOpen !== null) rawWindows.push([holdOpen, i]);
       holdOpen = null;
     } else if (RX.holdStart.test(t.text) && holdOpen === null) {
       holdOpen = i;
+    } else if (RX.consultEnd.test(t.text)) {
+      if (consultOpen !== null) rawWindows.push([consultOpen, i]);
+      consultOpen = null;
+    } else if (RX.consultStart.test(t.text) && consultOpen === null) {
+      consultOpen = i;
     }
   });
-  if (holdOpen !== null) holdWindows.push([holdOpen, T.length - 1]);
+  for (const open of [holdOpen, consultOpen]) if (open !== null) rawWindows.push([open, T.length - 1]);
+  const holdWindows: [number, number][] = [];
+  for (const [a, b] of rawWindows.sort((x, y) => x[0] - y[0])) {
+    const last = holdWindows[holdWindows.length - 1];
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+    else holdWindows.push([a, b]);
+  }
   const inHold = (i: number) => holdWindows.some(([a, b]) => i > a && i < b);
 
   // duplicates (consecutive identical turns)
@@ -334,17 +353,8 @@ export function renderFacts(f: Facts): string {
       f.firstOperatorBlock.length ? `реплики [${f.firstOperatorBlock.join(", ")}]` : "оператор не отвечал"
     }.`,
   );
-  if (f.firstReactionSec !== null)
-    L.push(`- Первая реакция оператора: ${f.firstReactionSec} с после эскалации (порог ${f.waitThresholdSec} с — ${f.firstReactionSec > f.waitThresholdSec ? "ПРЕВЫШЕН" : "в норме"}).`);
-  L.push(`- Максимальная пауза между репликой клиента и ответом оператора: ${f.maxReplyGapSec ?? "—"} с.`);
-  if (f.longWaits.length)
-    L.push(
-      `- Ожидания дольше порога: ${f.longWaits
-        .map((g) => `с [${g.fromIdx}] до ${g.toIdx !== null ? `[${g.toIdx}]` : "конца"} — ${g.seconds} с${g.warnedBefore ? " (оператор предупредил)" : " (без предупреждения)"}`)
-        .join("; ")}.`,
-    );
-  else L.push(`- Ожиданий дольше порога ${f.waitThresholdSec} с нет.`);
-  if (f.waitWarningIdx.length) L.push(`- Реплики оператора с предупреждением об ожидании/проверке: [${f.waitWarningIdx.join(", ")}].`);
+  // Reply times and the 3-minute threshold stay out of the prompt: the checklist excludes them from scoring.
+  if (f.waitWarningIdx.length) L.push(`- Реплики оператора, где возможно предупреждение об ожидании или проверке: [${f.waitWarningIdx.join(", ")}].`);
   if (f.holdWindows.length)
     L.push(`- Удержание / консультация с коллегой: ${f.holdWindows.map(([a, b]) => `[${a}]–[${b}]`).join(", ")} (реплики оператора внутри — INTERNAL).`);
   L.push(

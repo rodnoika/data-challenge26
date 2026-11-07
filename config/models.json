@@ -1,6 +1,11 @@
 {
   "_comment": "Evaluation-model registry. Prices are USD per 1M tokens, copied from each vendor's official pricing page on checkedAt. Re-check before quoting costs; prices change often. The default is a development placeholder until the benchmark (PLAN.md §6a) picks one. While default is null, the app uses the first cheap-tier model whose provider has an API key.",
-  "default": null,
+  "default": {
+    "provider": "openai",
+    "model": "gpt-6.1-terra",
+    "samples": 1,
+    "chosenBy": "preliminary: 20 train dialogues compared with gpt-6.1-sol x3 and known answers, no hand labels yet. Replace with npm run compare --apply"
+  },
   "fallback": null,
   "models": [
     {
@@ -83,6 +88,77 @@
         "in": 0.1,
         "cachedIn": 0.01,
         "out": 0.5
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5-nano",
+      "label": "GPT-5 Nano",
+      "tier": "cheap",
+      "optional": true,
+      "price": {
+        "in": 0.05,
+        "cachedIn": 0.005,
+        "out": 0.4
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "label": "GPT-5.6 Luna",
+      "tier": "cheap",
+      "optional": true,
+      "price": {
+        "in": 0.2,
+        "cachedIn": 0.02,
+        "cacheWrite": 0.25,
+        "out": 1.2
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5.4-nano",
+      "label": "GPT-5.4 Nano",
+      "tier": "cheap",
+      "optional": true,
+      "price": {
+        "in": 0.2,
+        "cachedIn": 0.02,
+        "out": 1.25
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "label": "GPT-5 Mini",
+      "tier": "cheap",
+      "optional": true,
+      "price": {
+        "in": 0.25,
+        "cachedIn": 0.025,
+        "out": 2.0
+      },
+      "priceSource": "https://developers.openai.com/api/docs/pricing",
+      "checkedAt": "2026-11-07"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "label": "GPT-5.4 Mini",
+      "tier": "mid",
+      "optional": true,
+      "price": {
+        "in": 0.75,
+        "cachedIn": 0.075,
+        "out": 4.5
       },
       "priceSource": "https://developers.openai.com/api/docs/pricing",
       "checkedAt": "2026-11-07"

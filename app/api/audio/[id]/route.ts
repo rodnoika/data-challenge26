@@ -1,3 +1,4 @@
+import { fetchAudioWithRefresh } from "@/core/audio";
 import { resolveAudioSource } from "@/server/service";
 import { fail, type Ctx } from "@/server/http";
 export const runtime = "nodejs";
@@ -7,11 +8,11 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request, ctx: Ctx<{ id: string }>) {
   try {
     const { id } = await ctx.params;
-    const src = await resolveAudioSource(decodeURIComponent(id));
+    const dialogueId = decodeURIComponent(id);
     const headers: Record<string, string> = {};
     const range = req.headers.get("range");
     if (range) headers.range = range;
-    const upstream = await fetch(src, { headers, cache: "no-store" });
+    const upstream = await fetchAudioWithRefresh((fresh) => resolveAudioSource(dialogueId, fresh), headers);
     const out = new Headers();
     for (const h of ["content-type", "content-length", "content-range", "accept-ranges"]) {
       const v = upstream.headers.get(h);

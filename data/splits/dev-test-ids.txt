@@ -1,0 +1,24 @@
+# DEV test set: 20 of 65 dialogues. Every other DEV dialogue is train. Do not edit after the first test run.
+# Quotas: 8 RU chats, 5 KZ chats, 5 EN chats, 2 calls. Edge cases are spread in proportion across the two sets.
+# Dialogues used as examples when writing the rules stay in train. Exceptions: p1-ru-022 and p1-kz-003,
+# kept so that test has a paid-offer gross error and a verified-identity event.
+p1-ru-004
+p1-ru-005
+p1-ru-011
+p1-ru-016
+p1-ru-020
+p1-ru-022
+p1-ru-026
+p1-ru-030
+p1-kz-002
+p1-kz-003
+p1-kz-004
+p1-kz-005
+p1-kz-011
+p1-en-002
+p1-en-007
+p1-en-008
+p1-en-014
+p1-en-015
+p4-ru-003
+p4-ru-005

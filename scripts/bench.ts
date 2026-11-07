@@ -3,8 +3,8 @@
 // output rate, cost per dialogue and latency. Writes runs/* (details) and benchmarks/* (summary).
 //
 //   npm run bench -- --smoke                       # 3 dialogues per candidate: adapter liveness, no labels needed
-//   npm run bench -- --split tune                  # default shortlist (non-optional registry entries)
-//   npm run bench -- --split holdout --with-optional --n3 "openai/gpt-6.1-sol,gemini/gemini-4-argon" \
+//   npm run bench -- --split train                 # default shortlist (non-optional registry entries)
+//   npm run bench -- --split test --with-optional --n3 "openai/gpt-6.1-sol,gemini/gemini-4-argon" \
 //                    --ensemble "anthropic/claude-opus-5-5,openai/gpt-6.1-sol,gemini/gemini-4-argon"
 //   options: --models "p/m,p/m" (explicit list) --tiers frontier,cheap --samples 1 --reasoning medium
 //            --concurrency 4 --cap 0.15 --yes (skip the >$5 confirmation) --data --labels
@@ -18,7 +18,8 @@ import { hasKey, loadRegistry, findModel } from "../src/server/registry";
 import { sameModel, voterLabel, type Voter } from "../src/server/evaluator";
 import type { Checklist } from "../src/core/types";
 import type { Reasoning } from "../src/server/providers";
-import { detailRows, fmtPct, fmtUsd, loadDialogues, parseArgs, parseVoter, projectCost, readLabels, runCandidate, split, writeRunFiles } from "./lib";
+import { selectSplit } from "../src/core/split";
+import { detailRows, fmtPct, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, projectCost, readLabels, runCandidate, writeRunFiles } from "./lib";
 import { readFileSync } from "node:fs";
 
 const a = parseArgs();
@@ -30,6 +31,8 @@ const cap = Number(a.cap ?? 0.15);
 const all = loadDialogues(a.data ?? "data/dev.json");
 const labels = readLabels(a.labels ?? "data/labels/dev-labels.csv", cl);
 const reg = loadRegistry();
+const which = a.split ?? "train";
+const testIds = loadTestIds(a["split-file"]);
 
 /* ---------- candidates ---------- */
 type Cand = { voters: Voter[]; tier: string; label: string };
@@ -77,11 +80,11 @@ if (smoke) {
     console.error("No labels found in data/labels/dev-labels.csv. Fill labels first, or use --smoke to only test the adapters.");
     process.exit(1);
   }
-  const ids = split(all.map((d) => d.conversation_id).filter((id) => labels.has(id)), a.split ?? "tune");
+  const ids = selectSplit(all.map((d) => d.conversation_id), which, testIds).filter((id) => labels.has(id));
   dialogues = all.filter((d) => ids.includes(d.conversation_id));
 }
 
-console.log(`Prompt ${PROMPT_VERSION} · checklist ${cl.id} v${cl.version} · reasoning ${reasoning} · ${dialogues.length} dialogues${smoke ? " (smoke)" : ` (split ${a.split ?? "tune"}, ${labels.size} labelled)`}`);
+console.log(`Prompt ${PROMPT_VERSION} · checklist ${cl.id} v${cl.version} · reasoning ${reasoning} · ${dialogues.length} dialogues${smoke ? " (smoke)" : ` (split ${which}, ${labels.size} labelled)`}`);
 for (const s of skipped) console.log(`  skip ${s.label}: ${s.voters.some((v) => v.provider === "ollama") && !ollamaUp ? "Ollama is not running" : "no API key"}`);
 if (!run.length) {
   console.error("No candidate can run: add API keys to .env.local and/or start Ollama.");
@@ -113,8 +116,8 @@ for (const c of run) {
   rows.push({ ...m, voters: c.voters });
   writeRunFiles(
     `runs/${stamp}-${c.label.replace(/[^a-z0-9.+-]/gi, "_")}`,
-    { meta: { candidate: c.label, voters: c.voters, reasoning, promptVersion: PROMPT_VERSION, split: smoke ? "smoke" : a.split ?? "tune" }, metrics: m, predictions: preds },
-    detailRows(cl, labels, preds, c.label),
+    { meta: { candidate: c.label, voters: c.voters, reasoning, promptVersion: PROMPT_VERSION, split: smoke ? "smoke" : which }, metrics: m, predictions: preds },
+    hideTestRows(detailRows(cl, labels, preds, c.label), testIds, a["show-test"] === "true"),
   );
   for (const p of preds.filter((p) => p.error)) console.log(`    ERROR ${p.id}: ${(p.error ?? "").slice(0, 300)}`);
 }
@@ -134,14 +137,14 @@ if (decision) {
 }
 
 mkdirSync("benchmarks", { recursive: true });
-const out = `benchmarks/${stamp}-${smoke ? "smoke" : a.split ?? "tune"}.json`;
+const out = `benchmarks/${stamp}-${smoke ? "smoke" : which}.json`;
 writeFileSync(
   out,
   JSON.stringify(
     {
       meta: {
         createdAt: new Date().toISOString(),
-        split: smoke ? "smoke" : a.split ?? "tune",
+        split: smoke ? "smoke" : which,
         dialogues: dialogues.length,
         labelled: labels.size,
         promptVersion: PROMPT_VERSION,

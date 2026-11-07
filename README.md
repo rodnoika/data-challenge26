@@ -41,14 +41,25 @@ Other commands:
 | `npm run export:readable -- data/dev.json` | Readable transcripts + label template for hand-labelling |
 | `npm run harness -- --model <provider>/<model>` | Accuracy of one model against hand labels (prompt/rules iteration) |
 | `npm run bench -- --smoke` | Live-test every adapter on 3 dialogues (no labels needed) |
-| `npm run bench -- --split tune` | Model benchmark: same prompt on the whole shortlist (see below) |
+| `npm run bench -- --split train` | Model benchmark: same prompt on the whole shortlist (see below) |
 | `npm run compare -- benchmarks/<file>.json [--apply]` | Comparison table + decision rule; `--apply` sets the default model |
 | `npm run build:static` | Static UI bundle in `out/` (Dynamics 365 web-resource path) |
 
 ## Model and cost
 
 - **Evaluation model: chosen by benchmark, not by default.** The same prompt runs through Anthropic, OpenAI, Google Gemini and a local Ollama model. The model with the highest agreement with our hand labels, within budget, becomes the default. Method: [PLAN.md](PLAN.md) §6a. Results: the **Сравнение моделей** page.
-- _Chosen model, measured agreement and measured cost per evaluation: filled in after the benchmark, with the date prices were checked on the vendors' pricing pages._
+- **Current default (preliminary): `openai/gpt-6.1-terra`, one vote, reasoning `medium`, $0.0056 per evaluation (measured; prices checked 2026-11-07).** Hand labels are not ready yet, so it was chosen on 20 train dialogues by known answers, stability between two runs and agreement with `gpt-6.1-sol` ×3. Only OpenAI models were compared. `npm run compare -- <file> --apply` replaces it with the benchmark winner.
+
+  | Candidate | Known answers | Same answer in two runs | Total-score drift between runs (mean / max) | $ per evaluation |
+  |---|---|---|---|---|
+  | `gpt-6-luna` ×1 | 96.7% | 88.8% | 6.7 / 41 | 0.0009 |
+  | `gpt-6-luna` ×3 | 98.9% | 93.1% | 3.2 / 24 | 0.0025 |
+  | `gpt-5-nano` ×1 | 83.3% | 88.1% | 7.7 / 38 | 0.0026 |
+  | `gpt-6.1-terra` ×1, reasoning `low` | 100% | 95.0% | 3.9 / 30 | 0.0040 |
+  | `gpt-6.1-terra` ×1 | 100% | 98.8% | 0.9 / 10 | 0.0056 |
+  | `gpt-5.4-mini` ×1 | 96.7% | 88.8% | 6.1 / 29 | 0.0086 |
+  | `gpt-6.1-sol` ×3 (reference) | 100% | one run only | not measured | 0.0318 |
+
 - **Model registry:** [config/models.json](config/models.json) lists each candidate with its tier, its prices and the pricing-page URL and date they were checked. Current shortlist, checked 2026-11-07:
 
   | Vendor | Frontier | Cheap | Optional mid |
@@ -58,7 +69,8 @@ Other commands:
   | Google | `gemini-4-argon` | `gemini-3.5-flash-lite` | `gemini-3.8-flash` |
   | Local | `qwen3:14b` via Ollama | | |
 
-- Until a benchmark result is applied, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.
+- GPT-5 candidates (`gpt-5-nano`, `gpt-5-mini`, `gpt-5.4-nano`, `gpt-5.4-mini`, `gpt-5.6-luna`) are optional registry entries: add `--with-optional` to include them in a benchmark.
+- If the registry has no default, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.
 - Provider, model, vote count and reasoning depth are switchable in the UI (⚙ on the Dialogues page). Every stored result records which provider and model produced it.
 - **Cost per evaluation (all calls and votes included):** every evaluation stores its real token usage. Cost is tokens × the prices in the model registry and is shown in the card and as the average on the dashboard.
 
@@ -71,8 +83,8 @@ transcript ──► facts.ts (deterministic) ──► prompt.ts (generated fro
 ```
 
 1. **Facts are computed in code, not by the model.** They cover:
-   - first operator reply, client language, escalation, first-reaction time
-   - reply gaps against the 3-minute threshold, wait warnings
+   - first operator reply, client language, escalation
+   - possible wait warnings. Reply times are shown in the card only: the checklist excludes the 3-minute threshold from scoring, so they stay out of the prompt
    - hold / internal consultation windows (those operator turns are marked INTERNAL)
    - system identity-verification event, how the conversation ended, duplicates in call transcripts
    - audio offsets per turn (recording pauses excluded)
@@ -91,7 +103,7 @@ Every evaluation stores the exact checklist version, model, votes, tokens and co
 
 1. Run `npm run export:readable -- data/dev.json`. This writes `data/readable/<id>.md` (numbered transcript plus facts) and `data/labels/dev-labels.csv`.
 2. Fill the CSV blind, without looking at model output. Use `yes/no/na` for Yes/No criteria and the step value (`0/5/10/15/20`, `0/4/7/10`) or `na` for scales.
-3. Run `npm run harness -- --model <provider>/<model> --split tune`. It reports:
+3. Run `npm run harness -- --model <provider>/<model> --split train`. It reports:
    - per-criterion exact agreement and the confusion pairs
    - ±1-step agreement for scales
    - total-score MAE
@@ -99,14 +111,14 @@ Every evaluation stores the exact checklist version, model, votes, tokens and co
    - gross-error TP/FP/FN, cost and latency
    
    Results go to `runs/*.json` and `runs/*.csv`, ready for pandas.
-4. `--split holdout` evaluates the held-out third (every 3rd labelled dialogue per language) to check that rule changes generalise. `--from runs/x.json` re-scores a previous run after label fixes without calling the API.
+4. `--split test` evaluates the 20 dialogues listed in `data/splits/dev-test-ids.txt`. The other 45 are train. Change rules from train errors only. Use test to compare final candidates, and read only its aggregates: the per-dialogue CSV omits test rows unless you pass `--show-test`. `--from runs/x.json` re-scores a previous run after label fixes without calling the API.
 
 ### Model benchmark
 
 ```bash
 npm run bench -- --smoke                    # every adapter answers valid JSON on 3 dialogues
-npm run bench -- --split tune               # shortlist: frontier + cheap per vendor + local
-npm run bench -- --split holdout --with-optional \
+npm run bench -- --split train              # shortlist: frontier + cheap per vendor + local
+npm run bench -- --split test --with-optional \
   --n3 "<best two>" --ensemble "<one model per vendor>"
 npm run compare -- benchmarks/<file>.json --apply
 ```

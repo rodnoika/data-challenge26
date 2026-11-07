@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
-import { computeFacts, detectLanguage, toSeconds } from "../src/core/facts";
+import { computeFacts, detectLanguage, renderFacts, toSeconds } from "../src/core/facts";
 import { aggregate } from "../src/core/aggregate";
 import { buildOutputSchema, parseJudgments } from "../src/core/prompt";
-import { DEFAULT_CHECKLIST } from "../src/core/defaultChecklist";
+import { DEFAULT_CHECKLIST, migrateRules } from "../src/core/defaultChecklist";
 import type { Dialogue } from "../src/core/types";
 
 // data/dev.json is not committed (it contains signed links); run `npm run fetch:dataset -- DEV` first.
@@ -48,6 +48,15 @@ describe.skipIf(!HAS_DEV)("facts on DEV", () => {
     expect(f.holdWindows.length).toBeGreaterThan(0);
     expect(f.turns.filter((t) => t.internal).length).toBeGreaterThan(0);
     expect(f.turns[20].internal).toBe(true);
+    // the operator keeps talking to a colleague after "Агент вышел" while the client is on hold
+    expect(f.turns[50].internal).toBe(true);
+    expect(f.turns[59].internal).toBe(false);
+  });
+
+  it("first reply language matches the dialogue on every chat (p1-ru-013 has English section names)", () => {
+    for (const d of dev.filter((x) => x.channel === "agent chat")) {
+      expect(computeFacts(d).firstOperatorLanguage, d.conversation_id).toBe(d.language);
+    }
   });
 
   it("voice call audio offsets are monotonic", () => {
@@ -58,6 +67,83 @@ describe.skipIf(!HAS_DEV)("facts on DEV", () => {
 
   it("every DEV dialogue produces facts without throwing", () => {
     for (const d of dev) expect(() => computeFacts(d)).not.toThrow();
+  });
+});
+
+describe("facts without DEV data", () => {
+  const dialogue = (turns: [string, string][]): Dialogue => ({
+    conversation_id: "t",
+    channel: "voice call",
+    language: "RU",
+    audio_url: null,
+    transcript: turns.map(([speaker, text], i) => ({ speaker, text, timestamp: `00:${String(i).padStart(2, "0")}` })),
+  });
+  const internal = (d: Dialogue) => computeFacts(d).turns.filter((t) => t.internal).map((t) => t.idx);
+
+  it("keeps turns internal until the client is off hold, even after the colleague left", () => {
+    const d = dialogue([
+      ["system", "Инициирована консультация с агентом."],
+      ["system", "Клиент находится на удержании."],
+      ["operator", "Коллега, подскажи"],
+      ["system", "Агент вышел из разговора."],
+      ["operator", "Запишу себе"],
+      ["system", "Клиент больше не находится на удержании."],
+      ["operator", "Спасибо за ожидание"],
+    ]);
+    expect(internal(d)).toEqual([2, 4]);
+    expect(computeFacts(d).holdWindows).toEqual([[0, 5]]);
+  });
+
+  it("closes a consultation without hold when the colleague leaves", () => {
+    const d = dialogue([
+      ["system", "Инициирована консультация с агентом."],
+      ["operator", "Коллега, подскажи"],
+      ["system", "Агент вышел из разговора."],
+      ["operator", "Клиенту"],
+    ]);
+    expect(internal(d)).toEqual([1]);
+  });
+
+  it("does not take app section names for the language of the reply", () => {
+    expect(detectLanguage(["Здравствуйте! Я Кира. На сайте Freedom Holding Corp. откройте Investors, затем Financial Information."])).toBe("RU");
+    expect(detectLanguage(["Hi, I'm Adrian. Open Quotes and search by the bond's name or ticker."])).toBe("EN");
+    expect(detectLanguage(["Okay"])).toBe("EN");
+  });
+
+  it("keeps reply times and the 3-minute threshold out of the prompt", () => {
+    const d = dialogue([
+      ["system", "Эскалация на оператора."],
+      ["operator", "Здравствуйте"],
+    ]);
+    const rendered = renderFacts(computeFacts(d));
+    expect(rendered).not.toMatch(/порог|реакци|пауза/i);
+    expect(DEFAULT_CHECKLIST.rules).toMatch(/порог первой реакции в 3 минуты в этом задании в оценку не входит/);
+    expect(DEFAULT_CHECKLIST.rules).not.toMatch(/больше порога ожидания/);
+  });
+});
+
+describe("stored checklist migration", () => {
+  const legacy =
+    "10. Явное ожидание: оператор берёт паузу (проверяет, консультируется, ставит на удержание) или между репликой клиента и ответом оператора проходит больше порога ожидания (см. факты). Если ожидание было, а оператор не предупредил о нём заранее, это заметный сбой в ведении диалога (не выше ступени 7). Порог первой реакции — 3 минуты.";
+
+  it("replaces the old wait rule and leaves other text alone", () => {
+    const out = migrateRules(`9. x\n${legacy}\n11. y`);
+    expect(out).not.toContain("больше порога ожидания");
+    expect(out.startsWith("9. x\n10. Явное ожидание")).toBe(true);
+    expect(out.endsWith("\n11. y")).toBe(true);
+    expect(migrateRules("свои правила")).toBe("свои правила");
+  });
+
+  it("replaces the old closing rule and treats a bare goodbye as No", () => {
+    const legacyClosing =
+      "11. Завершение: если оператор закрыл чат без прощания — «Нет». Если клиент ушёл или связь прервалась до того, как оператор мог завершить разговор, — N/A.";
+    const out = migrateRules(`10. x\n${legacyClosing}\n12. y`);
+    expect(out).not.toContain(legacyClosing);
+    expect(out).toContain("только попрощался без итога и без предложения помощи");
+    expect(out.startsWith("10. x\n11. Завершение")).toBe(true);
+    expect(out.endsWith("\n12. y")).toBe(true);
+    expect(migrateRules(DEFAULT_CHECKLIST.rules)).toBe(DEFAULT_CHECKLIST.rules);
+    expect(DEFAULT_CHECKLIST.rules).toContain("только попрощался без итога и без предложения помощи");
   });
 });
 

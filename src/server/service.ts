@@ -1,3 +1,4 @@
+import { audioLinkExpiry } from "@/core/audio";
 import type { Checklist, Dialogue } from "@/core/types";
 import {
   createBatch,
@@ -135,10 +136,11 @@ export function startBatch(groupId: string, opts: { onlyMissing?: boolean; ids?:
 
 /* ---------- audio: the organisers' link is an HTML player page; resolve the mp3 inside ---------- */
 
-const audioCache = new Map<string, string>();
+const audioCache = new Map<string, { src: string; expiresAt: number }>();
 
-export async function resolveAudioSource(dialogueId: string): Promise<string> {
-  if (audioCache.has(dialogueId)) return audioCache.get(dialogueId)!;
+export async function resolveAudioSource(dialogueId: string, fresh = false): Promise<string> {
+  const cached = audioCache.get(dialogueId);
+  if (!fresh && cached && cached.expiresAt > Date.now()) return cached.src;
   const d = getDialogue(dialogueId);
   if (!d?.audio_url) throw new Error("No recording for this dialogue");
   const res = await fetch(d.audio_url, { cache: "no-store" });
@@ -150,6 +152,6 @@ export async function resolveAudioSource(dialogueId: string): Promise<string> {
     if (!m) throw new Error("Audio source not found in player page");
     src = m[1].replace(/&amp;/g, "&");
   }
-  audioCache.set(dialogueId, src);
+  audioCache.set(dialogueId, { src, expiresAt: audioLinkExpiry(src) });
   return src;
 }
