@@ -6,6 +6,7 @@ import { api } from "@/ui/api";
 import { Badge, Button, Card, Empty, ErrorNote, Lang, Loading, PageTitle, SectionLabel, Segmented, Spinner, cx, inputCls } from "@/ui/kit";
 import { answerTone, fmtAnswer, fmtTime, totalTone } from "@/ui/format";
 import { allowedAnswers } from "@/core/scoring";
+import { shiftTurnRefs } from "@/core/submission";
 import type { Appeal, Criterion, Judgment, Turn } from "@/core/types";
 
 type Item = {
@@ -115,7 +116,7 @@ function AppealCard({ item, onDone }: { item: Item; onDone: () => void }) {
         <div className="space-y-3 px-4 py-3 text-sm lg:border-r lg:border-rule-soft">
           <div>
             <SectionLabel>Обоснование системы</SectionLabel>
-            <p className="mt-0.5 text-ink">{j?.explanation}</p>
+            <p className="mt-0.5 text-ink">{j ? shiftTurnRefs(j.explanation) : ""}</p>
             {j?.naReason && <p className="mt-1 text-xs text-ink-3">Причина N/A: {j.naReason}</p>}
           </div>
           <div className="border-l-[3px] border-appeal bg-appeal-soft px-3 py-2">
@@ -136,7 +137,7 @@ function AppealCard({ item, onDone }: { item: Item; onDone: () => void }) {
               <div key={i}>
                 {k > 0 && shown[k - 1] !== i - 1 && <div className="px-4 font-mono text-xs leading-4 text-ink-4">⋯</div>}
                 <div className={cx("grid grid-cols-[2rem_4.25rem_minmax(0,1fr)] gap-x-2 px-4 py-1", focus.has(i) && "bg-mark-soft shadow-[inset_3px_0_0_var(--color-warn)]")}>
-                  <span className="font-mono text-2xs leading-5 text-ink-4">#{i}</span>
+                  <span className="font-mono text-2xs leading-5 text-ink-4">#{i + 1}</span>
                   <span className={cx("label-caps pt-[3px] !text-[10px]", dialogue?.transcript[i].speaker === "operator" && "!text-accent")}>{SPEAKER_RU[dialogue?.transcript[i].speaker ?? ""] ?? dialogue?.transcript[i].speaker}</span>
                   <span>{dialogue?.transcript[i].text}</span>
                 </div>

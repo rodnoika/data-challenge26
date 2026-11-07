@@ -126,11 +126,7 @@ function DialogueCard() {
         </span>
         <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
           {history.length > 1 && (
-<<<<<<< HEAD
-            <select className={cx(inputCls, "w-auto! text-xs")} value={ev?.id ?? ""} onChange={(e) => load(e.target.value)}>
-=======
             <select className={cx(inputCls, "w-full text-xs sm:w-auto")} value={ev?.id ?? ""} onChange={(e) => load(e.target.value)} title="История оценок">
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
               {history.map((h: any) => (
                 <option key={h.id} value={h.id} disabled={h.status !== "done"}>
                   {fmtTime(h.created_at)} · {h.model} · {h.status === "done" ? h.total ?? "—" : "ошибка"} · чек-лист v{h.checklist_version}
@@ -196,14 +192,8 @@ function DialogueCard() {
                       hl && "turn-flash bg-mark-soft shadow-[inset_3px_0_0_var(--color-warn)]",
                     )}
                   >
-<<<<<<< HEAD
-                    <div className="mb-0.5 flex items-center gap-2 text-[11px] text-slate-400">
-                      <span className="font-mono">#{i + 1}</span>
-                      <span className="font-medium text-slate-500">{s.label}</span>
-=======
                     <div className="pt-px font-mono text-2xs leading-5 text-ink-4">
-                      #{i}
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
+                      #{i + 1}
                       <button
                         className={cx("block font-mono", isVoice ? "text-accent hover:underline" : "cursor-default")}
                         onClick={() => isVoice && jump([i])}
@@ -303,10 +293,10 @@ type RawLog = {
 function Journal({ ev }: { ev: FullEval }) {
   const [log, setLog] = useState<RawLog | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const pre = "mt-1 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-900 p-3 text-xs text-slate-100";
+  const pre = "mt-1 max-h-72 overflow-auto border border-rule bg-paper p-3 font-mono text-xs break-words whitespace-pre-wrap text-ink-2";
   return (
     <details
-      className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+      className="border border-rule bg-sheet px-3 py-2 text-sm"
       onToggle={(e) => {
         if ((e.currentTarget as HTMLDetailsElement).open && !log && !error) {
           api<{ raw: RawLog | null }>(`/api/evaluations/${ev.id}?raw=1`)
@@ -315,8 +305,8 @@ function Journal({ ev }: { ev: FullEval }) {
         }
       }}
     >
-      <summary className="cursor-pointer font-medium text-slate-700">Журнал оценки: запрос и ответ модели</summary>
-      <p className="mt-2 text-xs text-slate-500">Здесь данные показаны как есть: в запросе и ответе модели реплики считаются с 0, в карточке и в файле результатов с 1.</p>
+      <summary className="label-caps cursor-pointer">Журнал оценки: запрос и ответ модели</summary>
+      <p className="mt-2 text-xs text-ink-3">Здесь данные показаны как есть: в запросе и ответе модели реплики считаются с 0, в карточке и в файле результатов с 1.</p>
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
         {[
           ["Время", fmtTime(ev.createdAt)],
@@ -327,18 +317,18 @@ function Journal({ ev }: { ev: FullEval }) {
           ["Голосов", String(ev.samples)],
         ].map(([k, v]) => (
           <div key={k}>
-            <dt className="text-slate-500">{k}</dt>
-            <dd className="font-mono break-words text-slate-800">{v}</dd>
+            <dt className="text-ink-3">{k}</dt>
+            <dd className="font-mono break-words text-ink">{v}</dd>
           </div>
         ))}
       </dl>
       <ErrorNote error={error} />
-      {!log && !error && <div className="mt-3 text-xs text-slate-500"><Spinner /> Загрузка…</div>}
+      {!log && !error && <div className="mt-3 text-xs text-ink-3"><Spinner /> Загрузка…</div>}
       {log && (
         <div className="mt-3 space-y-3">
           {!!log.votes?.length && (
             <table className="w-full text-left text-xs">
-              <thead className="text-slate-500">
+              <thead className="text-ink-3">
                 <tr>
                   <th className="py-1 font-medium">Голос</th>
                   <th className="py-1 font-medium">Статус</th>
@@ -347,9 +337,9 @@ function Journal({ ev }: { ev: FullEval }) {
                   <th className="py-1 text-right font-medium">Время</th>
                 </tr>
               </thead>
-              <tbody className="tabular-nums">
+              <tbody className="figures">
                 {log.votes.map((v, i) => (
-                  <tr key={i} className="border-t border-slate-100">
+                  <tr key={i} className="border-t border-rule-soft">
                     <td className="py-1 font-mono">{i + 1}. {v.provider}/{v.model}</td>
                     <td className="py-1">{v.ok ? (v.invalidFirst ? "ответ получен со второй попытки" : "ответ получен") : `ошибка: ${v.error ?? ""}`}</td>
                     <td className="py-1 text-right">{v.usage.inputTokens + v.usage.cacheReadTokens} / {v.usage.outputTokens}</td>
@@ -362,7 +352,7 @@ function Journal({ ev }: { ev: FullEval }) {
           )}
           {(log.responses ?? []).map((r, i) => (
             <div key={i}>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-ink-3">
                 Ответ {i + 1}: {r.model ?? r.voter}
                 {r.responseId && <> · id <span className="font-mono">{r.responseId}</span></>}
                 {r.receivedAt && <> · {fmtTime(r.receivedAt)}</>}
@@ -373,16 +363,16 @@ function Journal({ ev }: { ev: FullEval }) {
           {log.prompt ? (
             <>
               <div>
-                <div className="text-xs text-slate-500">Системный промпт, собранный из чек-листа</div>
+                <div className="text-xs text-ink-3">Системный промпт, собранный из чек-листа</div>
                 <pre className={pre}>{log.prompt.system}</pre>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Сообщение с диалогом и фактами</div>
+                <div className="text-xs text-ink-3">Сообщение с диалогом и фактами</div>
                 <pre className={pre}>{log.prompt.user}</pre>
               </div>
             </>
           ) : (
-            <div className="text-xs text-slate-500">Текст промпта не сохранён: оценка сделана до появления журнала.</div>
+            <div className="text-xs text-ink-3">Текст промпта не сохранён: оценка сделана до появления журнала.</div>
           )}
         </div>
       )}
@@ -430,19 +420,13 @@ function Summary({ ev }: { ev: FullEval }) {
         </table>
       </div>
       {ev.finalScore.grossError && (
-<<<<<<< HEAD
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          ⚠ <b>Грубая ошибка</b> ({grossC.map((c) => c.title).join(", ")}): {grossJ.map((j) => shiftTurnRefs(j.explanation)).join(" ")}
-          <div className="text-xs text-red-600">Отмечается отдельно, баллы по критериям не меняет.</div>
-=======
         <div className="border-t border-fail/30 border-l-[3px] border-l-fail bg-fail-soft px-3 py-2 text-sm text-ink">
           <div className="flex flex-wrap items-center gap-2">
             <GrossMark />
             <span className="font-medium text-fail">{grossC.map((c) => c.title).join(", ")}</span>
           </div>
-          <p className="mt-1">{grossJ.map((j) => j.explanation).join(" ")}</p>
+          <p className="mt-1">{grossJ.map((j) => shiftTurnRefs(j.explanation)).join(" ")}</p>
           <div className="mt-0.5 text-xs text-ink-3">Отмечается отдельно, баллы по критериям не меняет.</div>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
         </div>
       )}
     </Card>
@@ -498,22 +482,12 @@ function CriterionRow({
           )}
         </span>
       </div>
-<<<<<<< HEAD
-      <p className="mt-1.5 text-sm text-slate-700">{shiftTurnRefs(orig.explanation)}</p>
-      {fin.answer === "na" && orig.naReason && <p className="mt-1 text-xs text-slate-500">Причина N/A: {orig.naReason}</p>}
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        {orig.evidenceTurnIds.map((t) => (
-          <button key={t} onClick={() => onJump([t])} className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-700 hover:bg-amber-100">
-            #{t + 1}
-          </button>
-=======
-      <p className="mt-1 pl-7 text-sm text-ink-2">{orig.explanation}</p>
+      <p className="mt-1 pl-7 text-sm text-ink-2">{shiftTurnRefs(orig.explanation)}</p>
       {fin.answer === "na" && orig.naReason && <p className="mt-0.5 pl-7 text-xs text-ink-3">Причина N/A: {orig.naReason}</p>}
       <div className="mt-1.5 flex flex-wrap items-center gap-1 pl-7">
         {orig.evidenceTurnIds.length > 0 && <span className="mr-0.5 text-2xs text-ink-3">доказательства</span>}
         {orig.evidenceTurnIds.map((t) => (
-          <EvidenceChip key={t} n={t} onClick={() => onJump([t])} />
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
+          <EvidenceChip key={t} n={t + 1} onClick={() => onJump([t])} />
         ))}
         {orig.checkedSpan && (
           <button
@@ -521,11 +495,7 @@ function CriterionRow({
             className="h-5 border border-dashed border-warn/70 px-1.5 font-mono text-xs text-warn hover:bg-mark-soft"
             title="Проверенный участок, где ожидалось действие"
           >
-<<<<<<< HEAD
-            проверено #{orig.checkedSpan[0] + 1}–#{Math.min(orig.checkedSpan[1], transcriptLen - 1) + 1}
-=======
-            <span className="font-sans">проверено</span> #{orig.checkedSpan[0]}–#{Math.min(orig.checkedSpan[1], transcriptLen - 1)}
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
+            <span className="font-sans">проверено</span> #{orig.checkedSpan[0] + 1}–#{Math.min(orig.checkedSpan[1], transcriptLen - 1) + 1}
           </button>
         )}
         <span className="ml-auto">

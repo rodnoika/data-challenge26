@@ -316,7 +316,7 @@ export default function ChecklistsPage() {
                 <Field label="Подсказка для оценщика (необязательно)">
                   <textarea rows={3} className={inputCls} value={c.guidance ?? ""} onChange={(e) => updC(c.id, { guidance: e.target.value })} />
                   {stale.includes(c.id) && (
-                    <div className="mt-1 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    <div className="mt-1 flex items-center gap-2 border border-warn/30 border-l-[3px] border-l-warn bg-warn-soft px-3 py-2 text-xs text-warn">
                       <span>Критерий изменён, а подсказка осталась от старого: оценщик продолжит применять её правила.</span>
                       <Button size="sm" className="ml-auto shrink-0" onClick={() => updC(c.id, { guidance: "" })}>
                         Очистить подсказку
@@ -354,7 +354,7 @@ export default function ChecklistsPage() {
         <div className="sticky bottom-0 z-10 space-y-2 border border-ink-4 bg-sheet px-3 py-2.5 shadow-[0_-8px_24px_-16px_rgb(26_29_33/0.4)]">
           {problems.length > 0 && <ErrorNote error={problems.join("\n")} />}
           {stale.length > 0 && (
-            <div className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            <div className="border border-warn/30 border-l-[3px] border-l-warn bg-warn-soft px-3 py-2 text-sm text-warn">
               Проверьте подсказки критериев {stale.map((id) => draft.criteria.find((c) => c.id === id)?.code ?? id).join(", ")}: они написаны для старых формулировок.
             </div>
           )}
@@ -364,29 +364,20 @@ export default function ChecklistsPage() {
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={activate} onChange={(e) => setActivate(e.target.checked)} /> сделать активным
             </label>
-<<<<<<< HEAD
-            <span className="text-xs text-slate-500">
+            <span className="hidden text-xs text-ink-3 sm:inline">
               Сохранение создаёт новую версию; прошлые оценки хранят свою.{activeRef && ` Сейчас оценивает v${activeRef.version}${activeRef.id === saved?.id ? "" : " другого чек-листа"}.`}
             </span>
-            <div className="ml-auto flex gap-2">
-              <Button variant="ghost" disabled={!dirty} onClick={() => setDraft(clone(saved!))}>
-                Отменить изменения
-              </Button>
-              {saved && activeRef && (saved.id !== activeRef.id || saved.version !== activeRef.version) && (
-                <Button onClick={makeActive} disabled={busy}>
-                  ✓ Сделать этот чек-лист активным
-                </Button>
-              )}
-              <Button onClick={reevaluateGroup}>↻ Переоценить набор</Button>
-=======
-            <span className="hidden text-xs text-ink-3 sm:inline">Сохранение создаёт новую версию; прошлые оценки хранят свою версию чек-листа.</span>
             {dirty && <span className="label-caps !text-warn">есть несохранённые изменения</span>}
             <div className="flex flex-wrap gap-2 sm:ml-auto">
               <Button variant="ghost" disabled={!dirty} onClick={() => setDraft(clone(saved!))}>
                 Отменить изменения
               </Button>
+              {saved && activeRef && (saved.id !== activeRef.id || saved.version !== activeRef.version) && (
+                <Button onClick={makeActive} disabled={busy}>
+                  Сделать этот чек-лист активным
+                </Button>
+              )}
               <Button onClick={reevaluateGroup}>Переоценить набор</Button>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
               <Button variant="primary" disabled={!dirty || busy || problems.length > 0} onClick={save}>
                 {busy && <Spinner />} Сохранить версию
               </Button>

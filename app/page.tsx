@@ -284,17 +284,10 @@ export default function DialoguesPage() {
             </select>
           </Field>
           <Field label="Загрузить по group_id из API организаторов">
-<<<<<<< HEAD
-            <div className="flex gap-2">
-              <input className={cx(inputCls, "w-36!")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
-              <Button onClick={fetchGroup} disabled={!fetchId || busy === "fetch"}>
-                {busy === "fetch" ? <Spinner /> : "⤓"} Загрузить
-=======
             <div className="flex">
               <input className={cx(inputCls, "w-32 rounded-r-none")} value={fetchId} onChange={(e) => setFetchId(e.target.value)} placeholder="group_id" />
               <Button className="-ml-px rounded-l-none" onClick={fetchGroup} disabled={!fetchId || busy === "fetch"}>
                 {busy === "fetch" && <Spinner />} Загрузить
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
               </Button>
             </div>
           </Field>
@@ -351,26 +344,20 @@ export default function DialoguesPage() {
 
       <ErrorNote error={error} />
 
-<<<<<<< HEAD
       {stats.outdated > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="flex flex-wrap items-center gap-3 border border-warn/30 border-l-[3px] border-l-warn bg-warn-soft px-3 py-2 text-sm text-warn">
           <span>
             {stats.outdated} диал. оценены другой версией чек-листа. Показатели ниже считают только «{active?.name}» v{active?.version}.
           </span>
           <Button size="sm" className="ml-auto" onClick={reevaluateOutdated} disabled={job?.status === "running"}>
-            ↻ Переоценить их
+            Переоценить их
           </Button>
         </div>
       )}
 
-      {/* dashboard */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-        <Stat label="Оценено" value={`${stats.evaluated} / ${rows.length}`} />
-=======
       {/* dashboard strip */}
       <Card className="grid grid-cols-2 overflow-hidden sm:grid-cols-3 xl:grid-cols-6">
         <Stat label="Оценено" value={<>{stats.evaluated}<span className="text-ink-4"> / {rows.length}</span></>} />
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
         <Stat label="Средний балл" value={stats.avg === null ? "—" : stats.avg.toFixed(1)} tone={totalTone(stats.avg)} />
         <Stat label="Грубые ошибки" value={String(stats.gross)} tone={stats.gross ? "text-fail" : undefined} active={filter.status === "gross"} onClick={() => toggle("gross")} />
         <Stat label="Нужна проверка" value={String(stats.low)} hint="голоса модели разошлись" tone={stats.low ? "text-warn" : undefined} active={filter.status === "low"} onClick={() => toggle("low")} />
@@ -398,35 +385,21 @@ export default function DialoguesPage() {
 
       {/* table */}
       <Card>
-<<<<<<< HEAD
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 p-3">
-          <input className={cx(inputCls, "w-48!")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
-          <select className={cx(inputCls, "w-28!")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
-=======
         <div className="flex flex-wrap items-center gap-2 border-b border-rule px-3 py-2">
           <input className={cx(inputCls, "w-full sm:w-48")} placeholder="Поиск по ID" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
           <select className={cx(inputCls, "w-[calc(50%-4px)] sm:w-28")} value={filter.lang} onChange={(e) => setFilter({ ...filter, lang: e.target.value })}>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
             <option value="">Все языки</option>
             {langs.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-<<<<<<< HEAD
-          <select className={cx(inputCls, "w-36!")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
-=======
           <select className={cx(inputCls, "w-[calc(50%-4px)] sm:w-36")} value={filter.channel} onChange={(e) => setFilter({ ...filter, channel: e.target.value })}>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
             <option value="">Все каналы</option>
             {channels.map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
-<<<<<<< HEAD
-          <select className={cx(inputCls, "w-56!")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-=======
-          <select className={cx(inputCls, "w-full sm:w-44")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
+          <select className={cx(inputCls, "w-full sm:w-52")} value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
             <option value="">Любой статус</option>
             <option value="none">Не оценены</option>
             <option value="gross">Грубые ошибки</option>
@@ -436,20 +409,14 @@ export default function DialoguesPage() {
           </select>
           <span className="figures ml-auto text-xs text-ink-3">{filtered.length} диалогов</span>
           {group && (
-<<<<<<< HEAD
             <>
-              <button className="text-xs font-medium text-brand-700 hover:underline" onClick={downloadResults} title="results.json в формате организаторов">
+              <button className="text-xs font-medium text-accent hover:underline" onClick={downloadResults} title="results.json в формате организаторов">
                 Экспорт для сдачи (JSON)
               </button>
-              <a className="text-xs text-brand-700 hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
+              <a className="text-xs text-accent hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
                 CSV
               </a>
             </>
-=======
-            <a className="text-xs text-accent hover:underline" href={`${API_BASE}/api/export?group=${encodeURIComponent(group)}&format=csv`}>
-              Экспорт CSV
-            </a>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
           )}
         </div>
         <div className="overflow-x-auto">
@@ -484,54 +451,30 @@ export default function DialoguesPage() {
                   <td className="px-3 text-xs whitespace-nowrap">
                     <Channel voice={r.channel === "voice call"} />
                   </td>
-<<<<<<< HEAD
-                  <td className="px-3 py-2 text-right tabular-nums text-slate-500">{r.turns}</td>
-                  {(active?.criteria ?? []).map((c) => {
-                    const a = r.evaluation?.answers[c.id];
-                    const low = r.evaluation?.lowConfidence.includes(c.id);
-                    return (
-                      <td key={c.id} className={cx("px-1.5 py-2 text-center text-xs tabular-nums", isOutdated(r) && "opacity-40")}>
-                        <span className={cx(low && "rounded bg-amber-100 px-1", a === "no" || a === 0 ? "text-red-600" : a === "na" ? "text-slate-400" : c.isFlag && a === "yes" ? "font-bold text-red-600" : "text-slate-700")}>
-                          {a === undefined ? "" : a === "yes" ? (c.isFlag ? "⚠" : "✓") : a === "no" ? (c.isFlag ? "–" : "✗") : a === "na" ? "N/A" : a}
-                        </span>
-                      </td>
-                    );
-                  })}
-                  <td className={cx("px-3 py-2 text-right font-semibold tabular-nums", totalTone(r.evaluation?.total), isOutdated(r) && "opacity-40")}>
-=======
                   <td className="figures px-3 text-right font-mono text-xs text-ink-3">{r.turns}</td>
                   {criteria.map((c, i) => (
-                    <td key={c.id} className={cx("px-0.5 text-center", i === 0 && "border-l border-rule-soft")}>
+                    <td key={c.id} className={cx("px-0.5 text-center", i === 0 && "border-l border-rule-soft", isOutdated(r) && "opacity-40")}>
                       <AnswerMark c={c} a={r.evaluation?.answers[c.id]} low={r.evaluation?.lowConfidence.includes(c.id)} />
                     </td>
                   ))}
-                  <td className={cx("figures border-l border-rule px-3 text-right font-mono text-sm font-medium", totalTone(r.evaluation?.total))}>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
+                  <td className={cx("figures border-l border-rule px-3 text-right font-mono text-sm font-medium", totalTone(r.evaluation?.total), isOutdated(r) && "opacity-40")}>
                     {r.evaluation?.status === "done" ? (r.evaluation.total ?? "—") : ""}
                     {r.evaluation && r.evaluation.total !== r.evaluation.originalTotal && (
                       <div className="text-2xs leading-3 font-normal text-ink-4 line-through">{r.evaluation.originalTotal}</div>
                     )}
                   </td>
-<<<<<<< HEAD
-                  <td className="space-x-1 px-3 py-2">
-                    {r.evaluation?.status === "error" && <Badge tone="red">ошибка</Badge>}
-                    {isOutdated(r) && (
-                      <Badge tone="amber" title="Оценка сделана другой версией чек-листа: колонки могут означать другие критерии">
-                        {r.evaluation!.checklistId === active?.id ? `чек-лист v${r.evaluation!.checklistVersion}` : "другой чек-лист"}
-                      </Badge>
-                    )}
-                    {r.evaluation?.gross && <Badge tone="red">грубая ошибка</Badge>}
-                    {!!r.evaluation?.lowConfidence.length && <Badge tone="amber">проверить</Badge>}
-                    {r.openAppeals > 0 && <Badge tone="violet">апелляция</Badge>}
-=======
                   <td className="px-3">
                     <div className="flex flex-wrap gap-1">
                       {r.evaluation?.status === "error" && <Badge tone="red">ошибка</Badge>}
+                      {isOutdated(r) && (
+                        <Badge tone="amber" title="Оценка сделана другой версией чек-листа: колонки могут означать другие критерии">
+                          {r.evaluation!.checklistId === active?.id ? `чек-лист v${r.evaluation!.checklistVersion}` : "другой чек-лист"}
+                        </Badge>
+                      )}
                       {r.evaluation?.gross && <GrossMark />}
                       {!!r.evaluation?.lowConfidence.length && <Badge tone="amber">проверить</Badge>}
                       {r.openAppeals > 0 && <Badge tone="violet">апелляция</Badge>}
                     </div>
->>>>>>> 1ff302a522570146d91e1c322df4d7633d5c67b5
                   </td>
                   <td className="px-3 text-right">
                     <Button size="sm" variant={r.evaluation ? "ghost" : "secondary"} onClick={() => evaluateOne(r.id)} disabled={evaluating.has(r.id) || job?.status === "running"}>
