@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.local
+data/cqa.db*
+.DS_Store
+runs/*.json
+!runs/.gitkeep
+# Organiser data contains signed URLs: never commit. Regenerate with npm run fetch:dataset / export:readable.
+data/*.json
+data/readable/
