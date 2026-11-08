@@ -247,6 +247,36 @@
       "priceNote": "older generation, kept for reference; `ollama pull qwen3:14b`",
       "priceSource": "local",
       "checkedAt": null
+    },
+    {
+      "provider": "ollama",
+      "model": "gemma4:31b",
+      "label": "Gemma 4 31B (GPU server, Ollama)",
+      "tier": "local",
+      "optional": true,
+      "price": {
+        "in": 0,
+        "cachedIn": 0,
+        "out": 0
+      },
+      "priceNote": "about 20 GB in Q4: needs a 48 GB GPU, e.g. on NVIDIA Brev (see README, Local models on a GPU server). $0 per call; the GPU is billed by the hour. `ollama pull gemma4:31b`",
+      "priceSource": "local",
+      "checkedAt": null
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen3.8:27b",
+      "label": "Qwen3.8 27B (GPU server, Ollama)",
+      "tier": "local",
+      "optional": true,
+      "price": {
+        "in": 0,
+        "cachedIn": 0,
+        "out": 0
+      },
+      "priceNote": "dense 27B, Apache 2.0; about 18 GB in Q4, needs a 48 GB GPU, e.g. on NVIDIA Brev. $0 per call; the GPU is billed by the hour. `ollama pull qwen3.8:27b`",
+      "priceSource": "local",
+      "checkedAt": null
     }
   ]
 }

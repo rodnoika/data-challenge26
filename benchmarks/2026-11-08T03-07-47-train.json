@@ -1,0 +1,298 @@
+{
+ "meta": {
+  "createdAt": "2026-11-08T03:26:16.371Z",
+  "split": "train",
+  "dialogues": 42,
+  "labelled": 65,
+  "promptVersion": "p7",
+  "checklist": "cqa-default v1",
+  "reasoning": "medium",
+  "ollama": {
+   "numCtx": 16384,
+   "numPredict": 8192,
+   "think": "model default"
+  },
+  "costCap": 0.15,
+  "prices": {
+   "anthropic/claude-opus-5-5": {
+    "price": {
+     "in": 4,
+     "cachedIn": 0.2,
+     "cacheWrite": 5,
+     "out": 20
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-sonnet-5-5": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "cacheWrite": 2.5,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-haiku-5-5": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "cacheWrite": 0.125,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "openai/gpt-6.1-sol": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6.1-terra": {
+    "price": {
+     "in": 1,
+     "cachedIn": 0.05,
+     "out": 5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6-luna": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-nano": {
+    "price": {
+     "in": 0.05,
+     "cachedIn": 0.005,
+     "out": 0.4
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.6-luna": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "cacheWrite": 0.25,
+     "out": 1.2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-nano": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "out": 1.25
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-mini": {
+    "price": {
+     "in": 0.25,
+     "cachedIn": 0.025,
+     "out": 2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-mini": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 4.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "gemini/gemini-4-argon": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.8-flash": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 3.75
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.5-flash-lite": {
+    "price": {
+     "in": 0.3,
+     "cachedIn": 0.03,
+     "out": 2.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "ollama/qwen3.5:9b-q4_K_M": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/qwen3:14b": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/gemma4:31b": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/qwen3.8:27b": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   }
+  },
+  "skipped": []
+ },
+ "candidates": [
+  {
+   "candidate": "ollama/gemma4:31b",
+   "provider": "ollama",
+   "model": "gemma4:31b",
+   "tier": "local",
+   "samples": 1,
+   "dialogues": 42,
+   "judged": 336,
+   "agreement": 0.9523809523809523,
+   "ci": [
+    0.9196428571428571,
+    0.9791666666666666
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 42,
+     "exact": 42,
+     "within1": 42,
+     "kappa": 1,
+     "qwk": null
+    },
+    "c02": {
+     "n": 42,
+     "exact": 40,
+     "within1": 40,
+     "kappa": 0.8989169675090252,
+     "qwk": null
+    },
+    "c03": {
+     "n": 42,
+     "exact": 42,
+     "within1": 42,
+     "kappa": 1,
+     "qwk": null
+    },
+    "c04": {
+     "n": 42,
+     "exact": 40,
+     "within1": 42,
+     "kappa": 0.8169934640522875,
+     "qwk": 0.9738353541799617
+    },
+    "c05": {
+     "n": 42,
+     "exact": 39,
+     "within1": 39,
+     "kappa": 0.6272189349112429,
+     "qwk": null
+    },
+    "c06": {
+     "n": 42,
+     "exact": 36,
+     "within1": 42,
+     "kappa": 0.5662650602409638,
+     "qwk": 0.8498212157330155
+    },
+    "c07": {
+     "n": 42,
+     "exact": 39,
+     "within1": 39,
+     "kappa": 0.8326693227091634,
+     "qwk": null
+    },
+    "c08": {
+     "n": 42,
+     "exact": 42,
+     "within1": 42,
+     "kappa": 1,
+     "qwk": null
+    }
+   },
+   "kappaMean": 0.8427579686778354,
+   "kzAgreement": 0.925,
+   "totalMAE": 2.1935714285714285,
+   "gross": {
+    "tp": 6,
+    "fp": 0,
+    "fn": 0,
+    "recall": 1
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0,
+   "latencyP50": 26393,
+   "latencyP95": 31657,
+   "voters": [
+    {
+     "provider": "ollama",
+     "model": "gemma4:31b"
+    }
+   ]
+  }
+ ],
+ "decision": {
+  "winner": "ollama/gemma4:31b",
+  "fallback": null,
+  "tied": [
+   "ollama/gemma4:31b"
+  ],
+  "excluded": [],
+  "rule": "гейты: recall грубых ошибок = 100%, невалидный вывод < 5%, сбои < 5%, цена ≤ $0.15/диалог; затем max согласие, ничья в пределах 95% ДИ лидера → дешевле → быстрее"
+ }
+}

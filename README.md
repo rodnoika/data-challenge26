@@ -85,6 +85,34 @@ Other commands:
 
   Use `--concurrency 1`, because parallel requests each reserve their own context memory. `OLLAMA_NUM_CTX` sets the context size (default 16384).
 
+- **Local models on a GPU server (NVIDIA Brev).** Models above 14B do not fit a laptop, so we run them on a rented GPU with the same Ollama provider. The registry has two optional entries for a 48 GB GPU, both dense models under Apache 2.0: `qwen3.8:27b` (about 18 GB in Q4) and `gemma4:31b` (about 20 GB in Q4). The app needs no code change: an SSH tunnel makes the remote Ollama appear at `localhost:11434`, the default `OLLAMA_URL`, and no port opens to the internet.
+
+  ```bash
+  # on the Brev instance (brev shell <instance>)
+  curl -fsSL https://ollama.com/install.sh | sh
+  ollama pull gemma4:31b
+  ollama pull qwen3.8:27b
+
+  # on your machine, in a separate terminal; keep it open
+  brev login
+  brev port-forward <instance> --port 11434:11434
+
+  # then, as with a local Ollama
+  npm run bench -- --split train --models "ollama/qwen3.8:27b,ollama/gemma4:31b" --concurrency 1
+  ```
+
+  Measured on 2026-11-08 on one NVIDIA L40S (48 GB) on Brev, prompt `p7`, Q4_K_M, one vote, Ollama's default reasoning, one request at a time:
+
+  | Model | Train, 42 chats | Held-out, 18 chats | Kazakh (train) | Gross errors | Time per chat (p50) |
+  |---|---:|---:|---:|---|---:|
+  | `gemma4:31b` | **95.2%** (CI 92.0–97.9%) | **91.7%** (CI 86.1–96.5%) | 92.5% | 6/6 train, 2/2 held-out, no false flag | 26 s |
+  | `qwen3.8:27b` | 94.3% (CI 91.4–97.0%) | not run | 93.8% | 6/6, no false flag | 33 s |
+  | for comparison: `openai/gpt-6.1-terra` | 96.1% | 94.4% | — | 6/6, 2/2 | ≈ 10 s |
+
+  Gemma 4 31B comes within 1 point of the cloud default on train and within 3 points on the held-out chats, and the confidence intervals overlap. Neither local model produced invalid output or a failed evaluation. A bank that cannot send client dialogues to an external API can run the evaluator on its own GPU at this accuracy. Summaries: `benchmarks/2026-11-08T03-07-47-train.json` (Gemma), `benchmarks/2026-11-08T03-26-44-train.json` (Qwen).
+
+  The GPU is billed by the hour (a 48 GB instance costs about $1 per hour). At 26 s per chat one GPU evaluates about 140 chats an hour, so about $0.008 per evaluation. Dialogues sent for evaluation leave your machine for the rented server, so choose a provider and region your data policy allows. Delete the instance when you are done: some instances cannot be paused and bill until deleted.
+
 - GPT-5 candidates (`gpt-5-nano`, `gpt-5-mini`, `gpt-5.4-nano`, `gpt-5.4-mini`, `gpt-5.6-luna`) are optional registry entries: add `--with-optional` to include them in a benchmark.
 - If the registry has no default, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.
 - Provider, model, vote count and reasoning depth are switchable in the UI (the **Модель …** button on the Dialogues page; **Сбросить к модели по умолчанию** restores the registry default). Every stored result records which provider and model produced it.
