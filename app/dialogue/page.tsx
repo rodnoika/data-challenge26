@@ -116,7 +116,7 @@ function DialogueCard() {
     <div className="space-y-3">
       {/* header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-rule pb-2">
-        <Link href="/" className="text-sm text-ink-3 hover:text-ink">← Диалоги</Link>
+        <Link href={dialogue.group_id ? `/?group=${encodeURIComponent(dialogue.group_id)}` : "/"} className="text-sm text-ink-3 hover:text-ink">← Диалоги</Link>
         <span className="h-4 w-px bg-rule" />
         <h1 className="font-mono text-base font-medium">{dialogue.conversation_id}</h1>
         <Lang code={dialogue.language} />

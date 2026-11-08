@@ -1,0 +1,11 @@
+conversation_id,language,channel,c01,c02,c03,c04,c05,c06,c07,c08,labeller,note
+p1-ru-001,RU,agent chat,yes,na,na,20,yes,10,yes,no,Y,
+p1-ru-002,RU,agent chat,yes,na,na,5,no,4,no,no,Y,
+p1-ru-003,RU,agent chat,yes,no,na,10,yes,4,no,no,Y,
+p1-ru-004,RU,agent chat,yes,yes,na,20,yes,10,no,no,Y,
+p1-ru-005,RU,agent chat,yes,na,na,20,yes,4,yes,no,Y,
+p1-ru-006,RU,agent chat,yes,yes,yes,20,yes,10,yes,no,Y,
+p1-ru-007,RU,agent chat,yes,na,na,10,yes,4,no,no,Y,
+p1-ru-008,RU,agent chat,yes,na,na,20,yes,10,no,no,Y,
+p1-ru-009,RU,agent chat,yes,yes,no,5,no,4,yes,yes,Y,
+p1-ru-010,RU,agent chat,yes,yes,yes,20,yes,10,yes,no,Y,

@@ -1,4 +1,5 @@
 import { audioLinkExpiry } from "@/core/audio";
+import { checkSourceUrl, defaultAllowedHosts } from "@/core/sourceUrl";
 import type { Checklist, Dialogue } from "@/core/types";
 import {
   createBatch,
@@ -51,6 +52,36 @@ export async function fetchDataset(groupId: string) {
   if (body?.isSuccess === false) throw new Error(`Organiser API error: ${body?.error || "isSuccess=false"}`);
   const dialogues = normaliseRecords(body);
   const gid = body?.data?.dataset_group_id ?? groupId;
+  upsertDialogues(dialogues, gid, "api");
+  return { groupId: gid, count: dialogues.length };
+}
+
+/**
+ * Loads a dataset from a pasted link (for example a new set the organisers announce).
+ * The link itself is never stored or echoed back: it may carry a signature.
+ */
+export async function fetchDatasetFromUrl(raw: string, groupId?: string) {
+  const check = checkSourceUrl(raw, defaultAllowedHosts(process.env.ORGANISER_API_URL, process.env.CQA_FETCH_ALLOWED_HOSTS));
+  if (!check.ok) throw new Error(check.error);
+  let res: Response;
+  try {
+    // redirect: "error" keeps an allowed host from bouncing the request to a disallowed one.
+    res = await fetch(check.url, { cache: "no-store", redirect: "error", signal: AbortSignal.timeout(60_000) });
+  } catch {
+    throw new Error("Не удалось получить данные по ссылке: адрес недоступен, перенаправляет или не ответил за 60 с");
+  }
+  if (!res.ok) throw new Error(`Источник ответил ошибкой ${res.status}`);
+  const text = await res.text();
+  if (text.length > 50_000_000) throw new Error("Ответ больше 50 МБ");
+  let body: any;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    throw new Error("По ссылке пришёл не JSON");
+  }
+  if (body?.isSuccess === false) throw new Error(`Источник вернул ошибку: ${body?.error || "isSuccess=false"}`);
+  const dialogues = normaliseRecords(body);
+  const gid = groupId?.trim() || body?.data?.dataset_group_id || check.url.searchParams.get("group_id") || "URL";
   upsertDialogues(dialogues, gid, "api");
   return { groupId: gid, count: dialogues.length };
 }

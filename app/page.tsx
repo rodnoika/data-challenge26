@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, API_BASE } from "@/ui/api";
-import { AnswerMark, Badge, Button, Card, Channel, ErrorNote, Field, GrossMark, Lang, Meter, Panel, Spinner, cx, inputCls, rowCls, tableCls, theadCls } from "@/ui/kit";
+import { AnswerMark, Badge, Button, Card, Channel, ErrorNote, Field, GrossMark, Lang, Meter, Modal, Panel, Segmented, Spinner, cx, inputCls, rowCls, tableCls, theadCls } from "@/ui/kit";
 import { totalTone } from "@/ui/format";
 import type { Checklist } from "@/core/types";
 import { SettingsPanel, type SettingsResp } from "@/ui/SettingsPanel";
@@ -48,11 +48,13 @@ export default function DialoguesPage() {
   const [settings, setSettings] = useState<SettingsResp | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [addOpen, setAddOpen] = useState(false);
 
   const load = useCallback(async (g?: string) => {
     const gr = await api<{ groups: { groupId: string; count: number }[] }>("/api/groups");
     setGroups(gr.groups);
-    const target = g ?? (group || gr.groups[0]?.groupId || "");
+    const known = (id: string) => gr.groups.some((x) => x.groupId === id);
+    const target = g ?? (group && known(group) ? group : gr.groups[0]?.groupId || "");
     if (target !== group) setGroup(target);
     const [d, c] = await Promise.all([
       api<{ dialogues: Row[] }>(`/api/dialogues${target ? `?group=${encodeURIComponent(target)}` : ""}`),
@@ -67,21 +69,27 @@ export default function DialoguesPage() {
     }
   }, [group]);
 
+  // The set to show comes from ?group= (the dialogue card links back with it), then from the last choice.
+  // Nothing loads until it is known: otherwise the first load picks the first set and overwrites the choice.
+  const [ready, setReady] = useState(false);
   useEffect(() => {
+    let wanted = "";
     try {
-      const saved = localStorage.getItem("cqa.group");
-      if (saved) setGroup(saved);
+      wanted = new URLSearchParams(window.location.search).get("group") ?? localStorage.getItem("cqa.group") ?? "";
     } catch {}
+    if (wanted) setGroup(wanted);
+    setReady(true);
     api<SettingsResp>("/api/settings").then(setSettings).catch(() => {});
   }, []);
 
   useEffect(() => {
+    if (!ready) return;
     load().catch((e) => setError(String(e.message ?? e)));
     try {
       if (group) localStorage.setItem("cqa.group", group);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [group]);
+  }, [group, ready]);
 
   // poll a running batch
   useEffect(() => {
@@ -297,6 +305,7 @@ export default function DialoguesPage() {
               {busy === "upload" && <Spinner />} Загрузить JSON-файл
             </Button>
           </div>
+          <Button onClick={() => setAddOpen(true)}>Добавить по ссылке или JSON</Button>
           <div className="flex w-full flex-wrap items-end gap-2 lg:ml-auto lg:w-auto">
             <button
               onClick={() => setShowSettings((s) => !s)}
@@ -343,6 +352,16 @@ export default function DialoguesPage() {
       </Card>
 
       <ErrorNote error={error} />
+
+      <AddDialoguesModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onLoaded={async (gid) => {
+          setAddOpen(false);
+          setGroup(gid);
+          await load(gid);
+        }}
+      />
 
       {stats.outdated > 0 && (
         <div className="flex flex-wrap items-center gap-3 border border-warn/30 border-l-[3px] border-l-warn bg-warn-soft px-3 py-2 text-sm text-warn">
@@ -527,5 +546,93 @@ function Stat({ label, value, tone, hint, onClick, active }: { label: string; va
       <div className={cx("figures mt-0.5 font-mono text-xl leading-7 font-medium text-ink", tone)}>{value}</div>
       <div className="h-4 truncate text-2xs text-ink-3">{hint}</div>
     </Tag>
+  );
+}
+
+/**
+ * Adds dialogues from a pasted API link (fetched by the server, so no CORS) or from pasted JSON.
+ * Accepts the organisers' payload ({ data: { records } }), an array of dialogues or a single dialogue.
+ */
+function AddDialoguesModal({ open, onClose, onLoaded }: { open: boolean; onClose: () => void; onLoaded: (groupId: string) => Promise<void> }) {
+  const [mode, setMode] = useState<"url" | "json">("url");
+  const [url, setUrl] = useState("");
+  const [text, setText] = useState("");
+  const [groupId, setGroupId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setError(null);
+      setDone(null);
+    }
+  }, [open]);
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    setDone(null);
+    try {
+      let r: { groupId: string; count: number };
+      if (mode === "url") {
+        r = await api("/api/datasets/fetch", { method: "POST", json: { url: url.trim(), groupId: groupId.trim() || undefined } });
+      } else {
+        let payload: any;
+        try {
+          payload = JSON.parse(text);
+        } catch (e: any) {
+          throw new Error(`JSON не разобран: ${e.message}`);
+        }
+        const gid = groupId.trim() || payload?.data?.dataset_group_id || "UPLOAD-JSON";
+        r = await api("/api/dialogues", { method: "POST", json: { groupId: gid, payload } });
+      }
+      setDone(`Загружено ${r.count} диал. в набор ${r.groupId}`);
+      setUrl("");
+      setText("");
+      await onLoaded(r.groupId);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const ready = mode === "url" ? url.trim().length > 0 : text.trim().length > 0;
+  return (
+    <Modal open={open} onClose={onClose} title="Добавить диалоги">
+      <div className="space-y-3">
+        <Segmented
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: "url", label: "Ссылка API" },
+            { value: "json", label: "Вставить JSON" },
+          ]}
+        />
+        {mode === "url" ? (
+          <Field label="Адрес API (GET)" hint="Сервер скачает набор сам. Принимаются только https-ссылки организаторов и хосты из CQA_FETCH_ALLOWED_HOSTS; ссылка нигде не сохраняется.">
+            <input className={inputCls} type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…/invoke?…&group_id=FBroker" autoFocus />
+          </Field>
+        ) : (
+          <Field label="JSON с диалогами" hint="Формат организаторов { data: { records: [...] } }, массив диалогов или один диалог с conversation_id и transcript.">
+            <textarea className={cx(inputCls, "h-48 font-mono text-xs")} value={text} onChange={(e) => setText(e.target.value)} placeholder='{"data":{"records":[{"conversation_id":"…","channel":"agent chat","language":"RU","transcript":[…]}]}}' />
+          </Field>
+        )}
+        <Field label="Название набора (необязательно)" hint="По умолчанию берётся из данных: dataset_group_id или group_id в ссылке.">
+          <input className={inputCls} value={groupId} onChange={(e) => setGroupId(e.target.value)} placeholder="например FBroker" />
+        </Field>
+        <ErrorNote error={error} />
+        {done && <div className="text-sm text-pass">{done}</div>}
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={onClose}>
+            Закрыть
+          </Button>
+          <Button variant="primary" onClick={submit} disabled={!ready || busy}>
+            {busy && <Spinner />} Загрузить
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

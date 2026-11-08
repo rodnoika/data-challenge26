@@ -7,6 +7,7 @@ import { Badge, Button, Card, ErrorNote, Field, InfoNote, Loading, Panel, Spinne
 import { fmtTime } from "@/ui/format";
 import { buildSystemPrompt } from "@/core/prompt";
 import { staleHints, validateChecklist } from "@/core/scoring";
+import { DEFAULT_RULES } from "@/core/defaultChecklist";
 import type { Checklist, Criterion } from "@/core/types";
 
 type ListItem = { id: string; name: string; version: number; isActive: boolean; updatedAt: string };
@@ -31,6 +32,8 @@ export default function ChecklistsPage() {
   const [activate, setActivate] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
   const [activeRef, setActiveRef] = useState<{ id: string; version: number } | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState("");
 
   async function loadList(selectId?: string) {
     const r = await api<{ checklists: ListItem[]; active: Checklist }>("/api/checklists");
@@ -111,6 +114,68 @@ export default function ChecklistsPage() {
     }
   }
 
+  /** Saves a new checklist (never active on creation) and opens it in the editor. */
+  async function createChecklist(cl: Checklist, message: string) {
+    setBusy(true);
+    setError(null);
+    setInfo(null);
+    try {
+      const problems = validateChecklist(cl);
+      if (problems.length) throw new Error(`Чек-лист не прошёл проверку:\n${problems.join("\n")}`);
+      const r = await api<{ checklist: Checklist }>(`/api/checklists`, { method: "POST", json: { checklist: cl, activate: false } });
+      await loadList(r.checklist.id);
+      setInfo(`${message} Он не активен: чтобы оценивать им, нажмите «Сделать этот чек-лист активным».`);
+      return true;
+    } catch (e: any) {
+      setError(e.message);
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function createBlank() {
+    // General rules hold for any criterion, so a new checklist starts with them; criterion rules start empty.
+    const blank: Checklist = {
+      id: "",
+      name: "Новый чек-лист",
+      version: 0,
+      waitThresholdSec: 180,
+      rules: DEFAULT_RULES,
+      sections: [{ id: "s1", title: "Основная секция" }],
+      criteria: [
+        { id: "c01", code: "01", sectionId: "s1", title: "Новый критерий", description: "Да — … Нет — …", answerType: "yes_no", naAllowed: false, weight: 10, isFlag: false },
+      ],
+    };
+    return createChecklist(blank, "Создан новый чек-лист.");
+  }
+
+  async function importChecklist() {
+    let parsed: any;
+    try {
+      parsed = JSON.parse(importText);
+    } catch (e: any) {
+      return setError(`JSON не разобран: ${e.message}`);
+    }
+    const body = parsed?.checklist ?? parsed;
+    if (!Array.isArray(body?.criteria) || !Array.isArray(body?.sections)) return setError("Нужен объект чек-листа с полями sections и criteria.");
+    const cl: Checklist = { waitThresholdSec: 180, rules: "", ...body, id: "", version: 0, name: body.name || "Импортированный чек-лист" };
+    if (await createChecklist(cl, `Импортирован чек-лист «${cl.name}».`)) {
+      setImportText("");
+      setImportOpen(false);
+    }
+  }
+
+  function downloadJson() {
+    const { isActive: _a, createdAt: _c, ...body } = draft as Checklist & { isActive?: boolean; createdAt?: string };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(body, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${draft!.id}-v${draft!.version}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function makeActive() {
     setBusy(true);
     setError(null);
@@ -156,9 +221,35 @@ export default function ChecklistsPage() {
             </button>
           ))}
         </Panel>
-        <Button size="sm" onClick={saveAsNew} disabled={busy}>
-          Копия текущего
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="primary" onClick={createBlank} disabled={busy}>
+            + Новый чек-лист
+          </Button>
+          <Button size="sm" onClick={saveAsNew} disabled={busy}>
+            Копия текущего
+          </Button>
+          <Button size="sm" onClick={() => setImportOpen((x) => !x)} disabled={busy}>
+            Импорт JSON
+          </Button>
+          <Button size="sm" variant="ghost" onClick={downloadJson}>
+            Скачать JSON
+          </Button>
+        </div>
+        {importOpen && (
+          <Card className="space-y-2 p-3">
+            <Field label="JSON чек-листа" hint="Объект с sections и criteria, например файл из «Скачать JSON». Создастся новый неактивный чек-лист.">
+              <textarea className={cx(inputCls, "h-40 font-mono text-xs")} value={importText} onChange={(e) => setImportText(e.target.value)} placeholder='{"name":"…","sections":[…],"criteria":[…]}' />
+            </Field>
+            <div className="flex justify-end gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setImportOpen(false)}>
+                Отмена
+              </Button>
+              <Button size="sm" variant="primary" onClick={importChecklist} disabled={!importText.trim() || busy}>
+                Импортировать
+              </Button>
+            </div>
+          </Card>
+        )}
       </div>
 
       <div className="space-y-3">

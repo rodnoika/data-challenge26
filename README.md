@@ -28,6 +28,7 @@ On Windows use `copy .env.example .env.local`.
 In the UI:
 
 1. **Диалоги:** type a `group_id` (e.g. `DEV`) and click **Загрузить**. The backend calls the organisers' API, so there is no CORS. You can also upload a JSON file in the same format.
+   **Добавить по ссылке или JSON** loads a set from any organisers' API link (for example a newly announced `group_id`) or from pasted JSON: their payload, an array of dialogues or a single dialogue. The server fetches the link itself, accepts only https links on the organisers' host or on hosts listed in `CQA_FETCH_ALLOWED_HOSTS`, refuses IP addresses and redirects, and does not store the link.
 2. Pick the checklist under **Чек-лист для оценки**, then click **Оценить** on a dialogue or **Оценить все** for a batch run with progress. The dashboard counts only results from the selected checklist version and offers to re-evaluate the rest.
 3. Open a dialogue to see the result card. Evidence chips `#12` scroll to and highlight the turn. For calls they also seek the recording. Click **Оспорить** to file an appeal.
 4. **Апелляции:** the reviewer upholds or changes the score with a reason, and the total is recalculated.
