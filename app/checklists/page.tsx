@@ -132,7 +132,7 @@ export default function ChecklistsPage() {
     } catch {}
     if (!group) return setError("Сначала выберите набор диалогов на странице «Диалоги».");
     await api("/api/batches", { method: "POST", json: { groupId: group } });
-    setInfo(`Запущена переоценка набора ${group} активным чек-листом. Прогресс — на странице «Диалоги».`);
+    setInfo(`Запущена переоценка набора ${group} активным чек-листом. Прогресс — на странице «Диалоги», разница с прошлой версией — на странице «Сравнение».`);
   }
 
   return (
@@ -384,7 +384,8 @@ export default function ChecklistsPage() {
             </div>
           </div>
           <div className="hidden text-2xs text-ink-3 sm:block">
-            После сохранения откройте <Link href="/" className="underline">диалог</Link> и нажмите «Переоценить» — новый критерий оценивается без изменений кода.
+            После сохранения откройте <Link href="/" className="underline">диалог</Link> и нажмите «Переоценить» — новый критерий оценивается без изменений кода. Что изменилось после переоценки — на странице{" "}
+            <Link href="/compare/" className="underline">«Сравнение»</Link>.
           </div>
         </div>
       </div>

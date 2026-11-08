@@ -17,7 +17,7 @@ import { computeMetrics, decide, type CandidateMetrics } from "../src/core/bench
 import { hasKey, loadRegistry, findModel } from "../src/server/registry";
 import { sameModel, voterLabel, type Voter } from "../src/server/evaluator";
 import type { Checklist } from "../src/core/types";
-import type { Reasoning } from "../src/server/providers";
+import { ollamaNumPredict, type Reasoning } from "../src/server/providers";
 import { selectSplit } from "../src/core/split";
 import { detailRows, fmtPct, forControl, fmtUsd, hideTestRows, loadDialogues, loadTestIds, parseArgs, parseVoter, projectCost, readLabels, runCandidate, writeRunFiles } from "./lib";
 import { readFileSync } from "node:fs";
@@ -151,7 +151,13 @@ writeFileSync(
         checklist: `${cl.id} v${cl.version}`,
         reasoning,
         ...(run.some((c) => c.voters.some((v) => v.provider === "ollama"))
-          ? { ollama: { numCtx: Number(process.env.OLLAMA_NUM_CTX) || 16384, think: process.env.OLLAMA_THINK || "model default" } }
+          ? {
+              ollama: {
+                numCtx: Number(process.env.OLLAMA_NUM_CTX) || 16384,
+                numPredict: ollamaNumPredict(process.env.OLLAMA_THINK ? process.env.OLLAMA_THINK === "true" : undefined),
+                think: process.env.OLLAMA_THINK || "model default",
+              },
+            }
           : {}),
         costCap: cap,
         prices: Object.fromEntries(reg.models.map((m) => [`${m.provider}/${m.model}`, { price: m.price, checkedAt: m.checkedAt, source: m.priceSource }])),

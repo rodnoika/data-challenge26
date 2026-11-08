@@ -17,7 +17,8 @@ npm run dev                     # http://localhost:3000
 ```
 
 In `.env.local` set:
-- `ANTHROPIC_API_KEY`, or the key of whichever provider you choose
+- `OPENAI_API_KEY` for the default model (`openai/gpt-6.1-terra`), or the key of whichever provider you switch to
+- `CQA_TEAM_NAME=CyberPsychosis`: the team name written to `results.json` (needed by the **results.json** export button)
 - `ORGANISER_API_URL`: the DEV GET link from the task PDF (page 3), pasted as is
 
 Signed links (the dataset URL, recording links) are deliberately kept out of git. `data/*.json` and `data/readable/` are ignored and regenerate with the commands below.
@@ -86,7 +87,7 @@ Other commands:
 
 - GPT-5 candidates (`gpt-5-nano`, `gpt-5-mini`, `gpt-5.4-nano`, `gpt-5.4-mini`, `gpt-5.6-luna`) are optional registry entries: add `--with-optional` to include them in a benchmark.
 - If the registry has no default, the app uses the first cheap model whose vendor has a key, and the UI labels it as a placeholder.
-- Provider, model, vote count and reasoning depth are switchable in the UI (⚙ on the Dialogues page). Every stored result records which provider and model produced it.
+- Provider, model, vote count and reasoning depth are switchable in the UI (the **Модель …** button on the Dialogues page; **Сбросить к модели по умолчанию** restores the registry default). Every stored result records which provider and model produced it.
 - **Cost per evaluation (all calls and votes included):** every evaluation stores its real token usage. Cost is tokens × the prices in the model registry and is shown in the card and as the average on the dashboard.
 
 ## How the evaluation works
@@ -136,6 +137,25 @@ npm run results -- --set prod --validate                           # check the f
 - It then checks every rule of the format: record count, ids against the source, the 8 criteria, allowed values, and the score recomputed from the values.
 - The format counts turns from 1 over the whole transcript, and so does the dialogue card. Inside the evaluator and in the raw model response they count from 0.
 - The file covers the 8 criteria of the default checklist. Its codes are fixed, so a checklist with a replaced criterion stops with an error instead of writing a wrong file.
+
+### 11:00 runbook (control set → pushed results by 12:00)
+
+1. **Before 11:00:** `.env.local` has `OPENAI_API_KEY`, `ORGANISER_API_URL` and `CQA_TEAM_NAME=CyberPsychosis`. Prove the key works with one dialogue: `npm run results -- --set dev --data data/dev.json --ids p1-ru-001 --out tmp/key-check.json`.
+2. **Evaluate and write** (fetches the control group from the organisers' API, evaluates it, retries failures once, validates):
+   ```bash
+   npm run results -- --set prod --group <group_id> --team "CyberPsychosis"
+   ```
+   It must end with `Format check passed`. Timing: the 65 DEV dialogues took 200 s ($0.31), so 10 chats take about a minute. A record with `status: "error"` stays in the file: do not delete or hand-edit it. Run the command again if time allows.
+3. **Check the file again:** `npm run results -- --set prod --validate --group <group_id>`
+4. **Commit and push:** pull first, because both of us push to `main`.
+   ```bash
+   git pull --rebase
+   git add results/prod/results.json
+   git commit -m "Add control-set results"
+   git push
+   ```
+   Then open `results/prod/results.json` on GitHub to confirm it is there (the repository must be public).
+5. **For the demo:** load the same group in the UI (**Диалоги → Загрузить**) and **Оценить все**. This is a separate model run, so a few answers can differ from the pushed file.
 
 ## Accuracy harness (hand labels)
 
@@ -239,4 +259,4 @@ The full list is in [PLAN.md](PLAN.md) §2. The interpretations also live in the
 
 ## Team
 
-Two people: Z (full-stack, UI and engine, Kazakh labels) and T (labelling, accuracy harness, prompt/rules tuning).
+Team **CyberPsychosis**, two people: Z (full-stack, UI and engine, Kazakh labels) and T (labelling, accuracy harness, prompt/rules tuning).

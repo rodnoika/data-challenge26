@@ -16,3 +16,6 @@ data/*.json
 data/readable/
 tmp/
 .gstack/
+
+# Organiser PDFs (the data PDF holds a signed API link)
+docs/

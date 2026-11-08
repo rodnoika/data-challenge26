@@ -1,0 +1,345 @@
+{
+ "meta": {
+  "createdAt": "2026-11-07T22:09:31.976Z",
+  "split": "train",
+  "dialogues": 42,
+  "labelled": 65,
+  "promptVersion": "p6",
+  "checklist": "cqa-default v1",
+  "reasoning": "medium",
+  "ollama": {
+   "numCtx": 16384,
+   "numPredict": 4096,
+   "think": "false"
+  },
+  "costCap": 0.15,
+  "prices": {
+   "anthropic/claude-opus-5-5": {
+    "price": {
+     "in": 4,
+     "cachedIn": 0.2,
+     "cacheWrite": 5,
+     "out": 20
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-sonnet-5-5": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "cacheWrite": 2.5,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "anthropic/claude-haiku-5-5": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "cacheWrite": 0.125,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing"
+   },
+   "openai/gpt-6.1-sol": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6.1-terra": {
+    "price": {
+     "in": 1,
+     "cachedIn": 0.05,
+     "out": 5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-6-luna": {
+    "price": {
+     "in": 0.1,
+     "cachedIn": 0.01,
+     "out": 0.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-nano": {
+    "price": {
+     "in": 0.05,
+     "cachedIn": 0.005,
+     "out": 0.4
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.6-luna": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "cacheWrite": 0.25,
+     "out": 1.2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-nano": {
+    "price": {
+     "in": 0.2,
+     "cachedIn": 0.02,
+     "out": 1.25
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5-mini": {
+    "price": {
+     "in": 0.25,
+     "cachedIn": 0.025,
+     "out": 2
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "openai/gpt-5.4-mini": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 4.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://developers.openai.com/api/docs/pricing"
+   },
+   "gemini/gemini-4-argon": {
+    "price": {
+     "in": 2,
+     "cachedIn": 0.1,
+     "out": 10
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.8-flash": {
+    "price": {
+     "in": 0.75,
+     "cachedIn": 0.075,
+     "out": 3.75
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "gemini/gemini-3.5-flash-lite": {
+    "price": {
+     "in": 0.3,
+     "cachedIn": 0.03,
+     "out": 2.5
+    },
+    "checkedAt": "2026-11-07",
+    "source": "https://aistudio.google.com/docs/pricing"
+   },
+   "ollama/qwen3.5:9b-q4_K_M": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   },
+   "ollama/qwen3:14b": {
+    "price": {
+     "in": 0,
+     "cachedIn": 0,
+     "out": 0
+    },
+    "checkedAt": null,
+    "source": "local"
+   }
+  },
+  "skipped": []
+ },
+ "candidates": [
+  {
+   "candidate": "ollama/qwen3.5:9b-q4_K_M",
+   "provider": "ollama",
+   "model": "qwen3.5:9b-q4_K_M",
+   "tier": "local",
+   "samples": 1,
+   "dialogues": 42,
+   "judged": 336,
+   "agreement": 0.8571428571428571,
+   "ci": [
+    0.8005952380952381,
+    0.9136904761904762
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 42,
+     "exact": 38,
+     "within1": 38
+    },
+    "c02": {
+     "n": 42,
+     "exact": 32,
+     "within1": 32
+    },
+    "c03": {
+     "n": 42,
+     "exact": 42,
+     "within1": 42
+    },
+    "c04": {
+     "n": 42,
+     "exact": 33,
+     "within1": 40
+    },
+    "c05": {
+     "n": 42,
+     "exact": 36,
+     "within1": 36
+    },
+    "c06": {
+     "n": 42,
+     "exact": 31,
+     "within1": 38
+    },
+    "c07": {
+     "n": 42,
+     "exact": 36,
+     "within1": 36
+    },
+    "c08": {
+     "n": 42,
+     "exact": 40,
+     "within1": 40
+    }
+   },
+   "kzAgreement": 0.875,
+   "totalMAE": 8.609761904761905,
+   "gross": {
+    "tp": 4,
+    "fp": 0,
+    "fn": 2,
+    "recall": 0.6666666666666666
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0,
+   "latencyP50": 131546,
+   "latencyP95": 212681,
+   "voters": [
+    {
+     "provider": "ollama",
+     "model": "qwen3.5:9b-q4_K_M"
+    }
+   ]
+  },
+  {
+   "candidate": "ollama/hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M",
+   "provider": "ollama",
+   "model": "hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M",
+   "tier": "local",
+   "samples": 1,
+   "dialogues": 42,
+   "judged": 336,
+   "agreement": 0.8065476190476191,
+   "ci": [
+    0.7529761904761905,
+    0.8630952380952381
+   ],
+   "perCriterion": {
+    "c01": {
+     "n": 42,
+     "exact": 39,
+     "within1": 39
+    },
+    "c02": {
+     "n": 42,
+     "exact": 28,
+     "within1": 28
+    },
+    "c03": {
+     "n": 42,
+     "exact": 40,
+     "within1": 40
+    },
+    "c04": {
+     "n": 42,
+     "exact": 33,
+     "within1": 38
+    },
+    "c05": {
+     "n": 42,
+     "exact": 35,
+     "within1": 35
+    },
+    "c06": {
+     "n": 42,
+     "exact": 34,
+     "within1": 37
+    },
+    "c07": {
+     "n": 42,
+     "exact": 24,
+     "within1": 24
+    },
+    "c08": {
+     "n": 42,
+     "exact": 38,
+     "within1": 38
+    }
+   },
+   "kzAgreement": 0.7625,
+   "totalMAE": 14.33095238095238,
+   "gross": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 4,
+    "recall": 0.3333333333333333
+   },
+   "invalidRate": 0,
+   "failRate": 0,
+   "costPerDialogue": 0,
+   "latencyP50": 124282,
+   "latencyP95": 160858,
+   "voters": [
+    {
+     "provider": "ollama",
+     "model": "hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M"
+    }
+   ]
+  }
+ ],
+ "decision": {
+  "winner": null,
+  "fallback": null,
+  "tied": [],
+  "excluded": [
+   {
+    "candidate": "ollama/qwen3.5:9b-q4_K_M",
+    "reason": "пропущены грубые ошибки (recall 67%)"
+   },
+   {
+    "candidate": "ollama/hf.co/mradermacher/Qwen3.5-9B-Kazakh-GGUF:Q4_K_M",
+    "reason": "пропущены грубые ошибки (recall 33%)"
+   }
+  ],
+  "rule": "гейты: recall грубых ошибок = 100%, невалидный вывод < 5%, сбои < 5%, цена ≤ $0.15/диалог; затем max согласие, ничья в пределах 95% ДИ лидера → дешевле → быстрее"
+ }
+}

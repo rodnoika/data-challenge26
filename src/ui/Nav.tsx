@@ -8,6 +8,7 @@ const nav = [
   { href: "/", label: "Диалоги", match: (p: string) => p === "/" || p.startsWith("/dialogue") },
   { href: "/appeals/", label: "Апелляции", match: (p: string) => p.startsWith("/appeals") },
   { href: "/checklists/", label: "Чек-листы", match: (p: string) => p.startsWith("/checklists") },
+  { href: "/compare/", label: "Сравнение", match: (p: string) => p.startsWith("/compare") },
   { href: "/models/", label: "Модели", match: (p: string) => p.startsWith("/models") },
 ];
 
