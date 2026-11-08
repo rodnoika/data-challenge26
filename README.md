@@ -294,7 +294,3 @@ The full list is in [PLAN.md](PLAN.md) §2. The interpretations also live in the
 - A wait without a warning is one "noticeable failure" in 06.
 - ASR noise in calls is not held against the operator.
 - Gross errors do not zero the score.
-
-## Team
-
-Team **CyberPsychosis**, two people: Z (full-stack, UI and engine, Kazakh labels) and T (labelling, accuracy harness, prompt/rules tuning).
