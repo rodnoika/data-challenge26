@@ -1,0 +1,11 @@
+conversation_id,language,channel,b1,b2,b3,b4,b5,b6,bF,labeller,note
+v3b-ru-01,RU,agent chat,yes,3,10,yes,yes,yes,no,claude,хороший: все критерии на максимуме
+v3b-kz-01,KZ,agent chat,na,na,10,yes,yes,yes,no,claude,хороший: имени нет; жалобы нет: N/A там; где положено
+v3b-ru-02,RU,agent chat,no,1,5,no,no,yes,no,claude,средний: шаблонная эмпатия; размытые шаги; имя не использовано
+v3b-en-01,EN,agent chat,na,na,10,no,yes,no,no,claude,средний: не перешёл на русский по просьбе клиента
+v3b-kz-02,KZ,agent chat,na,2,na,no,yes,no,no,claude,средний: первый ответ на русском клиенту-казаху
+v3b-ru-03,RU,agent chat,no,0,10,no,no,yes,yes,claude,грубая ошибка: унижение клиента
+v3b-en-02,EN,agent chat,yes,na,na,no,yes,yes,yes,claude,грубая ошибка: раскрытие данных другого клиента
+v3b-ru-04,RU,agent chat,na,na,10,no,yes,yes,no,claude,ловушка: личное предложение денег — вне флага этого чек-листа
+v3b-ru-05,RU,voice call,yes,3,10,yes,yes,yes,no,claude,хороший: звонок: имя; эмпатия; инициатива
+v3b-kz-03,KZ,agent chat,na,3,na,no,na,yes,no,claude,ловушка: клиент ушёл до завершения: итог N/A

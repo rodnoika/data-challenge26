@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeMetrics, decide, type CandidateMetrics, type Labels, type Prediction } from "../src/core/benchmark";
+import { computeMetrics, decide, type CandidateMetrics, type Labels, type Prediction, cohenKappa, quadraticKappa } from "../src/core/benchmark";
 import { DEFAULT_CHECKLIST } from "../src/core/defaultChecklist";
 import { costUsd, defaultModel, loadRegistry } from "../src/server/registry";
 import { buildOutputSchema } from "../src/core/prompt";
@@ -41,7 +41,7 @@ describe("benchmark metrics", () => {
 });
 
 const row = (candidate: string, provider: string, agreement: number, ci: [number, number], cost: number | null, extra: Partial<CandidateMetrics> = {}): CandidateMetrics => ({
-  candidate, provider, model: candidate, tier: "x", samples: 1, dialogues: 20, judged: 160, agreement, ci, perCriterion: {}, kzAgreement: null,
+  candidate, provider, model: candidate, tier: "x", samples: 1, dialogues: 20, judged: 160, agreement, ci, perCriterion: {}, kappaMean: null, kzAgreement: null,
   totalMAE: null, gross: { tp: 4, fp: 0, fn: 0, recall: 1 }, invalidRate: 0, failRate: 0, costPerDialogue: cost, latencyP50: 1000, latencyP95: 2000, ...extra,
 });
 
@@ -108,5 +108,26 @@ describe("registry", () => {
   it("output schema uses only the cross-vendor strict subset", () => {
     const s = JSON.stringify(buildOutputSchema(DEFAULT_CHECKLIST));
     for (const banned of ["anyOf", "oneOf", "nullable", "minimum", "maximum", "pattern", "format"]) expect(s).not.toContain(`"${banned}"`);
+  });
+});
+
+describe("agreement corrected for chance", () => {
+  it("Cohen's κ on the textbook 2x2 table", () => {
+    const pairs: [string, string][] = [
+      ...Array(20).fill(["yes", "yes"]),
+      ...Array(5).fill(["yes", "no"]),
+      ...Array(10).fill(["no", "yes"]),
+      ...Array(15).fill(["no", "no"]),
+    ];
+    expect(cohenKappa(pairs)).toBeCloseTo(0.4, 10);
+    expect(cohenKappa([["yes", "yes"], ["yes", "yes"]])).toBeNull();
+  });
+
+  it("quadratic κ rewards near misses on a scale", () => {
+    expect(quadraticKappa([[0, 0], [5, 5], [10, 10]], [0, 5, 10])).toBe(1);
+    expect(quadraticKappa([[0, 10], [5, 5], [10, 0]], [0, 5, 10])).toBeCloseTo(-1, 10);
+    const near = quadraticKappa([[0, 5], [5, 5], [10, 10], [10, 10]], [0, 5, 10])!;
+    const far = quadraticKappa([[0, 10], [5, 5], [10, 10], [10, 10]], [0, 5, 10])!;
+    expect(near).toBeGreaterThan(far);
   });
 });

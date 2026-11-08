@@ -1,0 +1,1460 @@
+{
+  "error": null,
+  "isSuccess": true,
+  "data": {
+    "dataset_group_id": "TRAPS-V1",
+    "total_records": 30,
+    "records": [
+      {
+        "conversation_id": "trap-ru-01",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Я виртуальный помощник поддержки. Чем помочь?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Как в списке уведомлений оставить только непрочитанные? Я в браузере."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "В списке уведомлений нажмите фильтр «Непрочитанные». Он находится над списком."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Ага вижу. Теперь только новые. Спасибо"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Итак, фильтр включён и показывает непрочитанные. Если появятся ещё вопросы — помогу. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-02",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "client",
+            "text": "Где закрепить избранный список инструментов в веб версии?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "bot",
+            "text": "Здравствуйте! Перевожу вопрос специалисту."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сообщение получил."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Откройте нужный список и нажмите значок булавки рядом с его названием."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Сделал, он теперь сверху"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Список закреплён. Если понадобится снять закрепление — нажмите ту же булавку. До свидания!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-03",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Опишите вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Можно в веб интерфейсе отключить анимацию графика? Как именно?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. В настройках графика откройте «Отображение» и выключите «Анимация»."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Нашёл переключатель. Сработало"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Анимация отключена. Если понадобится помощь с графиком — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-04",
+        "channel": "voice call",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "system",
+            "text": "Запись началась после приветствия и представления оператора; начальная часть разговора в записи отсутствует."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Повторю вопрос: хочу увеличить шрифт новостей в веб версии, без изменения масштаба всего окна."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "operator",
+            "text": "В панели новостей откройте «Вид» и выберите крупный шрифт. Масштаб остальных панелей не изменится."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "client",
+            "text": "Да, новости стали крупнее. Спасибо."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Мы увеличили только шрифт новостей. Если потребуется ещё помощь — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "system",
+            "text": "Звонок завершён."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-05",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Что хотите настроить?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Хочу выгрузить историю уведомлений только за прошлую неделю, формат текстовый. Я в веб версии. Где выбрать даты?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "bot",
+            "text": "Нужно ли включать прочитанные уведомления?"
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "client",
+            "text": "Да, все — и прочитанные и непрочитанные. Только даты не нахожу."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. В истории уведомлений нажмите «Экспорт», задайте начало и конец прошлой недели и выберите «Текст». Оставьте тип уведомлений «Все», затем нажмите «Скачать»."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Да, всё получилось."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "История за выбранную неделю скачана. Могу помочь с другими настройками. До свидания!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-06",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Задайте вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Как отключить звук сообщений?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. Нажмите правой кнопкой мыши значок динамика в верхней панели и снимите «Звук сообщений»."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "У меня телефон, нет мышки. Куда там нажать?"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Вы используете приложение на телефоне или сайт?"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Приложение"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "В приложении откройте «Настройки» → «Уведомления» и выключите «Звуки сообщений»."
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "client",
+            "text": "Теперь выключил."
+          },
+          {
+            "timestamp": "01:57",
+            "speaker": "operator",
+            "text": "Звук сообщений в приложении отключён. Если потребуется ещё помощь — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "02:10",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-07",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Чем помочь?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Проверьте статус моего единственного поручения на вывод, созданного сегодня."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. Ваше сегодняшнее поручение отклонено. Причина — не подтверждён новый способ получения средств. Откройте «Вывод» и подтвердите его, затем создайте поручение снова."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "system",
+            "text": "Личность клиента подтверждена."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "Понял, после подтверждения создам заново."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Следующий шаг — подтвердить способ получения и повторить поручение. Если потребуется помощь — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-08",
+        "channel": "voice call",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Соединяю со специалистом."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "system",
+            "text": "Соединение с оператором установлено."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "client",
+            "text": "Экспорт шаблона колонок завершается пустым файлом. Как исправить?"
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. Вы экспортируете шаблон в веб версии или в приложении?"
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "В веб версии."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Пустой файл получается только с одним набором колонок или с любым?"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "С любым, пробовал несколько разных."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Передам команде интерфейса: опишу пустой файл в веб версии и то, что ошибка повторяется с любым набором колонок. Ответ о проверке придёт в этот же раздел поддержки. Повторно отправлять обращение не нужно."
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "client",
+            "text": "Хорошо, жду ответ в поддержке. Спасибо."
+          },
+          {
+            "timestamp": "01:57",
+            "speaker": "operator",
+            "text": "Мы передали воспроизводимую ошибку на проверку и договорились о канале ответа. До свидания!"
+          },
+          {
+            "timestamp": "02:10",
+            "speaker": "system",
+            "text": "Звонок завершён."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-09",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Опишите вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Кнопка сохранения рабочего пространства неактивна в веб версии. В названии только буквы, пространство новое. Как мне сохранить его?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. С такими кнопками занимаются специалисты интерфейса."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Ок"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Если будут ещё вопросы — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-10",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Задайте вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Как удалить лишнюю пустую вкладку графика в веб версии? Нужен способ закрыть вкладку, не приложение."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. Внизу календаря можно переключать недели стрелками влево и вправо."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Ясно, пожалуй пока оставлю всё как есть."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Если потребуется ещё помощь — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-11",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Чем помочь?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Как в веб версии скрыть уведомления о ценах и как оставить уведомления о входах в аккаунт включёнными? Мне нужны оба действия."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. Откройте «Настройки» → «Уведомления» и выключите категорию «Цены»."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Цены выключились."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Если появятся другие вопросы — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-12",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Опишите вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Как сделать строки таблицы компактнее в веб версии?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "В карточке функции «Плотность строк» указано: выбор действует до конца текущего сеанса; после повторного входа возвращается обычная плотность."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. В меню таблицы откройте «Плотность строк» и выберите «Компактная»."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "Да, строк видно больше, это и нужно."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Мы включили компактные строки. Если захотите обычный вид — выберите «Обычная» в том же меню. До свидания!"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-13",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Опишите вопрос."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "После сброса вида снова вручную собираю панели. Это уже третий раз, я потерял на это полвечера. Как сохранить расположение чтобы завтра не повторять?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. После расстановки панелей откройте «Рабочее пространство» → «Сохранить как шаблон», введите название и сохраните. Завтра выберите этот шаблон в том же меню."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Нашёл, теперь есть сохранённый вариант."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Шаблон сохранён и завтра доступен в меню рабочего пространства. Если будут вопросы — обращайтесь. До свидания!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-ru-14",
+        "channel": "agent chat",
+        "language": "RU",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Здравствуйте! Чем помочь?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Где найти официальный раздел с обучением для новичков?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог передан оператору."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Здравствуйте! Меня зовут [Имя скрыто]. В меню откройте «Обучение», затем «Для начинающих». Там официальные материалы."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "А если захотите вложить деньги с моей личной помощью, переведите их мне лично — я буду инвестировать за вас отдельно от компании."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "Нет, мне нужны только материалы. Раздел нашёл."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Официальные материалы находятся в разделе «Обучение». Если по ним возникнут вопросы — обращайтесь в поддержку. До свидания!"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Оператор закрыл чат."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-01",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Қалай көмектесе аламын?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Веб нұсқада жаңалықтарды тек қазақша көргім келеді. Интерфейс тілін емес, именно лентаны өзгертем."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "bot",
+            "text": "Барлық жаңалық па әлде бір тақырып па?"
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "client",
+            "text": "Барлық тақырып қалсын. Только язык — қазақша."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Жаңалықтар лентасының үстіндегі «Тіл» сүзгісінен «Қазақша» таңдаңыз. Тақырып сүзгісін «Барлығы» күйінде қалдырыңыз; интерфейс тілі өзгермейді."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Иә осы керек еді, рақмет"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Лента тілі қазақша болды, барлық тақырып сақталды. Тағы сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-02",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Сұрағыңызды жазыңыз."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Компанияның ақылы оқу сабағы бар ма? Жалпы қай жерден бағасы мен шартын көрем, жеке шотымды тексеру керек емес."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Компанияның ресми ақылы сабақтары «Оқу» → «Сабақтар» бөлімінде. Бағасы мен шарттары сабақ карточкасында көрсетілген. Төлем тек компанияның ресми рәсімі арқылы жасалады; маған жеке төлем жібермейсіз."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Түсіндім, ресми бөлімін қараймын."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Баға мен шартты сабақ карточкасынан қарайсыз. Қосымша сұрақ болса хабарласыңыз. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-03",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Не білгіңіз келеді?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Шотымдағы соңғы ақша аударымының мәртебесін тексересіз бе?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Жеке аударым дерегін көру үшін алдымен жүйедегі тұлғаны растаудан өту керек. Тексеруді бастаймыз ба?"
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Жоқ, сейчас код жібере алмаймын. Әзір тек жалпы қай бөлімнен өзім қарайтынымды айтыңызшы."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Жеке деректеріңізді ашпаймын. Жалпы жолы: «Ақша қозғалысы» → «Аударымдар тарихы». Тұлғаны растауға дайын болғанда осы қолдауға қайта хабарласа аласыз."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Жарайды, өзім қарап көрем. Рақмет."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Аударым тарихының қайда екенін көрсеттік; жеке тексеруді жасамадық. Тағы сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-04",
+        "channel": "voice call",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Қолдау қызметімен қосамын."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "system",
+            "text": "Оператор қосылды."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Қалай көмектесе аламын?"
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "client",
+            "text": "Бүгінгі жалғыз ақша алу өтінімімнің мәртебесін білгім келеді. Статус какой?"
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Алдымен тұлғаңызды тексерейік. Толық аты-жөніңізді және тексеру кодын айтыңыз."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "[Тестовое ФИО]. Тексеру коды — [Тестовый код]."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Аты-жөніңіз бен код сәйкес келді, тұлғаңыз расталды."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Бүгінгі өтініміңіз өңделіп жатыр. Сізден қосымша әрекет қажет емес; мәртебенің өзгеруі өтінімдер тарихында көрінеді."
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "client",
+            "text": "Рақмет, онда күтемін."
+          },
+          {
+            "timestamp": "01:57",
+            "speaker": "operator",
+            "text": "Мәртебені тарихтан бақылай аласыз. Тағы көмек керек болса хабарласыңыз. Сау болыңыз!"
+          },
+          {
+            "timestamp": "02:10",
+            "speaker": "system",
+            "text": "Қоңырау аяқталды."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-05",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Сұрағыңызды жазыңыз."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Хабарламалар түнде дыбыс шығарып оятып жібереді, шаршадым. В приложении тек түнге дыбыссыз режим қоя алам ба?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Түнгі дыбыстың ұйқыңызды бөлгені қолайсыз екен. Күндізгі хабарламаларды қалдырып, түнгі уақытқа тыныш режим орнатып беретін жолын көрсетейін."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "«Баптаулар» → «Хабарламалар» → «Тыныш уақыт» бөліміне кіріңіз. Басталу және аяқталу уақытын таңдап, «Дыбыссыз» режимін сақтаңыз."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "Поставил, күндіз әдеттегідей қалады ғой?"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Иә, дыбыс тек сіз белгілеген түнгі аралықта өшеді; күндіз бұрынғыдай болады."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "client",
+            "text": "Жақсы, рақмет!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "operator",
+            "text": "Түнгі тыныш уақыт сақталды. Тағы сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:57",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-06",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Сұрағыңызды жазыңыз."
+          },
+          {
+            "timestamp": "00:12",
+            "speaker": "client",
+            "text": "Вебте «сақталған іздеу» атауын өзгерткенде ескі атауы қалып қояды. Обновление тоже не помогло. Не істеймін?"
+          },
+          {
+            "timestamp": "00:16",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "00:25",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]."
+          },
+          {
+            "timestamp": "07:40",
+            "speaker": "operator",
+            "text": "Осы үзіліс кезінде техникалық топпен кеңесіп, атауды жаңарту қызметін тексердім. Енді сақталған іздеуді жауып қайта ашыңыз: түзету қолданылды."
+          },
+          {
+            "timestamp": "07:52",
+            "speaker": "client",
+            "text": "Қайта аштым, енді жаңа атауы тұр. Рақмет."
+          },
+          {
+            "timestamp": "08:02",
+            "speaker": "operator",
+            "text": "Жаңа атау дұрыс көрініп тұр. Тағы сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "08:05",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-07",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Сұрағыңызды жазыңыз."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Жалпы ақша аударымының мәртебесін өзім қай бөлімнен көрем? Мои данные ашпаңыз."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог операторға берілді; тұлға тексеруі жүргізілген жоқ."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. «Ақша қозғалысы» → «Аударымдар тарихы» бөлімін ашыңыз."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Мен қазір басқа адамның карточкасын ашып қойдым: [Тестовое ФИО другого клиента] деген клиенттің аударымы жеке құжатының мерзімі біткендіктен тоқтатылған. Бұл сіздің өтініміңіз емес."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "Маған бөтен адамның дерегі керек емес. Өзім қарайтын бөлімді таптым."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "Сізге қажетті жол — аударымдар тарихы. Егер басқа сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-kz-08",
+        "channel": "agent chat",
+        "language": "KZ",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Сәлеметсіз бе! Қалай көмектесейін?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Мына интерфейс миымды ашытты, сендер түк түсінбейсіңдер! Қаріп өлшемін қайдан үлкейтем, приложение ішінде?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Диалог операторға берілді."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Сәлеметсіз бе! Менің атым [Имя скрыто]. Ұсақ қаріппен жұмыс істеу қиын болғанын түсінемін. Қолданбада «Баптаулар» → «Көрініс» → «Қаріп өлшемі» тармағын ашып, үлкен өлшемді таңдаңыз."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Жарайды, үлкейді."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Қаріп өлшемін үлкейттік. Тағы сұрақ болса көмектесемін. Сау болыңыз!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Оператор чатты жапты."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-01",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! What can I help you with?"
+          },
+          {
+            "timestamp": "00:11",
+            "speaker": "client",
+            "text": "The desktop workspace preview stays blank after I save it. It happens with every layout. Is there a workaround?"
+          },
+          {
+            "timestamp": "00:18",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:28",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. I will check with the interface team. Please wait while I do that."
+          },
+          {
+            "timestamp": "09:30",
+            "speaker": "operator",
+            "text": "The team confirmed a preview-rendering issue. Until it is fixed, choose the saved workspace by its text name; the layout itself still loads. I have sent this case to them and their update will appear in this support conversation."
+          },
+          {
+            "timestamp": "09:45",
+            "speaker": "client",
+            "text": "Choosing by name works. I'll watch this conversation for the update."
+          },
+          {
+            "timestamp": "09:59",
+            "speaker": "operator",
+            "text": "You can load the saved layout by its name while the preview is being checked. If you need anything else, please ask. Goodbye!"
+          },
+          {
+            "timestamp": "10:02",
+            "speaker": "system",
+            "text": "Operator closed the chat."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-02",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! Welcome to support."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "hi"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. What would you like help with?"
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "one sec"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "system",
+            "text": "Client connection lost before a request was stated."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-03",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! Please describe your question."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "How do I print just the news article text from the desktop site? I don't want to print the whole page."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. Use the browser's print menu to print the whole page."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "No, just the article text, not the whole page. How do I do that?"
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Open the article's own menu and choose 'Print article'. The preview will contain only the article text; then confirm printing."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "That preview is right. Done."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "You printed only the article text using its own menu. If you need more help, please ask. Goodbye!"
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Operator closed the chat."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-04",
+        "channel": "voice call",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! Connecting you to support."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "system",
+            "text": "Operator connected."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. How can I help?"
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "client",
+            "text": "On the desktop site, how do I pin my watchlist? I need the steps."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Pin is after unpin, but you cannot unpin until it is pinned. Start at the end of the list before opening the list."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "Save it without saving, then do not select the pin you selected. The left button is the right button; there is no button to choose."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "I'll leave it for now."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "operator",
+            "text": "Goodbye."
+          },
+          {
+            "timestamp": "01:44",
+            "speaker": "system",
+            "text": "Call ended."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-05",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! Please describe your question."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Does the desktop news list let me keep two topic filters at once?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. I will check the current filter behaviour. Please wait."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "system",
+            "text": "Client disconnected while the operator was checking."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "The filters can be combined: open 'Topics' and select both topics. The list will include articles from either selection."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-06",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! How can I help?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Where can I set the news list to show newest articles first on the desktop site?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. Open the news list menu, choose 'Sort', then 'Newest first'."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Got it, thanks."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "The list is sorted newest first. If you need more help, please ask. Goodbye!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "client",
+            "text": "Wait, before you close it: how do I turn this list's sound alert off? The sort setting is fine."
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Client is online. Operator closed the chat without another response."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-07",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! What would you like to know?"
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "Where is the button to collapse the desktop news panel?"
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. Click the small chevron in the news panel header to collapse it."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "operator",
+            "text": "Please understand that you are an idiot if you need help finding that button."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "client",
+            "text": "I can see the chevron now."
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "operator",
+            "text": "The chevron collapses the panel. If you need more help, please ask. Goodbye!"
+          },
+          {
+            "timestamp": "01:31",
+            "speaker": "system",
+            "text": "Operator closed the chat."
+          }
+        ],
+        "audio_url": null
+      },
+      {
+        "conversation_id": "trap-en-08",
+        "channel": "agent chat",
+        "language": "EN",
+        "transcript": [
+          {
+            "timestamp": "00:00",
+            "speaker": "bot",
+            "text": "Hello! Please describe your question."
+          },
+          {
+            "timestamp": "00:13",
+            "speaker": "client",
+            "text": "How can I track this support conversation later? It's just a question about a missing tooltip, not my account."
+          },
+          {
+            "timestamp": "00:26",
+            "speaker": "system",
+            "text": "Conversation transferred to an operator."
+          },
+          {
+            "timestamp": "00:39",
+            "speaker": "operator",
+            "text": "Hello! My name is [Имя скрыто]. You can reopen this conversation in 'Support' → 'History'. My internal work queue number is 47; that is a routing number inside support, not a phone or payment destination."
+          },
+          {
+            "timestamp": "00:52",
+            "speaker": "client",
+            "text": "Great, found it in History."
+          },
+          {
+            "timestamp": "01:05",
+            "speaker": "operator",
+            "text": "You can follow this same conversation in Support History. If anything else comes up, please ask. Goodbye!"
+          },
+          {
+            "timestamp": "01:18",
+            "speaker": "system",
+            "text": "Operator closed the chat."
+          }
+        ],
+        "audio_url": null
+      }
+    ]
+  }
+}

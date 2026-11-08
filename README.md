@@ -46,12 +46,13 @@ Other commands:
 | `npm run results -- --set dev\|prod ...` | Build and check the results file for the organisers (see below) |
 | `npm run rehearsal:checklists` | Write test checklists with one replaced criterion to `tmp/rehearsal/` |
 | `npm run impact -- --base <before>.json --run <after>.json [--noise <x3>.json]` | What a checklist change did to the other criteria, next to run-to-run noise |
+| `npx tsx scripts/make-v3-checklists.ts` | Write three whole new checklists for the robustness check (see [Checks beyond DEV](#checks-beyond-dev)) |
 | `npm run build:static` | Static UI bundle in `out/` (Dynamics 365 web-resource path) |
 
 ## Model and cost
 
 - **Evaluation model: chosen by benchmark, not by default.** The same prompt runs through Anthropic, OpenAI, Google Gemini and a local Ollama model. The model with the highest agreement with our hand labels, within budget, becomes the default. Method: [PLAN.md](PLAN.md) §6a. Results: the **Сравнение моделей** page.
-- **Current default: `openai/gpt-6.1-terra`, one vote, reasoning `medium`, about $0.005 per evaluation (measured; prices checked 2026-11-07).** On prompt `p7` and 42 labelled train chats it matched 96.1% of the answers (95% CI 93.5–98.5%), found all 6 gross errors and raised no false flag. Humans labelled 26 of those chats (97.1% match) and `claude-opus-5-5` labelled 16 (94.5%). We wrote the c04 rules added in `p5` and `p6` from these same chats, so the train figure runs high. `gpt-6-luna` ×3 cost $0.0022 and raised one false gross-error flag, but we last measured it on `p4` (93.8%), so its figure does not compare with `p7`. We compared only OpenAI models. On the 18 held-out test chats, run once on `p7`, it matched 94.4% of the answers (136/144, 95% CI 91.7–97.2%), found both gross errors and raised no false flag; `claude-opus-5-5` labelled 7 of those chats. The table below is the earlier comparison on prompt `p2`, before the labels existed.
+- **Current default: `openai/gpt-6.1-terra`, one vote, reasoning `medium`, about $0.005 per evaluation (measured; prices checked 2026-11-07).** On prompt `p7` and 42 labelled train chats it matched 96.1% of the answers (95% CI 93.5–98.5%, mean κ 0.86), found all 6 gross errors and raised no false flag. Humans labelled 26 of those chats (97.1% match) and `claude-opus-5-5` labelled 16 (94.5%). We wrote the c04 rules added in `p5` and `p6` from these same chats, so the train figure runs high. `gpt-6-luna` ×3 cost $0.0022 and raised one false gross-error flag, but we last measured it on `p4` (93.8%), so its figure does not compare with `p7`. We compared only OpenAI models. On the 18 held-out test chats, run once on `p7`, it matched 94.4% of the answers (136/144, 95% CI 91.7–97.2%, mean κ 0.88), found both gross errors and raised no false flag; `claude-opus-5-5` labelled 7 of those chats. The table below is the earlier comparison on prompt `p2`, before the labels existed.
 
   | Candidate | Known answers | Same answer in two runs | Total-score drift between runs (mean / max) | $ per evaluation |
   |---|---|---|---|---|
@@ -123,6 +124,14 @@ npm run results -- --set prod --group <group_id> --team "<team>"   # or --data <
 npm run results -- --set prod --validate                           # check the file again, no model calls
 ```
 
+**Control hour, in this order.** The control set arrives 23 hours after the start and both files must be pushed by the stop-code an hour later.
+
+1. Get the set the way the organisers say, keeping their `conversation_id`s.
+2. Run `npm run results -- --set prod ...` and wait for "Format check passed". The command always uses the default checklist, whatever is active in the UI.
+3. Commit and **push** `results/prod/results.json` at once. A local file or an unpushed commit does not count.
+4. Only then replace a criterion in the UI for the demo. A replaced checklist cannot be written in this format, and a re-run after the change would stop with an error.
+5. If the organisers change the checklist itself for scoring, ask them how the file should look before re-running.
+
 - The command evaluates every dialogue, retries failures once and writes a failed dialogue as `status: "error"`, never as a zero.
 - It then checks every rule of the format: record count, ids against the source, the 8 criteria, allowed values, and the score recomputed from the values.
 - The format counts turns from 1 over the whole transcript, and so does the dialogue card. Inside the evaluator and in the raw model response they count from 0.
@@ -136,6 +145,8 @@ The organisers compare the answer on each criterion on a control set of chats, s
 2. Fill the CSV blind, without looking at model output. Use `yes/no/na` for Yes/No criteria and the step value (`0/5/10/15/20`, `0/4/7/10`) or `na` for scales.
 3. Run `npm run harness -- --model <provider>/<model> --split train`. It reports:
    - per-criterion exact agreement and the confusion pairs
+   - with `--disputed data/labels/disputed.csv`, the same numbers without label cells that careful labellers dispute. Three blind labellers relabelled all 60 chats from the checklist alone, without our labels or model output: two Claude agents, which then defended or changed their answers where they differed, and Codex as a third, other-vendor opinion. The file lists the 19 cells where the majority of the three does not back our label. The selection does not depend on the evaluated model's answers. All three labellers are models, so a person should settle these cells
+   - Cohen's κ per criterion and its mean: agreement corrected for chance. Exact agreement looks high on criteria where one answer dominates, κ does not. Scales also get quadratic-weighted κ, where a miss by two steps costs more than a miss by one
    - ±1-step agreement for scales
    - total-score MAE
    - per-language agreement
@@ -160,6 +171,40 @@ npm run compare -- benchmarks/<file>.json --apply
 - **Choice:** the highest agreement wins. Candidates inside the leader's 95% bootstrap interval count as tied, and ties go to the cheaper, then faster model.
 - **Fallback:** the runner-up from a different vendor.
 - **Output:** summaries in `benchmarks/` (metrics only), shown on the **Модели** page.
+
+## Checks beyond DEV
+
+We wrote the prompt rules from DEV chats, so DEV figures run high. To see how the evaluator behaves on input it never saw, we ran four more checks with the same model and prompt (`openai/gpt-6.1-terra`, one vote, reasoning `medium`, prompt `p7`). We changed no code and no prompt text for any of them.
+
+| Check | Data | Labels by | Result |
+|---|---|---|---|
+| Reference: DEV held-out chats | 18 chats | people; `claude-opus-5-5` labelled 7 of the chats | **94.4%** (136/144), gross errors 2/2 |
+| `traps-v1`: new dialogues with traps | 30 invented dialogues (26 chats, 4 calls) | Codex | **97.1%** (233/240), 98.3% without 9 disputed cells, gross errors 4/4 |
+| `traps-v2`: clean, minor-error and trap dialogues | 30 invented dialogues (27 chats, 3 calls) | Claude | **97.5%** (234/240), 98.3% without 11 disputed cells, target of each dialogue hit 29/30, gross errors 2/2 |
+| One criterion replaced, as at the control | 42 DEV train chats, 4 checklists | people and Opus (DEV labels); Claude for the new criteria | answers on untouched criteria changed in **2.0–3.4%** of cases (two runs of the unchanged checklist differ in 2.4%); new criteria **97.6%** (41/42) |
+| Whole new checklists (`traps-v3`) | 3 checklists × 10 invented dialogues | Claude | **95.0%** (171/180), gross errors 6/6 |
+
+No run produced a false gross-error flag, a failed evaluation or invalid output.
+
+**How to read these figures.** The invented sets are easier than DEV: answering the most common value for every criterion scores 78.1% on the DEV held-out dialogues but 86.7% on `traps-v1` and 88.8% on `traps-v2`. Measured against that baseline, the evaluator removes 74% of the remaining errors on DEV and 78% on both trap sets, so it does about as well on new dialogues as on DEV, not better. Models wrote and labelled the invented sets from the same checklist text that builds the prompt. These sets show that the evaluator follows the checklist rules. They do not measure agreement with the organisers' experts: the DEV held-out figure stays our estimate for the control set.
+
+**What the checks found.**
+
+- **Traps by rule pass.** The evaluator handles a call recording that starts after the greeting (c01 N/A), a greeting in the operator's second message in a row, details given to the bot (c02 N/A), a client who refuses identification (c03 N/A), a client who leaves before asking anything, a rude client, a paid service of the company itself, account data disclosed before verification, and an offer to move money to the operator's own card.
+- **New definitions win over old habits.** With the new checklists the evaluator follows the new wording: "Пожалуйста. Хорошего дня!" counts as a goodbye where the criterion asks only for a goodbye, and the gross-error flag follows each checklist's own list of violations. Scales of 0–3 and 1–5 and a criterion computed from timestamps (first reply within 2 minutes) work without code changes.
+- **Replacing one criterion leaves the rest stable.** The one shift above noise: when empathy (c05) was replaced, closing (c07) changed in 5 of 42 chats against 1–2 in noise. Without our extra c04 rules, c04 drops from 39 to 36 of 42 train chats. We wrote those rules from the train chats, so we checked the held-out chats too: c04 drops from 16 and 15 of 18 (two runs with the rules) to 14 of 18, and the total from 94.4% to 93.1%. The rules help on chats they were not written from about as much as on the ones they were.
+- **The replaced criteria themselves score as well as the original ones.** Claude labelled the three new criteria from `npm run rehearsal:checklists` blind, from their wording only, on 14 DEV chats (`data/labels/rehearsal-new-criteria-labels.csv`). Each criterion has two saved runs: ours and an earlier one by the team. Both runs give the same result: proactivity 14/14, clarity of instructions 13/14, feedback deadline 14/14, so **41/42 (97.6%)** per run. The one miss is a cell marked disputed in advance (`p1-kz-009`, step 5 against 10). Without the 8 disputed cells both runs score 34/34.
+
+Reports: [traps-v1](data/synthetic/traps-v1-report.md), [traps-v2](data/synthetic/traps-v2-report.md), [traps-v3](data/synthetic/traps-v3-report.md), [one criterion replaced](benchmarks/checklist-robustness-2026-11-08.md). Dialogue descriptions sit next to each set in `data/synthetic/`, labels in `data/labels/traps-*`.
+
+Reproduce (about $0.15 per set):
+
+```bash
+npm run harness -- --data data/synthetic/traps-v2.json --labels data/labels/traps-v2-labels.csv --split all --with-calls true
+npm run harness -- --data data/synthetic/traps-v2.json --labels data/labels/traps-v2-labels.csv --split all --with-calls true --disputed data/labels/traps-v2-disputed.csv
+npx tsx scripts/make-v3-checklists.ts   # writes data/synthetic/checklists/v3-*.json
+npm run harness -- --data data/synthetic/traps-v3-cx.json --labels data/labels/traps-v3-cx-labels.csv --checklist data/synthetic/checklists/v3-cx.json --split all --with-calls true
+```
 
 ## Architecture
 

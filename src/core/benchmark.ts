@@ -29,7 +29,13 @@ export interface CandidateMetrics {
   judged: number; // labelled criterion judgments compared
   agreement: number; // micro exact agreement 0..1
   ci: [number, number]; // 95% cluster-bootstrap interval over dialogues
-  perCriterion: Record<string, { n: number; exact: number; within1: number }>;
+  /**
+   * kappa: Cohen's κ, agreement corrected for chance (null when one answer covers every case).
+   * qwk: quadratic-weighted κ over scale steps, on cases where neither side is N/A.
+   */
+  perCriterion: Record<string, { n: number; exact: number; within1: number; kappa: number | null; qwk: number | null }>;
+  /** Mean κ over criteria where it is defined. */
+  kappaMean: number | null;
   kzAgreement: number | null;
   totalMAE: number | null;
   gross: { tp: number; fp: number; fn: number; recall: number | null };
@@ -55,6 +61,41 @@ function pct(sorted: number[], p: number) {
   return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
 }
 
+/** Cohen's κ for paired answers (label, prediction). Null when chance agreement is already 1. */
+export function cohenKappa(pairs: [string, string][]): number | null {
+  if (!pairs.length) return null;
+  const n = pairs.length;
+  const a = new Map<string, number>();
+  const b = new Map<string, number>();
+  let agree = 0;
+  for (const [x, y] of pairs) {
+    a.set(x, (a.get(x) ?? 0) + 1);
+    b.set(y, (b.get(y) ?? 0) + 1);
+    if (x === y) agree++;
+  }
+  let pe = 0;
+  for (const [k, v] of a) pe += (v / n) * ((b.get(k) ?? 0) / n);
+  return pe >= 1 ? null : (agree / n - pe) / (1 - pe);
+}
+
+/** Quadratic-weighted κ: a miss by two steps costs four times a miss by one. */
+export function quadraticKappa(pairs: [number, number][], steps: number[]): number | null {
+  const order = [...steps].sort((x, y) => x - y);
+  const k = order.length;
+  const idx = pairs.map(([x, y]) => [order.indexOf(x), order.indexOf(y)]).filter(([x, y]) => x >= 0 && y >= 0);
+  if (!idx.length || k < 2) return null;
+  const n = idx.length;
+  const rows = new Array(k).fill(0);
+  const cols = new Array(k).fill(0);
+  for (const [x, y] of idx) (rows[x]++, cols[y]++);
+  const w = (i: number, j: number) => ((i - j) / (k - 1)) ** 2;
+  let observed = 0;
+  for (const [x, y] of idx) observed += w(x, y);
+  let expected = 0;
+  for (let i = 0; i < k; i++) for (let j = 0; j < k; j++) expected += (w(i, j) * rows[i] * cols[j]) / n;
+  return expected === 0 ? null : 1 - observed / expected;
+}
+
 export function computeMetrics(
   cl: Checklist,
   labels: Labels,
@@ -63,6 +104,7 @@ export function computeMetrics(
   langByDialogue?: Map<string, string>,
 ): CandidateMetrics {
   const perCriterion: CandidateMetrics["perCriterion"] = {};
+  const pairs = new Map<string, [string, string][]>();
   const perDialogue: { id: string; n: number; exact: number }[] = [];
   const maes: number[] = [];
   const gross = { tp: 0, fp: 0, fn: 0 };
@@ -80,7 +122,9 @@ export function computeMetrics(
       if (!(c.id in gold)) continue;
       const g = gold[c.id];
       const pr = pm.get(c.id);
-      const st = (perCriterion[c.id] ??= { n: 0, exact: 0, within1: 0 });
+      const st = (perCriterion[c.id] ??= { n: 0, exact: 0, within1: 0, kappa: null, qwk: null });
+      if (!pairs.has(c.id)) pairs.set(c.id, []);
+      pairs.get(c.id)!.push([String(g), pr === undefined ? "missing" : String(pr)]);
       const ok = pr !== undefined && String(pr) === String(g);
       st.n++;
       n++;
@@ -106,6 +150,18 @@ export function computeMetrics(
       if (gt !== null) maes.push(Math.abs(gt - p.total));
     }
   }
+
+  for (const c of cl.criteria) {
+    const st = perCriterion[c.id];
+    const pc = pairs.get(c.id);
+    if (!st || !pc) continue;
+    st.kappa = cohenKappa(pc);
+    if (c.answerType === "scale") {
+      const num = pc.filter(([x, y]) => x !== "na" && y !== "na" && y !== "missing").map(([x, y]) => [Number(x), Number(y)] as [number, number]);
+      st.qwk = quadraticKappa(num, (c.steps ?? []).map((x) => x.value));
+    }
+  }
+  const kappas = Object.values(perCriterion).map((x) => x.kappa).filter((x): x is number => x !== null);
 
   const N = perDialogue.reduce((a, d) => a + d.n, 0);
   const E = perDialogue.reduce((a, d) => a + d.exact, 0);
@@ -136,6 +192,7 @@ export function computeMetrics(
     agreement: N ? E / N : 0,
     ci: [pct(boots, 0.025) ?? 0, pct(boots, 0.975) ?? 0],
     perCriterion,
+    kappaMean: kappas.length ? kappas.reduce((a, b) => a + b, 0) / kappas.length : null,
     kzAgreement: kzN ? kzE / kzN : null,
     totalMAE: maes.length ? maes.reduce((a, b) => a + b, 0) / maes.length : null,
     gross: { ...gross, recall: gross.tp + gross.fn ? gross.tp / (gross.tp + gross.fn) : null },

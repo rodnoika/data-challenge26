@@ -4,6 +4,7 @@
 //   Default split is train. Use --split all for a dataset other than DEV.
 //   npm run harness -- --ensemble "anthropic/claude-opus-5-5,openai/gpt-6.1-sol,gemini/gemini-4-argon"
 //   npm run harness -- --from runs/<file>.json      re-score a saved run against current labels (no API calls)
+//   add --disputed <file.csv> (conversation_id,criterion_id) to leave disputed label cells out of the score
 //   (no --model: uses the configured default from config/models.json)
 import "./env";
 import { readFileSync } from "node:fs";
@@ -20,6 +21,19 @@ import { detailRows, fmtPct, forControl, fmtUsd, hideTestRows, loadDialogues, lo
 const a = parseArgs();
 const cl: Checklist = a.checklist ? JSON.parse(readFileSync(a.checklist, "utf8")) : DEFAULT_CHECKLIST;
 const labels = readLabels(a.labels ?? "data/labels/dev-labels.csv", cl);
+// --disputed <csv with conversation_id,criterion_id>: cells where careful labellers disagree are left out of the score.
+if (a.disputed) {
+  const [head, ...lines] = readFileSync(a.disputed, "utf8").trim().split(/\r?\n/);
+  const cols = head.split(",").map((s) => s.trim());
+  let dropped = 0;
+  for (const line of lines) {
+    const cells = line.split(",").map((s) => s.trim());
+    const rec = labels.get(cells[cols.indexOf("conversation_id")]);
+    const crit = cells[cols.indexOf("criterion_id")];
+    if (rec && crit in rec) (delete rec[crit], dropped++);
+  }
+  console.log(`Disputed cells left out of the score: ${dropped} (${a.disputed})`);
+}
 const reasoning = (a.reasoning ?? "medium") as Reasoning;
 const splitFile = a["split-file"] ?? "data/splits/dev-test-ids.txt";
 const testIds = loadTestIds(splitFile);
@@ -83,9 +97,10 @@ const m = computeMetrics(cl, labels, preds, { candidate: label, provider, model,
 console.log(`\nSplit: ${whichSplit} · labels: ${labels.size} · predictions: ${preds.length} · failed: ${preds.filter((p) => p.error).length}`);
 for (const c of cl.criteria) {
   const s = m.perCriterion[c.id];
-  if (s) console.log(`${c.id} ${c.title.slice(0, 42).padEnd(42)} exact ${fmtPct(s.exact / s.n).padStart(6)}  ±1 ${fmtPct(s.within1 / s.n).padStart(6)}  n=${s.n}`);
+  const k = (x: number | null | undefined) => (x === null || x === undefined ? "   —" : x.toFixed(2).padStart(5));
+  if (s) console.log(`${c.id} ${c.title.slice(0, 42).padEnd(42)} exact ${fmtPct(s.exact / s.n).padStart(6)}  ±1 ${fmtPct(s.within1 / s.n).padStart(6)}  κ ${k(s.kappa)}${c.answerType === "scale" ? `  QWK ${k(s.qwk)}` : ""}  n=${s.n}`);
 }
-console.log(`ALL exact ${fmtPct(m.agreement)} [95% CI ${fmtPct(m.ci[0])}–${fmtPct(m.ci[1])}] · KZ ${fmtPct(m.kzAgreement)} · total MAE ${m.totalMAE?.toFixed(2) ?? "—"}`);
+console.log(`ALL exact ${fmtPct(m.agreement)} [95% CI ${fmtPct(m.ci[0])}–${fmtPct(m.ci[1])}] · mean κ ${m.kappaMean?.toFixed(2) ?? "—"} · KZ ${fmtPct(m.kzAgreement)} · total MAE ${m.totalMAE?.toFixed(2) ?? "—"}`);
 console.log(`Gross errors: TP ${m.gross.tp} FP ${m.gross.fp} FN ${m.gross.fn} · invalid output ${fmtPct(m.invalidRate)} · failed ${fmtPct(m.failRate)}`);
 console.log(`Cost ${fmtUsd(m.costPerDialogue)} per dialogue · latency p50 ${m.latencyP50 ? (m.latencyP50 / 1000).toFixed(1) : "—"} s, p95 ${m.latencyP95 ? (m.latencyP95 / 1000).toFixed(1) : "—"} s`);
 for (const p of preds.filter((p) => p.error)) console.log(`ERROR ${p.id}: ${p.error}`);

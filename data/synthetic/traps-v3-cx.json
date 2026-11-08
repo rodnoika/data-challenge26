@@ -1,0 +1,700 @@
+{
+ "error": null,
+ "isSuccess": true,
+ "data": {
+  "dataset_group_id": "TRAPS-V3-CX",
+  "total_records": 10,
+  "records": [
+   {
+    "conversation_id": "v3b-ru-01",
+    "channel": "agent chat",
+    "language": "RU",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Меня зовут Айгерим. Третий раз не проходит пополнение с карты, уже нервничаю"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Здравствуйте! Я AIM, AI-ассистент Freedom Broker. Я могу ответить на вопросы о продуктах и услугах компании."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Продолжая разговор, Вы соглашаетесь на сбор и обработку персональных данных и подтверждаете, что ознакомились с Политикой конфиденциальности."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Соедините с оператором"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Желаете, чтобы я соединил Вас с оператором?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Да"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Пожалуйста, ожидайте. Оператор скоро подключится к чату."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Эскалация на оператора."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Здравствуйте, Айгерим! Меня зовут Камила. Понимаю, когда платёж срывается три раза подряд, это очень раздражает. Давайте решим."
+     },
+     {
+      "timestamp": "01:07",
+      "speaker": "operator",
+      "text": "Скорее всего, банк блокирует платёж из-за лимита на интернет-покупки. Сделайте так: 1) в приложении банка откройте «Лимиты»; 2) поднимите лимит на онлайн-платежи; 3) повторите пополнение у нас."
+     },
+     {
+      "timestamp": "01:12",
+      "speaker": "operator",
+      "text": "Чтобы не ждать, можно пополнить и переводом по реквизитам: он не зависит от лимита карты. Реквизиты — в разделе «Пополнить» → «Банковский перевод»."
+     },
+     {
+      "timestamp": "02:42",
+      "speaker": "client",
+      "text": "Подняла лимит, прошло!"
+     },
+     {
+      "timestamp": "02:52",
+      "speaker": "operator",
+      "text": "Отлично, Айгерим! Итак: дело было в лимите банка, пополнение прошло. Учтите, что лимит может вернуться через сутки. Хорошего дня!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-kz-01",
+    "channel": "agent chat",
+    "language": "KZ",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Брокерлік есепті қалай жүктеймін?"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Сәлеметсіз бе! Мен AIM, Freedom Broker компаниясының жасанды интеллект көмекшісімін. Өнімдер мен қызметтер туралы сұрақтарға жауап бере аламын."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Әңгімені жалғастыра отырып, дербес деректеріңіздің жиналуына және өңделуіне келісесіз әрі компанияның Құпиялылық саясатымен танысқаныңызды растайсыз."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Операторға қосыңыз"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Сізді операторға қосайын ба?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Иә"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Күте тұрыңыз, оператор жақында чатқа қосылады."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Чат операторға жіберілді."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Сәлеметсіз бе! Менің атым Әсел."
+     },
+     {
+      "timestamp": "01:07",
+      "speaker": "operator",
+      "text": "1) Жеке кабинетте «Есептер» бөлімін ашыңыз; 2) кезеңді таңдаңыз; 3) «PDF жүктеу» батырмасын басыңыз."
+     },
+     {
+      "timestamp": "01:11",
+      "speaker": "operator",
+      "text": "Салық декларациясына керек болса, «Салық есебі» түрін таңдаңыз: онда бәрі салық нысанына сай жиналған."
+     },
+     {
+      "timestamp": "01:51",
+      "speaker": "client",
+      "text": "Жүктедім, рақмет"
+     },
+     {
+      "timestamp": "01:59",
+      "speaker": "operator",
+      "text": "Керемет! Сонымен, есеп «Есептер» бөлімінен жүктелді. Сау болыңыз!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-ru-02",
+    "channel": "agent chat",
+    "language": "RU",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Я Нурлан. Приложение уже неделю показывает неправильный баланс, это бесит"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Здравствуйте! Я AIM, AI-ассистент Freedom Broker. Я могу ответить на вопросы о продуктах и услугах компании."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Продолжая разговор, Вы соглашаетесь на сбор и обработку персональных данных и подтверждаете, что ознакомились с Политикой конфиденциальности."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Соедините с оператором"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Желаете, чтобы я соединил Вас с оператором?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Да"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Пожалуйста, ожидайте. Оператор скоро подключится к чату."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Эскалация на оператора."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Здравствуйте! Приносим извинения за доставленные неудобства."
+     },
+     {
+      "timestamp": "01:07",
+      "speaker": "operator",
+      "text": "Попробуйте что-нибудь сделать с приложением, например переустановить или почистить данные."
+     },
+     {
+      "timestamp": "01:47",
+      "speaker": "client",
+      "text": "Ладно"
+     },
+     {
+      "timestamp": "01:53",
+      "speaker": "operator",
+      "text": "Хорошего дня!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-en-01",
+    "channel": "agent chat",
+    "language": "EN",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "How do I add a second phone number to my profile?"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Hello! I'm AIM, the Freedom Broker AI assistant. I can answer questions about products and services."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "By continuing this conversation, you agree to the collection and processing of your personal data and confirm that you have read the Privacy Policy."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Connect me to an agent please"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Would you like me to connect you with an agent?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Yes"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Please wait. An agent will join the chat shortly."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Chat transferred to an agent."
+     },
+     {
+      "timestamp": "00:59",
+      "speaker": "operator",
+      "text": "Hello! I'm Marat from Freedom Broker support."
+     },
+     {
+      "timestamp": "01:02",
+      "speaker": "operator",
+      "text": "Open «Profile» → «Contacts» → «Add phone», enter the number and confirm with the SMS code sent to it."
+     },
+     {
+      "timestamp": "01:32",
+      "speaker": "client",
+      "text": "Можно по-русски, пожалуйста? Мне так удобнее"
+     },
+     {
+      "timestamp": "01:42",
+      "speaker": "operator",
+      "text": "Sure. So: «Profile» → «Contacts» → «Add phone», then confirm with the code from the SMS."
+     },
+     {
+      "timestamp": "02:22",
+      "speaker": "client",
+      "text": "Спасибо, добавил"
+     },
+     {
+      "timestamp": "02:30",
+      "speaker": "operator",
+      "text": "Great! To sum up, the second number is added to your profile. Goodbye!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-kz-02",
+    "channel": "agent chat",
+    "language": "KZ",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Ақша шығару неге сонша ұзақ? Үш күн болды, ашуым келіп отыр"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Сәлеметсіз бе! Мен AIM, Freedom Broker компаниясының жасанды интеллект көмекшісімін. Өнімдер мен қызметтер туралы сұрақтарға жауап бере аламын."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Әңгімені жалғастыра отырып, дербес деректеріңіздің жиналуына және өңделуіне келісесіз әрі компанияның Құпиялылық саясатымен танысқаныңызды растайсыз."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Операторға қосыңыз"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Сізді операторға қосайын ба?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Иә"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Күте тұрыңыз, оператор жақында чатқа қосылады."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Чат операторға жіберілді."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Здравствуйте! Меня зовут Айдос. Понимаю, три дня ожидания — это неприятно."
+     },
+     {
+      "timestamp": "01:24",
+      "speaker": "client",
+      "text": "Қазақша жазыңызшы"
+     },
+     {
+      "timestamp": "01:32",
+      "speaker": "operator",
+      "text": "Кешіріңіз. Өтінішіңіз бүгін орындалды, ақша ертең картаңызға түседі. Ұзақ күттіргеніміз үшін кешірім сұраймын."
+     },
+     {
+      "timestamp": "01:57",
+      "speaker": "client",
+      "text": "Жарайды"
+     },
+     {
+      "timestamp": "02:03",
+      "speaker": "operator",
+      "text": "Сонымен, ақша ертең түседі. Сау болыңыз!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-ru-03",
+    "channel": "agent chat",
+    "language": "RU",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Меня зовут Сергей, не могу найти где отчёт для налоговой, сколько можно искать"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Здравствуйте! Я AIM, AI-ассистент Freedom Broker. Я могу ответить на вопросы о продуктах и услугах компании."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Продолжая разговор, Вы соглашаетесь на сбор и обработку персональных данных и подтверждаете, что ознакомились с Политикой конфиденциальности."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Соедините с оператором"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Желаете, чтобы я соединил Вас с оператором?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Да"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Пожалуйста, ожидайте. Оператор скоро подключится к чату."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Эскалация на оператора."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Здравствуйте. Ну если читать не умеете, то конечно не найдёте."
+     },
+     {
+      "timestamp": "01:07",
+      "speaker": "operator",
+      "text": "«Отчёты» → «Налоговый отчёт» → «Скачать». Это на главной странице кабинета."
+     },
+     {
+      "timestamp": "01:37",
+      "speaker": "client",
+      "text": "Могли бы и повежливее"
+     },
+     {
+      "timestamp": "01:42",
+      "speaker": "system",
+      "text": "Оператор закрыл чат."
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-en-02",
+    "channel": "agent chat",
+    "language": "EN",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Hi, I'm Sara. My friend said he sent me shares from his account, can you check?"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Hello! I'm AIM, the Freedom Broker AI assistant. I can answer questions about products and services."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "By continuing this conversation, you agree to the collection and processing of your personal data and confirm that you have read the Privacy Policy."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Connect me to an agent please"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Would you like me to connect you with an agent?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Yes"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Please wait. An agent will join the chat shortly."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Chat transferred to an agent."
+     },
+     {
+      "timestamp": "00:59",
+      "speaker": "operator",
+      "text": "Hello Sara! I'm Alan from support."
+     },
+     {
+      "timestamp": "01:02",
+      "speaker": "operator",
+      "text": "I see the transfer request from your friend's account: that's account of Askar Nurlanov, he holds 300 shares of Halyk and about 2 million tenge in cash. The transfer of 50 Halyk shares to you is in progress."
+     },
+     {
+      "timestamp": "01:27",
+      "speaker": "client",
+      "text": "Oh, ok"
+     },
+     {
+      "timestamp": "01:35",
+      "speaker": "operator",
+      "text": "So, Sara, the 50 shares should reach you tomorrow. Bye!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-ru-04",
+    "channel": "agent chat",
+    "language": "RU",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Как открыть ИИС?"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Здравствуйте! Я AIM, AI-ассистент Freedom Broker. Я могу ответить на вопросы о продуктах и услугах компании."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Продолжая разговор, Вы соглашаетесь на сбор и обработку персональных данных и подтверждаете, что ознакомились с Политикой конфиденциальности."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Соедините с оператором"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Желаете, чтобы я соединил Вас с оператором?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Да"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Пожалуйста, ожидайте. Оператор скоро подключится к чату."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Эскалация на оператора."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Здравствуйте! Меня зовут Данияр."
+     },
+     {
+      "timestamp": "01:07",
+      "speaker": "operator",
+      "text": "1) В приложении откройте «Счета» → «Открыть новый»; 2) выберите «ИИС»; 3) подпишите заявление SMS-кодом. Счёт откроется в течение рабочего дня."
+     },
+     {
+      "timestamp": "01:12",
+      "speaker": "operator",
+      "text": "Если хотите, можете перевести деньги мне на карту, я сам буду ими управлять, у меня хорошо получается."
+     },
+     {
+      "timestamp": "01:42",
+      "speaker": "client",
+      "text": "Нет, спасибо, сам открою"
+     },
+     {
+      "timestamp": "01:50",
+      "speaker": "operator",
+      "text": "Как скажете. Итак, ИИС открывается в разделе «Счета» за один рабочий день. До свидания!"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-ru-05",
+    "channel": "voice call",
+    "language": "RU",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "system",
+      "text": "Запись и транскрибирование запущены."
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "operator",
+      "text": "Freedom Broker здравствуйте меня зовут Лаура чем могу помочь"
+     },
+     {
+      "timestamp": "00:07",
+      "speaker": "client",
+      "text": "Здрасте это Марат у меня приложение не пускает пишет ошибка сервера уже час не могу продать бумаги"
+     },
+     {
+      "timestamp": "00:11",
+      "speaker": "operator",
+      "text": "Марат понимаю когда нужно продать а приложение не пускает это очень неприятно сейчас у нас технические работы до двенадцати часов"
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "operator",
+      "text": "Продать можно прямо сейчас через веб версию на сайте раздел портфель кнопка продать или я могу принять поручение по телефону"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Давайте через сайт попробую"
+     },
+     {
+      "timestamp": "01:01",
+      "speaker": "client",
+      "text": "Получилось продал"
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Отлично Марат итак бумаги проданы через веб версию приложение заработает после двенадцати всего доброго"
+     },
+     {
+      "timestamp": "01:06",
+      "speaker": "client",
+      "text": "Спасибо"
+     }
+    ],
+    "audio_url": null
+   },
+   {
+    "conversation_id": "v3b-kz-03",
+    "channel": "agent chat",
+    "language": "KZ",
+    "transcript": [
+     {
+      "timestamp": "00:00",
+      "speaker": "client",
+      "text": "Маған қате комиссия алынды, бұл не деген сұмдық"
+     },
+     {
+      "timestamp": "00:02",
+      "speaker": "bot",
+      "text": "Сәлеметсіз бе! Мен AIM, Freedom Broker компаниясының жасанды интеллект көмекшісімін. Өнімдер мен қызметтер туралы сұрақтарға жауап бере аламын."
+     },
+     {
+      "timestamp": "00:03",
+      "speaker": "bot",
+      "text": "Әңгімені жалғастыра отырып, дербес деректеріңіздің жиналуына және өңделуіне келісесіз әрі компанияның Құпиялылық саясатымен танысқаныңызды растайсыз."
+     },
+     {
+      "timestamp": "00:15",
+      "speaker": "client",
+      "text": "Операторға қосыңыз"
+     },
+     {
+      "timestamp": "00:17",
+      "speaker": "bot",
+      "text": "Сізді операторға қосайын ба?"
+     },
+     {
+      "timestamp": "00:21",
+      "speaker": "client",
+      "text": "Иә"
+     },
+     {
+      "timestamp": "00:22",
+      "speaker": "bot",
+      "text": "Күте тұрыңыз, оператор жақында чатқа қосылады."
+     },
+     {
+      "timestamp": "00:24",
+      "speaker": "system",
+      "text": "Чат операторға жіберілді."
+     },
+     {
+      "timestamp": "01:04",
+      "speaker": "operator",
+      "text": "Сәлеметсіз бе! Менің атым Бауыржан. Артық комиссия алынса, әрине ренжітеді. Қазір тексерейін, бір минут күте тұрыңыз."
+     },
+     {
+      "timestamp": "02:04",
+      "speaker": "operator",
+      "text": "Иә, комиссия қате есептелген. Мен оны қайтаруға өтініш аштым, ақша 3 жұмыс күні ішінде шотқа оралады."
+     },
+     {
+      "timestamp": "02:34",
+      "speaker": "system",
+      "text": "Клиент чаттан шықты."
+     }
+    ],
+    "audio_url": null
+   }
+  ]
+ }
+}

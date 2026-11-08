@@ -1,0 +1,11 @@
+conversation_id,language,channel,x1,x2,x3,x4,xF,labeller,note
+v3c-ru-01,RU,agent chat,yes,yes,5,yes,no,claude,хороший: все критерии на максимуме
+v3c-en-01,EN,agent chat,yes,yes,4,yes,no,claude,хороший: все критерии хорошо
+v3c-ru-02,RU,agent chat,yes,yes,3,yes,no,claude,ловушка: «Пожалуйста. Хорошего дня!» — здесь прощание засчитывается
+v3c-kz-01,KZ,agent chat,yes,no,4,yes,no,claude,средний: первый ответ через 4 минуты
+v3c-en-02,EN,agent chat,no,yes,4,yes,no,claude,средний: перевод на другого специалиста
+v3c-ru-03,RU,agent chat,yes,yes,2,no,no,claude,средний: сухой тон; закрыл без прощания
+v3c-en-03,EN,agent chat,yes,yes,1,no,yes,claude,грубая ошибка: оскорбление клиента
+v3c-kz-02,KZ,agent chat,yes,yes,4,yes,yes,claude,грубая ошибка: частная платная консультация
+v3c-ru-04,RU,agent chat,na,yes,4,na,no,claude,ловушка: клиент ушёл до вопроса: X1 и X4 N/A
+v3c-en-04,EN,agent chat,no,yes,4,yes,no,claude,ловушка: ответ за 115 с; но «напишите завтра»

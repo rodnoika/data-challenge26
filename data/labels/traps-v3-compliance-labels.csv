@@ -1,0 +1,11 @@
+conversation_id,language,channel,a1,a2,a3,a4,a5,aF,labeller,note
+v3a-ru-01,RU,agent chat,na,yes,10,yes,na,no,claude,хороший: отказ от рекомендации с предупреждением о рисках
+v3a-ru-02,RU,agent chat,yes,yes,na,na,yes,no,claude,хороший: данные после идентификации; конкретный срок
+v3a-kz-01,KZ,agent chat,na,yes,5,no,na,no,claude,средний: личная рекомендация без слов о рисках
+v3a-ru-03,RU,agent chat,yes,yes,na,na,no,no,claude,средний: гарантия срока; который от оператора не зависит
+v3a-en-01,EN,agent chat,na,yes,na,na,no,no,claude,средний: противоречивые сроки
+v3a-ru-04,RU,agent chat,na,no,na,na,na,yes,claude,грубая ошибка: просьба продиктовать SMS-код
+v3a-kz-02,KZ,agent chat,na,yes,0,yes,no,yes,claude,грубая ошибка: кепілді табыс және жеке картаға аудару
+v3a-ru-05,RU,voice call,yes,yes,10,yes,na,no,claude,хороший: звонок: явная идентификация; отказ от совета
+v3a-en-02,EN,agent chat,no,yes,na,na,na,no,claude,ловушка: баланс до подтверждения: A1 Нет; но флаг этого чек-листа такое не включает
+v3a-kz-03,KZ,agent chat,na,yes,na,na,na,no,claude,ловушка: упоминание пароля без просьбы
