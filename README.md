@@ -125,29 +125,18 @@ npm run results -- --set prod --group <group_id> --team "<team>"   # or --data <
 npm run results -- --set prod --validate                           # check the file again, no model calls
 ```
 
-**Control hour, in this order.** The control set arrives 23 hours after the start and both files must be pushed by the stop-code an hour later.
-
-1. Get the set the way the organisers say, keeping their `conversation_id`s.
-2. Run `npm run results -- --set prod ...` and wait for "Format check passed". The command always uses the default checklist, whatever is active in the UI.
-3. Commit and **push** `results/prod/results.json` at once. A local file or an unpushed commit does not count.
-4. Only then replace a criterion in the UI for the demo. A replaced checklist cannot be written in this format, and a re-run after the change would stop with an error.
-5. If the organisers change the checklist itself for scoring, ask them how the file should look before re-running.
-
-- The command evaluates every dialogue, retries failures once and writes a failed dialogue as `status: "error"`, never as a zero.
-- It then checks every rule of the format: record count, ids against the source, the 8 criteria, allowed values, and the score recomputed from the values.
-- The format counts turns from 1 over the whole transcript, and so does the dialogue card. Inside the evaluator and in the raw model response they count from 0.
-- The file covers the 8 criteria of the default checklist. Its codes are fixed, so a checklist with a replaced criterion stops with an error instead of writing a wrong file.
-
 ### 11:00 runbook (control set → pushed results by 12:00)
 
+The control set arrives 23 hours after the start, and `results/prod/results.json` must be pushed by the stop-code an hour later. Follow these steps in order.
+
 1. **Before 11:00:** `.env.local` has `OPENAI_API_KEY`, `ORGANISER_API_URL` and `CQA_TEAM_NAME=CyberPsychosis`. Prove the key works with one dialogue: `npm run results -- --set dev --data data/dev.json --ids p1-ru-001 --out tmp/key-check.json`.
-2. **Evaluate and write** (fetches the control group from the organisers' API, evaluates it, retries failures once, validates):
+2. **Evaluate and write.** Get the set the way the organisers say and keep their `conversation_id`s. The command fetches the control group from the organisers' API, evaluates it, retries failures once and validates the file:
    ```bash
    npm run results -- --set prod --group <group_id> --team "CyberPsychosis"
    ```
-   It must end with `Format check passed`. Timing: the 65 DEV dialogues took 200 s ($0.31), so 10 chats take about a minute. A record with `status: "error"` stays in the file: do not delete or hand-edit it. Run the command again if time allows.
+   It must end with `Format check passed`. It always uses the default checklist, whatever is active in the UI. Timing: the 65 DEV dialogues took 200 s ($0.31), so 10 chats take about a minute. A record with `status: "error"` stays in the file: do not delete or hand-edit it. Run the command again if time allows.
 3. **Check the file again:** `npm run results -- --set prod --validate --group <group_id>`
-4. **Commit and push:** pull first, because both of us push to `main`.
+4. **Commit and push at once.** A local file or an unpushed commit does not count. Pull first, because both of us push to `main`.
    ```bash
    git pull --rebase
    git add results/prod/results.json
@@ -155,7 +144,15 @@ npm run results -- --set prod --validate                           # check the f
    git push
    ```
    Then open `results/prod/results.json` on GitHub to confirm it is there (the repository must be public).
-5. **For the demo:** load the same group in the UI (**Диалоги → Загрузить**) and **Оценить все**. This is a separate model run, so a few answers can differ from the pushed file.
+5. **Only then change the checklist for the demo.** Load the same group in the UI (**Диалоги → Загрузить**), click **Оценить все** and replace a criterion. This is a separate model run, so a few answers can differ from the pushed file. A checklist with a replaced criterion cannot be written in this format: a re-run of step 2 after the change stops with an error.
+6. **If the organisers change the checklist itself for scoring,** ask them how the file should look before re-running.
+
+How the file is built:
+
+- The command writes a failed dialogue as `status: "error"`, never as a zero.
+- It checks every rule of the format: record count, ids against the source, the 8 criteria, allowed values, and the score recomputed from the values.
+- The format counts turns from 1 over the whole transcript, and so does the dialogue card. Inside the evaluator and in the raw model response they count from 0.
+- The file covers the 8 criteria of the default checklist. Its codes are fixed, so a checklist with a replaced criterion stops with an error instead of writing a wrong file.
 
 ## Accuracy harness (hand labels)
 
