@@ -495,3 +495,29 @@ export function latestBatch(groupId: string): BatchJob | null {
   const r = db().prepare("SELECT id FROM batch_jobs WHERE group_id = ? ORDER BY created_at DESC LIMIT 1").get(groupId) as any;
   return r ? getBatch(r.id) : null;
 }
+
+/* ---------------- checklist-version comparison ---------------- */
+
+/** Checklist versions that have finished evaluations in a group, most recently used first. */
+export function evaluatedVersions(group: string): { id: string; version: number; dialogues: number; lastAt: string }[] {
+  return db()
+    .prepare(
+      `SELECT e.checklist_id AS id, e.checklist_version AS version, COUNT(DISTINCT e.dialogue_id) AS dialogues, MAX(e.created_at) AS lastAt
+       FROM evaluations e JOIN dialogues d ON d.id = e.dialogue_id
+       WHERE d.group_id = ? AND e.status = 'done'
+       GROUP BY e.checklist_id, e.checklist_version ORDER BY lastAt DESC`,
+    )
+    .all(group) as any;
+}
+
+/** Latest finished evaluation per dialogue of a group, for one checklist version: dialogue id -> evaluation id. */
+export function latestEvaluationIds(group: string, checklistId: string, version: number): Map<string, string> {
+  const rows = db()
+    .prepare(
+      `SELECT e.dialogue_id AS dialogueId, e.id AS id FROM evaluations e JOIN dialogues d ON d.id = e.dialogue_id
+       WHERE d.group_id = ? AND e.checklist_id = ? AND e.checklist_version = ? AND e.status = 'done'
+       ORDER BY e.created_at ASC`,
+    )
+    .all(group, checklistId, version) as { dialogueId: string; id: string }[];
+  return new Map(rows.map((r) => [r.dialogueId, r.id])); // later rows overwrite earlier ones
+}
