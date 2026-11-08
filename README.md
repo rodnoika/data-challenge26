@@ -102,6 +102,18 @@ Other commands:
   npm run bench -- --split train --models "ollama/qwen3.8:27b,ollama/gemma4:31b" --concurrency 1
   ```
 
+  **On Windows without the Brev CLI or WSL**, use the instance's Jupyter terminal and the OpenSSH client built into Windows:
+
+  1. In PowerShell, create a key if you have none (`ssh-keygen -t ed25519`) and print its public part: `type $env:USERPROFILE\.ssh\id_ed25519.pub`.
+  2. In the instance's Jupyter terminal (New → Terminal), add that line to `~/.ssh/authorized_keys`, run `chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys`, and run `whoami` to get the user name. Install Ollama and pull the models in the same terminal.
+  3. In PowerShell, open the tunnel and keep the window open. The SSH host and port are in the instance's **Access** tab in the Brev console, under TCP ports (the port that maps to 22):
+
+     ```bash
+     ssh -N -L 11434:localhost:11434 -p <ssh-port> <user>@<ssh-host>
+     ```
+
+  **Use it in the app.** With the tunnel open and `npm run dev` running on the same machine, check that `curl -s localhost:11434/api/tags` lists the models, then pick **Gemma 4 31B (GPU server, Ollama)** under **Модель …** on the Dialogues page. "fetch failed" on an evaluation means the tunnel or Ollama was down at that moment: check the tunnel and evaluate the dialogue again. `npm run results` ignores this choice and always uses the registry default, so the file for the organisers does not depend on the tunnel. **Сбросить к модели по умолчанию** switches the UI back.
+
   Measured on 2026-11-08 on one NVIDIA L40S (48 GB) on Brev, prompt `p7`, Q4_K_M, one vote, Ollama's default reasoning, one request at a time:
 
   | Model | Train, 42 chats | Held-out, 18 chats | Kazakh (train) | Gross errors | Time per chat (p50) |
